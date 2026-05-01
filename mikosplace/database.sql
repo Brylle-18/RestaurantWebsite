@@ -77,6 +77,19 @@ CREATE TABLE IF NOT EXISTS staff (
 );
 
 -- -----------------------------------------------------------
+-- CUSTOMERS
+-- -----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS customers (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    email       VARCHAR(160)  NOT NULL UNIQUE,
+    password    VARCHAR(255)  NOT NULL,
+    full_name   VARCHAR(120)  NOT NULL,
+    phone       VARCHAR(30),
+    address     TEXT,
+    created_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP
+);
+
+-- -----------------------------------------------------------
 -- ADMIN USERS
 -- -----------------------------------------------------------
 CREATE TABLE IF NOT EXISTS admin_users (
@@ -121,7 +134,7 @@ INSERT INTO staff (name, role, assignment, shift_start, shift_end, status) VALUE
 ('Ana Reyes',        'Pastry Lead',         'Cafe and Pastries',           '08:00:00', '17:00:00', 'prepping'),
 ('Carlo Mendoza',    'Events Coordinator',  'Pool, Banquet, Function Hall','11:00:00', '20:00:00', 'on_duty');
 
--- Sample bookings
+-- Sample bookings  
 INSERT INTO bookings (ticket_no, customer_name, customer_email, customer_phone, service_type, pax, total_amount, status, event_date) VALUES
 ('#MP-201', 'Jose Rizal',       'jose@example.com', '09171234567', 'restaurant', 3,  548.00, 'confirmed',   CURDATE()),
 ('#MP-202', 'Apolinario Mabini', 'apo@example.com', '09189876543', 'catering',   50, 0.00,   'in_progress', CURDATE()),

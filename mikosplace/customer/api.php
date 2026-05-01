@@ -2,6 +2,7 @@
 // customer/api.php — Public JSON API (no auth required)
 header('Content-Type: application/json');
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 $db     = getDB();
 $action = $_REQUEST['action'] ?? '';
@@ -14,6 +15,37 @@ function jsonErr(string $msg, int $code = 400): void {
 function sanitize(string $s): string { return htmlspecialchars(trim($s), ENT_QUOTES); }
 
 switch ($action) {
+
+    // ── CUSTOMER REGISTRATION ───────────────────────────────
+    case 'register':
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') jsonErr('POST required');
+        
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $fullName = trim($_POST['full_name'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $address = trim($_POST['address'] ?? '');
+
+        $result = customerRegister($email, $password, $fullName, $phone, $address);
+        
+        if ($result['success']) {
+            jsonOK(['message' => $result['message']]);
+        } else {
+            jsonErr($result['error']);
+        }
+
+    // ── CUSTOMER LOGIN ──────────────────────────────────────
+    case 'login':
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') jsonErr('POST required');
+        
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+
+        if (customerLogin($email, $password)) {
+            jsonOK(['message' => 'Login successful', 'customer_id' => $_SESSION['customer_id']]);
+        } else {
+            jsonErr('Invalid email or password', 401);
+        }
 
     // ── PUBLIC MENU ──────────────────────────────────────────
     case 'menu':
