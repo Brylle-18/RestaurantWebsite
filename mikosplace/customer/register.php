@@ -11,6 +11,10 @@ if (!empty($_SESSION['customer_id'])) {
 
 $error = '';
 $success = '';
+$fullName = '';
+$email = '';
+$phone = '';
+$address = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
