@@ -77,19 +77,6 @@ CREATE TABLE IF NOT EXISTS staff (
 );
 
 -- -----------------------------------------------------------
--- CUSTOMERS
--- -----------------------------------------------------------
-CREATE TABLE IF NOT EXISTS customers (
-    id          INT AUTO_INCREMENT PRIMARY KEY,
-    email       VARCHAR(160)  NOT NULL UNIQUE,
-    password    VARCHAR(255)  NOT NULL,
-    full_name   VARCHAR(120)  NOT NULL,
-    phone       VARCHAR(30),
-    address     TEXT,
-    created_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP
-);
-
--- -----------------------------------------------------------
 -- ADMIN USERS
 -- -----------------------------------------------------------
 CREATE TABLE IF NOT EXISTS admin_users (

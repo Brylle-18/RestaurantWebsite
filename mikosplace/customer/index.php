@@ -295,7 +295,7 @@ footer{
 <!-- NAVBAR -->
 <header class="navbar">
   <a href="#home" class="nav-brand">
-    <img src="./assets/mikosplace.jpg" alt="Logo" class="nav-logo"
+    <img src="/mikosplace/assets/mikosplace.jpg" alt="Logo" class="nav-logo"
          onerror="this.style.background='linear-gradient(135deg,#168a24,#0a5616)'">
     <div>
       <div class="nav-brand-name">Miko's Place</div>
