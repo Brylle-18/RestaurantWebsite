@@ -91,9 +91,9 @@ CREATE TABLE IF NOT EXISTS admin_users (
 -- SEED DATA
 -- ============================================================
 
--- Default admin (password: admin123)
+-- Default admin (username: Dread, password: mikosplace2011)
 INSERT INTO admin_users (username, password, full_name) VALUES
-('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Operations Admin');
+('Dread', '$2y$12$J7h2B0MWUGWjmQBTw9QhR.h.kmPU7uNrqplJCtljJoZq6kDDFtMKy', 'Dread Admin');
 
 -- Menu Items
 INSERT INTO menu_items (name, category, price, description) VALUES

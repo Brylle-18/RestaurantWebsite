@@ -35,8 +35,8 @@ Navigate to: **http://localhost/phpmyadmin**
 | **Admin Dashboard** | `http://localhost/mikosplace/admin/login.php` |
 
 **Admin Login:**
-- Username: `admin`
-- Password: `admin123`
+- Username: `Dread`
+- Password: `mikosplace2011`
 
 ---
 

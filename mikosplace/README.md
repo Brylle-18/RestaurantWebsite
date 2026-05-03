@@ -59,8 +59,8 @@ Drop `mikosplace.jpg` into the `assets/` folder.
 | Admin login   | http://localhost/mikosplace/admin/login.php |
 
 **Default admin credentials:**
-- Username: `admin`
-- Password: `admin123`
+- Username: `Dread`
+- Password: `mikosplace2011`
 
 > ⚠️ Change the password in phpMyAdmin after first login:  
 > `UPDATE admin_users SET password = PASSWORD_HASH('your-new-password', PASSWORD_BCRYPT) WHERE username = 'admin';`  
