@@ -35,7 +35,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);lin
 .nav-logo{width:44px;height:44px;border-radius:14px;object-fit:cover;
   background:linear-gradient(135deg,var(--green),var(--green-dk));display:block;}
 .nav-brand-name{font-family:'Playfair Display',serif;font-size:20px;color:var(--text);}
-.nav-brand-sub{font-size:11px;color:var(--muted);letter-spacing:.06em;}
+
 nav{display:flex;gap:4px;align-items:center;}
 .nav-link{
   color:var(--muted);text-decoration:none;padding:8px 14px;border-radius:999px;
@@ -231,7 +231,7 @@ nav{display:flex;gap:4px;align-items:center;}
   color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;
   border:none;cursor:pointer;transition:.2s;white-space:nowrap;
 }
-.btn-track:hover{transform:translateY(-2px);}
+.btn-track:hover{transform:t  ranslateY(-2px);}
 .booking-result{
   background:var(--surface);border-radius:22px;padding:24px;
   box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.8);display:none;
@@ -299,7 +299,6 @@ footer{
          onerror="this.style.background='linear-gradient(135deg,#168a24,#0a5616)'">
     <div>
       <div class="nav-brand-name">Miko's Place</div>
-      <div class="nav-brand-sub">Seafoods · Grill · Catering</div>
     </div>
   </a>
   <button class="nav-toggle" onclick="document.querySelector('nav').classList.toggle('open')">☰</button>
@@ -318,7 +317,7 @@ footer{
   <div class="hero-blob b1"></div>
   <div class="hero-blob b2"></div>
   <div class="hero-content">
-    <div class="hero-tag">🍽 Bamboo-Inspired Filipino Hospitality</div>
+    <div class="hero-tag">🍽 Seafood, Grill, Catering Services</div>
     <h1>Savor the taste of <em>home</em>, elevated.</h1>
     <p>From fresh seafood dining and artisan pastries to full catering and event venue packages — all in one beloved place.</p>
     <div class="hero-actions">
