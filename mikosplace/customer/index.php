@@ -53,23 +53,41 @@ nav{display:flex;gap:4px;align-items:center;}
 .nav-toggle{display:none;background:none;border:none;cursor:pointer;font-size:22px;color:var(--text);}
 
 /* ─── HERO ───────────────────────────────────────────── */
-#home{
-  min-height:92vh;display:flex;align-items:center;
-  padding:60px 40px;position:relative;overflow:hidden;
+/* ─── HERO ───────────────────────────────────────────── */
+#home {
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  padding: 60px 40px;
+  position: relative;
+  overflow: hidden;
+  
+  /* The Overlay: Darker gradient on top, image on the bottom */
+  background-image: 
+    linear-gradient(rgba(18, 49, 26, 0.85), rgba(18, 49, 26, 0.7)), 
+    url('./assets/mikosbg.jpg'); /* Replace with your actual hosted image path */
+  
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed; /* Parallax effect */
+  color: #fff; /* Ensure text is white against the dark background */
 }
-.hero-content{max-width:640px;position:relative;z-index:2;}
-.hero-tag{
-  display:inline-flex;align-items:center;gap:8px;
-  background:rgba(22,138,36,.10);color:var(--green-dk);
-  padding:8px 16px;border-radius:999px;font-size:12px;font-weight:700;
-  letter-spacing:.1em;text-transform:uppercase;margin-bottom:22px;
+
+/* Adjusting sub-elements for better contrast on the image */
+.hero-content h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(44px, 6vw, 72px);
+  line-height: 1.05;
+  margin-bottom: 20px;
+  color: #ffffff;
 }
-.hero-content h1{
-  font-family:'Playfair Display',serif;font-size:clamp(44px,6vw,72px);
-  line-height:1.05;margin-bottom:20px;
+
+.hero-content p {
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.9); /* Slightly transparent white for readability */
+  max-width: 500px;
+  margin-bottom: 300px;
 }
-.hero-content h1 em{font-style:italic;color:var(--green);}
-.hero-content p{font-size:17px;color:var(--muted);max-width:500px;margin-bottom:30px;}
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap;}
 .btn-hero{
   padding:16px 28px;border-radius:999px;font-family:'DM Sans',sans-serif;
@@ -80,11 +98,17 @@ nav{display:flex;gap:4px;align-items:center;}
   box-shadow:0 12px 28px rgba(10,86,22,.25);
 }
 .btn-hero-primary:hover{transform:translateY(-3px);box-shadow:0 18px 36px rgba(10,86,22,.30);}
-.btn-hero-outline{
-  background:transparent;color:var(--text);
-  border:2px solid var(--border);
+.btn-hero-outline {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(5px);
 }
-.btn-hero-outline:hover{border-color:var(--green);color:var(--green);}
+
+.btn-hero-outline:hover {
+  background: #fff;
+  color: var(--green-dk);
+}
 
 /* Hero floating card */
 .hero-float{
