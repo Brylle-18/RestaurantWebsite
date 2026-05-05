@@ -342,7 +342,7 @@ footer{
   <div class="hero-blob b2"></div>
   <div class="hero-content">
     <div class="hero-tag">🍽 Seafood, Grill, Catering Services</div>
-    <h1>Savor the taste of <em>home</em>, elevated.</h1>
+    <h1>Miko's Place</h1>
     <p>From fresh seafood dining and artisan pastries to full catering and event venue packages — all in one beloved place.</p>
     <div class="hero-actions">
       <a href="#menu-section" class="btn-hero btn-hero-primary">Explore Our Menu</a>

@@ -29,7 +29,7 @@ switch ($action) {
 
     // ── PUBLIC VENUES ────────────────────────────────────────
     case 'venues':
-        $rows = $db->query('SELECT id,name,type,capacity,rate,description,is_available FROM venues ORDER BY rate')->fetchAll();
+        $rows = $db->query('SELECT id,name,type,capacity,rate,description,is_available FROM venues WHERE is_available=1 ORDER BY rate')->fetchAll();
         jsonOK(['venues' => $rows]);
 
     // ── CHECK BOOKING STATUS ─────────────────────────────────
