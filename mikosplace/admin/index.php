@@ -1,9 +1,9 @@
 <?php
-// admin/index.php
-require_once __DIR__ . '/../includes/db.php';
-require_once __DIR__ . '/../includes/auth.php';
-requireAdmin();
-$adminName = htmlspecialchars($_SESSION['admin_name'] ?? 'Admin');
+    // admin/index.php
+    require_once __DIR__ . '/../includes/db.php';
+    require_once __DIR__ . '/../includes/auth.php';
+    requireAdmin();
+    $adminName = htmlspecialchars($_SESSION['admin_name'] ?? 'Admin');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -13,10 +13,54 @@ $adminName = htmlspecialchars($_SESSION['admin_name'] ?? 'Admin');
 <title>Admin Dashboard — Miko's Place</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
-<style>
-/* ─── RESET & VARS ─────────────────────────────────────── */
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{
+<link rel="stylesheet" href="assets/admin-styles.css">
+</head>
+<body>
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo-panel">
+      <img src="../assets/mikosplace.jpg" alt="Miko's Place" class="brand-logo"
+           onerror="this.style.display='none'">
+      <p class="eyebrow">Seafoods, Grill &amp; Catering</p>
+      <h1>Miko's Place</h1>
+      <p>Admin Dashboard</p>
+    </div>
+
+    <nav id="nav">
+      <button class="nav-item active" onclick="show('dashboard',this)"><span class="icon">🏠</span> Overview</button>
+      <button class="nav-item" onclick="show('bookings',this)"><span class="icon">📋</span> Bookings</button>
+      <button class="nav-item" onclick="show('menu',this)"><span class="icon">🍽</span> Menu</button>
+      <button class="nav-item" onclick="show('venues',this)"><span class="icon">🏛</span> Venues</button>
+      <button class="nav-item" onclick="show('staff',this)"><span class="icon">👥</span> Team</button>
+      <button class="nav-item" onclick="show('reports',this)"><span class="icon">📊</span> Reports</button>
+    </nav>
+
+    <div class="user-info">
+      <div class="user-avatar"><?php echo substr($adminName, 0, 2) ?></div>
+      <div>
+        <p class="user-name"><?php echo $adminName ?></p>
+        <p class="user-role">Operations Admin</p>
+      </div>
+      <a href="logout.php" class="logout-btn">Sign out</a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <header class="header">
+      <div>
+        <p class="header-tag">Franco Miguel's Place</p>
+        <h2 id="page-title">Overview</h2>
+      </div>
+      <div class="header-actions">
+        <a href="../customer/index.php" target="_blank" class="btn btn-ghost btn-sm">Customer View ↗</a>
+      </div>
+    </header>
+
+    <!-- ── DASHBOARD ──────────────────────────────────────── -->
+    <section class="section active" id="sec-dashboard">
   --green:#168a24;--green-dk:#0a5616;--green-lt:rgba(22,138,36,.10);
   --red:#b61217;  --red-dk:#7e0e11;  --red-lt:rgba(182,18,23,.10);
   --bg:#f4fbe9;   --surface:#fff;    --surface-soft:#f7fbf2;
@@ -303,9 +347,9 @@ tbody tr:hover{background:rgba(22,138,36,.03);}
     </nav>
 
     <div class="user-info">
-      <div class="user-avatar"><?= substr($adminName,0,2) ?></div>
+      <div class="user-avatar"><?php echo substr($adminName, 0, 2) ?></div>
       <div>
-        <p class="user-name"><?= $adminName ?></p>
+        <p class="user-name"><?php echo $adminName ?></p>
         <p class="user-role">Operations Admin</p>
       </div>
       <a href="logout.php" class="logout-btn">Sign out</a>
