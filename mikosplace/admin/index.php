@@ -10,10 +10,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard — Miko's Place</title>
+<title>Admin Dashboard - Miko's Place</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/admin-styles.css">
+<link rel="stylesheet" href="/mikosplace/assets/admin-styles.css">
 </head>
 <body>
 <div class="shell">
@@ -29,7 +29,7 @@
     </div>
 
     <nav id="nav">
-      <button class="nav-item active" onclick="show('dashboard',this)"><span class="icon">🏠</span> Overview</button>
+      <button class="nav-item active" onclick="show('dashboard',this)"><span class="icon">📊</span> Overview</button>
       <button class="nav-item" onclick="show('bookings',this)"><span class="icon">📋</span> Bookings</button>
       <button class="nav-item" onclick="show('menu',this)"><span class="icon">🍽</span> Menu</button>
       <button class="nav-item" onclick="show('venues',this)"><span class="icon">🏛</span> Venues</button>
@@ -55,326 +55,17 @@
         <h2 id="page-title">Overview</h2>
       </div>
       <div class="header-actions">
-        <a href="../customer/index.php" target="_blank" class="btn btn-ghost btn-sm">Customer View ↗</a>
+        <a href="../customer/index.php" target="_blank" class="btn btn-ghost btn-sm">Customer View →</a>
       </div>
     </header>
 
-    <!-- ── DASHBOARD ──────────────────────────────────────── -->
-    <section class="section active" id="sec-dashboard">
-  --green:#168a24;--green-dk:#0a5616;--green-lt:rgba(22,138,36,.10);
-  --red:#b61217;  --red-dk:#7e0e11;  --red-lt:rgba(182,18,23,.10);
-  --bg:#f4fbe9;   --surface:#fff;    --surface-soft:#f7fbf2;
-  --text:#12311a; --muted:#58705e;   --border:rgba(18,98,33,.13);
-  --shadow:0 18px 40px rgba(12,55,19,.12);
-  --sidebar:320px;
-}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;
-  background:radial-gradient(circle at top left,rgba(129,214,123,.22) 0,transparent 30%),
-             radial-gradient(circle at bottom right,rgba(182,18,23,.10) 0,transparent 24%),
-             linear-gradient(135deg,#f4fbe9,#eef7e5 50%,#fcfef7);}
-::-webkit-scrollbar{width:8px}
-::-webkit-scrollbar-thumb{background:rgba(18,98,33,.22);border-radius:999px}
-
-/* ─── LAYOUT ───────────────────────────────────────────── */
-.shell{display:flex;min-height:100vh;}
-
-/* ─── SIDEBAR ──────────────────────────────────────────── */
-.sidebar{
-  width:var(--sidebar);flex-shrink:0;
-  background:linear-gradient(180deg,rgba(5,54,15,.97),rgba(13,94,28,.92));
-  padding:24px 18px;display:flex;flex-direction:column;gap:22px;
-  box-shadow:12px 0 30px rgba(7,45,15,.18);position:sticky;top:0;height:100vh;overflow-y:auto;
-}
-.logo-panel{
-  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
-  border-radius:22px;padding:18px;
-}
-.brand-logo{
-  width:100%;height:140px;object-fit:cover;border-radius:14px;
-  border:3px solid rgba(255,255,255,.3);margin-bottom:14px;
-  background:linear-gradient(135deg,#0a5616,#168a24); /* fallback if no img */
-  display:flex;align-items:center;justify-content:center;
-  color:rgba(255,255,255,.5);font-size:12px;
-}
-.eyebrow{color:#ffd9d9;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
-.logo-panel h1{font-family:'Playfair Display',serif;font-size:26px;color:#fff;line-height:1.1;margin:4px 0 2px;}
-.logo-panel p{color:rgba(255,255,255,.7);font-size:12px;}
-nav{display:flex;flex-direction:column;gap:6px;flex:1;}
-.nav-item{
-  display:flex;align-items:center;gap:10px;
-  color:rgba(255,255,255,.8);text-decoration:none;
-  padding:12px 14px;border-radius:14px;font-weight:500;
-  border:1px solid transparent;transition:.2s;cursor:pointer;background:none;
-  font-family:'DM Sans',sans-serif;font-size:14px;text-align:left;width:100%;
-}
-.nav-item .icon{font-size:18px;width:22px;text-align:center;}
-.nav-item:hover,.nav-item.active{
-  background:rgba(255,255,255,.14);color:#fff;
-  border-color:rgba(255,255,255,.14);transform:translateX(3px);
-}
-.user-info{
-  display:flex;align-items:center;gap:10px;
-  padding:14px;border-radius:16px;background:rgba(255,255,255,.08);
-}
-.user-avatar{
-  width:44px;height:44px;border-radius:50%;
-  background:linear-gradient(135deg,#fff,#d8ffd8);
-  color:var(--green-dk);font-weight:800;display:grid;place-items:center;font-size:14px;flex-shrink:0;
-}
-.user-name{font-weight:700;color:#fff;font-size:14px;}
-.user-role{font-size:11px;color:rgba(255,255,255,.65);}
-.logout-btn{
-  margin-left:auto;background:rgba(255,255,255,.12);border:none;
-  color:rgba(255,255,255,.7);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:11px;
-  transition:.2s;font-family:'DM Sans',sans-serif;
-}
-.logout-btn:hover{background:rgba(182,18,23,.4);color:#fff;}
-
-/* ─── MAIN ─────────────────────────────────────────────── */
-.main{flex:1;display:flex;flex-direction:column;min-width:0;}
-.header{
-  display:flex;justify-content:space-between;align-items:center;gap:20px;
-  padding:20px 28px;background:rgba(255,255,255,.85);
-  border-bottom:1px solid var(--border);backdrop-filter:blur(10px);
-  position:sticky;top:0;z-index:50;
-}
-.header-tag{color:var(--red);font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;}
-.header h2{font-family:'Playfair Display',serif;font-size:28px;line-height:1.1;}
-.header-actions{display:flex;gap:8px;}
-.btn,.btn-sm{border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700;transition:.2s;border-radius:999px;}
-.btn{padding:10px 20px;font-size:14px;}
-.btn-sm{padding:8px 14px;font-size:13px;}
-.btn-primary{background:linear-gradient(135deg,var(--red),#d22327);color:#fff;box-shadow:0 8px 20px rgba(182,18,23,.22);}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(182,18,23,.28);}
-.btn-green{background:linear-gradient(135deg,var(--green),var(--green-dk));color:#fff;box-shadow:0 8px 20px rgba(10,86,22,.20);}
-.btn-green:hover{transform:translateY(-2px);}
-.btn-ghost{background:var(--surface);color:var(--text);border:1px solid var(--border);box-shadow:0 4px 12px rgba(12,55,19,.06);}
-.btn-ghost:hover{border-color:var(--green);color:var(--green);}
-.btn-danger{background:rgba(182,18,23,.1);color:var(--red);border:1px solid rgba(182,18,23,.2);}
-.btn-danger:hover{background:var(--red);color:#fff;}
-
-/* ─── SECTIONS ─────────────────────────────────────────── */
-.section{display:none;padding:28px;flex:1;overflow-y:auto;}
-.section.active{display:block;}
-.section-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px;}
-.section-header h3{font-family:'Playfair Display',serif;font-size:22px;}
-
-/* ─── SEARCH BAR ───────────────────────────────────────── */
-.search-bar{
-  display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;align-items:center;
-}
-.search-input{
-  flex:1;min-width:220px;padding:12px 16px;border:2px solid var(--border);border-radius:14px;
-  font-family:'DM Sans',sans-serif;font-size:14px;background:#fafff7;color:var(--text);
-  outline:none;transition:.2s;
-}
-.search-input:focus{border-color:var(--green);box-shadow:0 0 0 4px var(--green-lt);}
-.search-select{
-  padding:12px 14px;border:2px solid var(--border);border-radius:14px;
-  font-family:'DM Sans',sans-serif;font-size:14px;background:#fafff7;color:var(--text);
-  outline:none;cursor:pointer;
-}
-.search-select:focus{border-color:var(--green);}
-
-/* ─── STATS GRID ───────────────────────────────────────── */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:24px;}
-.stat-card{
-  background:var(--surface);border:1px solid rgba(255,255,255,.8);
-  border-radius:22px;padding:20px;display:flex;gap:14px;align-items:center;
-  box-shadow:var(--shadow);transition:.2s;
-}
-.stat-card:hover{transform:translateY(-3px);}
-.stat-icon{
-  min-width:58px;height:58px;border-radius:18px;display:grid;place-items:center;
-  background:linear-gradient(135deg,var(--green-lt),var(--red-lt));
-  font-size:24px;font-weight:800;color:var(--green-dk);
-}
-.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
-.stat-value{font-size:20px;font-weight:800;color:var(--green-dk);}
-.stat-sub{font-size:12px;color:var(--muted);}
-
-/* ─── HERO BANNER ──────────────────────────────────────── */
-.hero{
-  display:grid;grid-template-columns:2fr 1fr;gap:18px;
-  padding:26px;margin-bottom:24px;border-radius:26px;color:#fff;
-  background:linear-gradient(120deg,rgba(10,86,22,.96),rgba(22,138,36,.88));
-  box-shadow:var(--shadow);
-}
-.hero-copy .eyebrow-white{color:#ffd9d9;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
-.hero-copy h3{font-family:'Playfair Display',serif;font-size:28px;margin:6px 0 10px;}
-.hero-copy p{color:rgba(255,255,255,.85);font-size:14px;}
-.hero-highlight{
-  align-self:center;background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.18);border-radius:22px;
-  padding:20px;text-align:center;backdrop-filter:blur(8px);
-}
-.hero-highlight span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#ffe5e5;margin-bottom:8px;}
-.hero-highlight strong{display:block;font-size:32px;font-family:'Playfair Display',serif;}
-
-/* ─── CARDS ────────────────────────────────────────────── */
-.card{background:var(--surface);border:1px solid rgba(255,255,255,.8);border-radius:22px;padding:22px;box-shadow:var(--shadow);}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
-.full-width{grid-column:1/-1;}
-
-/* ─── TABLE ────────────────────────────────────────────── */
-.table-wrap{overflow-x:auto;}
-table{width:100%;border-collapse:collapse;}
-thead{background:rgba(22,138,36,.06);}
-th{text-align:left;padding:12px 14px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--green-dk);}
-td{padding:13px 14px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle;}
-tbody tr:hover{background:rgba(22,138,36,.03);}
-.badge{display:inline-block;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;}
-.badge.success{background:var(--green-lt);color:var(--green-dk);}
-.badge.warning{background:var(--red-lt);color:var(--red-dk);}
-.badge.info{background:rgba(59,130,246,.1);color:#1d4ed8;}
-.badge.grey{background:rgba(100,100,100,.1);color:#555;}
-
-/* ─── MODAL ────────────────────────────────────────────── */
-.modal-backdrop{
-  display:none;position:fixed;inset:0;background:rgba(5,24,10,.55);
-  z-index:100;backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;
-}
-.modal-backdrop.open{display:flex;}
-.modal{
-  background:var(--surface);border-radius:24px;padding:32px;
-  width:100%;max-width:520px;max-height:90vh;overflow-y:auto;
-  box-shadow:0 40px 80px rgba(5,24,10,.30);
-}
-.modal h3{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:4px;}
-.modal .sub{color:var(--muted);font-size:13px;margin-bottom:22px;}
-.form-grid{display:grid;gap:16px;}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.field label{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
-.field input,.field select,.field textarea{
-  width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:13px;
-  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:#fafff7;
-  outline:none;transition:.2s;
-}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-lt);}
-.field textarea{resize:vertical;min-height:80px;}
-.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;}
-.close-modal{position:absolute;} /* placeholder */
-
-/* ─── VENUE CARDS ──────────────────────────────────────── */
-.venues-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;}
-.venue-card{
-  border-radius:22px;padding:22px;box-shadow:var(--shadow);
-  border-left:5px solid var(--green);transition:.2s;
-  background:linear-gradient(180deg,rgba(241,248,234,.98),rgba(223,245,215,.94));
-}
-.venue-card.unavailable{
-  border-left-color:var(--red);
-  background:linear-gradient(180deg,rgba(255,250,250,.98),rgba(255,236,236,.96));
-}
-.venue-card:hover{transform:translateY(-3px);}
-.venue-card h4{font-size:20px;margin-bottom:8px;}
-.venue-rate{color:var(--red);font-size:20px;font-weight:800;margin-bottom:6px;}
-.venue-cap{color:var(--muted);font-size:13px;margin-bottom:4px;}
-.venue-type{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:14px;}
-.venue-actions{display:flex;gap:8px;flex-wrap:wrap;}
-
-/* ─── CHIP ─────────────────────────────────────────────── */
-.chip-grid{display:flex;flex-wrap:wrap;gap:8px;}
-.chip{padding:9px 14px;border-radius:999px;background:linear-gradient(135deg,var(--green-lt),var(--red-lt));color:var(--green-dk);font-weight:700;font-size:13px;}
-
-/* ─── PRICING ROWS ─────────────────────────────────────── */
-.pricing-row{display:flex;justify-content:space-between;align-items:center;padding:13px 14px;border-radius:16px;background:var(--surface-soft);border:1px solid var(--border);margin-bottom:10px;}
-.pricing-row span{color:var(--red);font-weight:800;}
-.pricing-row p{color:var(--muted);font-size:12px;}
-
-/* ─── TOAST ────────────────────────────────────────────── */
-.toast{
-  position:fixed;bottom:28px;right:28px;z-index:200;
-  padding:14px 20px;border-radius:16px;font-weight:700;font-size:14px;
-  box-shadow:0 12px 32px rgba(0,0,0,.18);transform:translateY(80px);
-  opacity:0;transition:.35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;
-}
-.toast.show{transform:translateY(0);opacity:1;}
-.toast.ok{background:var(--green-dk);color:#fff;}
-.toast.err{background:var(--red);color:#fff;}
-
-/* ─── REPORTS ──────────────────────────────────────────── */
-.reports-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
-.report-stat{padding:11px 0;border-bottom:1px solid var(--border);}
-.report-stat:last-child{border-bottom:none;}
-.report-stat .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
-.report-stat .val{font-size:22px;font-weight:800;color:var(--red);}
-
-/* ─── LOADING SPINNER ──────────────────────────────────── */
-.spinner{display:inline-block;width:18px;height:18px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-row td{text-align:center;padding:32px;color:var(--muted);}
-
-/* ─── RESPONSIVE ───────────────────────────────────────── */
-@media(max-width:1160px){
-  .stats-grid{grid-template-columns:repeat(2,1fr);}
-  .two-col,.hero,.reports-grid{grid-template-columns:1fr;}
-}
-@media(max-width:860px){
-  .shell{flex-direction:column;}
-  .sidebar{width:100%;height:auto;position:relative;}
-  nav{flex-direction:row;flex-wrap:wrap;}
-  .nav-item{flex:1 1 130px;text-align:center;justify-content:center;}
-  .stats-grid{grid-template-columns:repeat(2,1fr);}
-}
-@media(max-width:560px){
-  .section,.header{padding:16px;}
-  .stats-grid{grid-template-columns:1fr;}
-  .form-row{grid-template-columns:1fr;}
-}
-</style>
-</head>
-<body>
-<div class="shell">
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="logo-panel">
-      <img src="../assets/mikosplace.jpg" alt="Miko's Place" class="brand-logo"
-           onerror="this.style.display='none'">
-      <p class="eyebrow">Seafoods, Grill &amp; Catering</p>
-      <h1>Miko's Place</h1>
-      <p>Admin Dashboard</p>
-    </div>
-
-    <nav id="nav">
-      <button class="nav-item active" onclick="show('dashboard',this)"><span class="icon">🏠</span> Overview</button>
-      <button class="nav-item" onclick="show('bookings',this)"><span class="icon">📋</span> Bookings</button>
-      <button class="nav-item" onclick="show('menu',this)"><span class="icon">🍽</span> Menu</button>
-      <button class="nav-item" onclick="show('venues',this)"><span class="icon">🏛</span> Venues</button>
-      <button class="nav-item" onclick="show('staff',this)"><span class="icon">👥</span> Team</button>
-      <button class="nav-item" onclick="show('reports',this)"><span class="icon">📊</span> Reports</button>
-    </nav>
-
-    <div class="user-info">
-      <div class="user-avatar"><?php echo substr($adminName, 0, 2) ?></div>
-      <div>
-        <p class="user-name"><?php echo $adminName ?></p>
-        <p class="user-role">Operations Admin</p>
-      </div>
-      <a href="logout.php" class="logout-btn">Sign out</a>
-    </div>
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <main class="main">
-    <header class="header">
-      <div>
-        <p class="header-tag">Franco Miguel's Place</p>
-        <h2 id="page-title">Overview</h2>
-      </div>
-      <div class="header-actions">
-        <a href="../customer/index.php" target="_blank" class="btn btn-ghost btn-sm">Customer View ↗</a>
-      </div>
-    </header>
-
-    <!-- ── DASHBOARD ──────────────────────────────────────── -->
+    <!--  DASHBOARD  -->
     <section class="section active" id="sec-dashboard">
       <div class="hero">
         <div class="hero-copy">
           <p class="eyebrow-white">Bamboo-inspired hospitality</p>
-          <h3>Manage dining, catering, cafe &amp; venues in one place.</h3>
-          <p>Full operations view — bookings, menu, staff, and real-time reports.</p>
+          <h3>Manage dining, catering, cafe & venues in one place.</h3>
+          <p>Full operations view - bookings, menu, staff, and real-time reports.</p>
         </div>
         <div class="hero-highlight">
           <span>Featured Rate</span>
@@ -384,10 +75,10 @@ tbody tr:hover{background:rgba(22,138,36,.03);}
       </div>
 
       <div class="stats-grid" id="stats-grid">
-        <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Loading…</p><p class="stat-value">—</p></div></div>
-        <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Loading…</p><p class="stat-value">—</p></div></div>
-        <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Loading…</p><p class="stat-value">—</p></div></div>
-        <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Loading…</p><p class="stat-value">—</p></div></div>
+        <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Loading...</p><p class="stat-value">-</p></div></div>
+        <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Loading...</p><p class="stat-value">-</p></div></div>
+        <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Loading...</p><p class="stat-value">-</p></div></div>
+        <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Loading...</p><p class="stat-value">-</p></div></div>
       </div>
 
       <div class="two-col">
@@ -410,21 +101,21 @@ tbody tr:hover{background:rgba(22,138,36,.03);}
           <div class="table-wrap">
             <table>
               <thead><tr><th>Ticket</th><th>Customer</th><th>Service</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
-              <tbody id="recent-bookings"><tr class="loading-row"><td colspan="6"><span class="spinner"></span> Loading…</td></tr></tbody>
+              <tbody id="recent-bookings"><tr class="loading-row"><td colspan="6"><span class="spinner"></span> Loading...</td></tr></tbody>
             </table>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ── BOOKINGS ───────────────────────────────────────── -->
+    <!--  BOOKINGS  -->
     <section class="section" id="sec-bookings">
       <div class="section-header">
         <h3>Bookings</h3>
         <button class="btn btn-primary btn-sm" onclick="openModal('modal-booking-add')">+ New Booking</button>
       </div>
       <div class="search-bar">
-        <input class="search-input" id="booking-q" placeholder="Search by ticket, name or email…" oninput="loadBookings()">
+        <input class="search-input" id="booking-q" placeholder="Search by ticket, name or email..." oninput="loadBookings()">
         <select class="search-select" id="booking-status" onchange="loadBookings()">
           <option value="">All Statuses</option>
           <option value="pending">Pending</option>
@@ -444,14 +135,14 @@ tbody tr:hover{background:rgba(22,138,36,.03);}
       </div>
     </section>
 
-    <!-- ── MENU ──────────────────────────────────────────── -->
+    <!--  MENU  -->
     <section class="section" id="sec-menu">
       <div class="section-header">
         <h3>Menu Items</h3>
         <button class="btn btn-primary btn-sm" onclick="openModal('modal-menu-add')">+ Add Dish</button>
       </div>
       <div class="search-bar">
-        <input class="search-input" id="menu-q" placeholder="Search dishes…" oninput="loadMenu()">
+        <input class="search-input" id="menu-q" placeholder="Search dishes..." oninput="loadMenu()">
         <select class="search-select" id="menu-cat" onchange="loadMenu()">
           <option value="">All Categories</option>
           <option value="restaurant">Restaurant</option>
@@ -470,22 +161,22 @@ tbody tr:hover{background:rgba(22,138,36,.03);}
       </div>
     </section>
 
-    <!-- ── VENUES ────────────────────────────────────────── -->
+    <!--  VENUES  -->
     <section class="section" id="sec-venues">
       <div class="section-header"><h3>Venue Packages</h3></div>
       <div class="venues-grid" id="venues-grid">
-        <div style="color:var(--muted);padding:20px"><span class="spinner"></span> Loading…</div>
+        <div style="color:var(--muted);padding:20px"><span class="spinner"></span> Loading...</div>
       </div>
     </section>
 
-    <!-- ── STAFF ─────────────────────────────────────────── -->
+    <!--  STAFF  -->
     <section class="section" id="sec-staff">
       <div class="section-header">
         <h3>Team Coverage</h3>
         <button class="btn btn-primary btn-sm" onclick="openModal('modal-staff-add')">+ Add Staff</button>
       </div>
       <div class="search-bar">
-        <input class="search-input" id="staff-q" placeholder="Search by name or role…" oninput="loadStaff()">
+        <input class="search-input" id="staff-q" placeholder="Search by name or role..." oninput="loadStaff()">
       </div>
       <div class="card">
         <div class="table-wrap">
@@ -497,18 +188,17 @@ tbody tr:hover{background:rgba(22,138,36,.03);}
       </div>
     </section>
 
-    <!-- ── REPORTS ───────────────────────────────────────── -->
+    <!--  REPORTS  -->
     <section class="section" id="sec-reports">
       <div class="section-header"><h3>Reports &amp; Insights</h3></div>
       <div class="reports-grid" id="reports-grid">
-        <div class="card"><p style="color:var(--muted)"><span class="spinner"></span> Loading…</p></div>
+        <div class="card"><p style="color:var(--muted)"><span class="spinner"></span> Loading...</p></div>
       </div>
     </section>
   </main>
 </div>
 
-<!-- ═══ MODALS ══════════════════════════════════════════════════ -->
-
+<!--  MODALS  -->
 <!-- Add Booking Modal -->
 <div class="modal-backdrop" id="modal-booking-add">
   <div class="modal">
@@ -534,7 +224,7 @@ tbody tr:hover{background:rgba(22,138,36,.03);}
         <div class="field"><label>Event Date</label><input id="b-date" type="date"></div>
         <div class="field"><label>Amount (₱)</label><input id="b-amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
       </div>
-      <div class="field"><label>Notes / Details</label><textarea id="b-notes" placeholder="Special requests, menu preferences…"></textarea></div>
+      <div class="field"><label>Notes / Details</label><textarea id="b-notes" placeholder="Special requests, menu preferences..."></textarea></div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-booking-add')">Cancel</button>
@@ -560,7 +250,7 @@ tbody tr:hover{background:rgba(22,138,36,.03);}
         </div>
         <div class="field"><label>Price (₱)</label><input id="m-price" type="number" min="0" step="0.01" placeholder="0.00"></div>
       </div>
-      <div class="field"><label>Description</label><textarea id="m-desc" placeholder="Short description…"></textarea></div>
+      <div class="field"><label>Description</label><textarea id="m-desc" placeholder="Short description..."></textarea></div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-menu-add')">Cancel</button>
@@ -605,7 +295,7 @@ tbody tr:hover{background:rgba(22,138,36,.03);}
 <script>
 const API = 'api.php';
 
-// ── Section navigation ──────────────────────────────────────
+//  Section navigation 
 function show(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -620,7 +310,7 @@ function show(id, btn) {
   if (id === 'reports') loadReports();
 }
 
-// ── API helpers ─────────────────────────────────────────────
+//  API helpers 
 async function api(params, method = 'GET') {
   try {
     const opts = method === 'GET'
@@ -632,19 +322,19 @@ async function api(params, method = 'GET') {
   } catch(e) { toast('Network error', true); return null; }
 }
 
-// ── Toast ───────────────────────────────────────────────────
+//  Toast  //
 function toast(msg, err = false) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = 'toast show ' + (err ? 'err' : 'ok');
   setTimeout(() => t.className = 'toast', 3000);
 }
 
-// ── Modal helpers ────────────────────────────────────────────
+//  Modal helpers  //
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.modal-backdrop').forEach(m => m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); }));
 
-// ── Status badge helper ──────────────────────────────────────
+//  Status badge helper  //
 function badge(status) {
   const map = {
     pending:'info', confirmed:'success', in_progress:'info',
@@ -656,7 +346,7 @@ function badge(status) {
 }
 function fmt(n) { return '₱' + parseFloat(n||0).toLocaleString('en-PH',{minimumFractionDigits:2}); }
 
-// ── DASHBOARD ───────────────────────────────────────────────
+//  DASHBOARD 
 async function loadDashboard() {
   const d = await api({action:'stats'});
   if (!d) return;
@@ -664,7 +354,7 @@ async function loadDashboard() {
   g.innerHTML = `
     <div class="stat-card"><div class="stat-icon">📅</div><div><p class="stat-label">Weekly Bookings</p><p class="stat-value">${d.weekly_bookings}</p><p class="stat-sub">Restaurant + Catering</p></div></div>
     <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Pending</p><p class="stat-value">${d.pending}</p><p class="stat-sub">Need confirmation</p></div></div>
-    <div class="stat-card"><div class="stat-icon">₱</div><div><p class="stat-label">Monthly Revenue</p><p class="stat-value">${fmt(d.monthly_revenue)}</p><p class="stat-sub">Completed orders</p></div></div>
+    <div class="stat-card"><div class="stat-icon">💰</div><div><p class="stat-label">Monthly Revenue</p><p class="stat-value">${fmt(d.monthly_revenue)}</p><p class="stat-sub">Completed orders</p></div></div>
     <div class="stat-card"><div class="stat-icon">🍽</div><div><p class="stat-label">Active Dishes</p><p class="stat-value">${d.active_dishes}</p><p class="stat-sub">On the menu</p></div></div>`;
 
   const r = await api({action:'reports'});
@@ -681,7 +371,7 @@ async function loadDashboard() {
     </tr>`).join('') : `<tr class="loading-row"><td colspan="6" style="color:var(--muted)">No bookings yet</td></tr>`;
 }
 
-// ── BOOKINGS ─────────────────────────────────────────────────
+//  BOOKINGS  
 async function loadBookings() {
   const q = document.getElementById('booking-q').value;
   const s = document.getElementById('booking-status').value;
@@ -693,7 +383,7 @@ async function loadBookings() {
       <td><strong>${b.ticket_no}</strong></td>
       <td>${b.customer_name}<br><small style="color:var(--muted)">${b.customer_phone||''}</small></td>
       <td style="text-transform:capitalize">${b.service_type}</td>
-      <td>${b.event_date ? new Date(b.event_date).toLocaleDateString('en-PH') : '—'}</td>
+      <td>${b.event_date ? new Date(b.event_date).toLocaleDateString('en-PH') : '-'}</td>
       <td>${b.pax}</td>
       <td>${fmt(b.total_amount)}</td>
       <td>
@@ -739,7 +429,7 @@ async function addBooking() {
   else toast(d?.error || 'Failed', true);
 }
 
-// ── MENU ─────────────────────────────────────────────────────
+//  MENU  //
 async function loadMenu() {
   const q = document.getElementById('menu-q').value;
   const c = document.getElementById('menu-cat').value;
@@ -751,7 +441,7 @@ async function loadMenu() {
       <td><strong>${m.name}</strong></td>
       <td style="text-transform:capitalize"><span class="badge ${m.category==='restaurant'?'success':m.category==='cafe'?'info':'grey'}">${m.category}</span></td>
       <td>${m.price > 0 ? fmt(m.price) : '<em style="color:var(--muted)">Custom</em>'}</td>
-      <td style="color:var(--muted);font-size:13px">${m.description||'—'}</td>
+      <td style="color:var(--muted);font-size:13px">${m.description||'-'}</td>
       <td>${m.is_available ? '<span class="badge success">Yes</span>' : '<span class="badge warning">No</span>'}</td>
       <td>
         <button class="btn btn-ghost btn-sm" style="border-radius:10px;font-size:12px;padding:6px 10px;margin-right:4px"
@@ -783,7 +473,7 @@ async function addMenuItem() {
   if (d?.ok) { toast('Item added ✓'); closeModal('modal-menu-add'); loadMenu(); } else toast(d?.error||'Failed', true);
 }
 
-// ── VENUES ───────────────────────────────────────────────────
+//  VENUES  //
 async function loadVenues() {
   const d = await api({action:'venues'});
   const g = document.getElementById('venues-grid');
@@ -807,7 +497,7 @@ async function toggleVenue(id, cur) {
   if (d?.ok) { toast('Venue updated ✓'); loadVenues(); } else toast('Failed', true);
 }
 
-// ── STAFF ─────────────────────────────────────────────────────
+//  STAFF  //
 async function loadStaff() {
   const q = document.getElementById('staff-q').value;
   const d = await api({action:'staff', q});
@@ -817,8 +507,8 @@ async function loadStaff() {
     <tr>
       <td><strong>${s.name}</strong></td>
       <td>${s.role}</td>
-      <td style="color:var(--muted);font-size:13px">${s.assignment||'—'}</td>
-      <td style="font-size:13px">${s.shift_start||''} – ${s.shift_end||''}</td>
+      <td style="color:var(--muted);font-size:13px">${s.assignment||'-'}</td>
+      <td style="font-size:13px">${s.shift_start||''} - ${s.shift_end||''}</td>
       <td>${badge(s.status)}</td>
       <td>
         <select class="search-select" style="padding:6px 10px;font-size:12px;border-radius:10px;margin-right:4px" onchange="updateStaffStatus(${s.id},this.value)">
@@ -851,7 +541,7 @@ async function addStaff() {
   if (d?.ok) { toast('Staff added ✓'); closeModal('modal-staff-add'); loadStaff(); } else toast(d?.error||'Failed', true);
 }
 
-// ── REPORTS ──────────────────────────────────────────────────
+//  REPORTS  //
 async function loadReports() {
   const d = await api({action:'reports'});
   if (!d) return;
@@ -886,7 +576,7 @@ async function loadReports() {
     </div>`;
 }
 
-// ── INIT ──────────────────────────────────────────────────────
+//  INIT  //
 loadDashboard();
 </script>
 </body>

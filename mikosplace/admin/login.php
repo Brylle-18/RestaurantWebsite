@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>Admin Login — Miko's Place</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/login-styles.css">
+<link rel="stylesheet" href="/mikosplace/assets/login-styles.css">
 </head>
 <body>
 <div class="login-wrap">

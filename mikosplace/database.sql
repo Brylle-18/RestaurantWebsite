@@ -42,14 +42,15 @@ CREATE TABLE IF NOT EXISTS bookings (
     customer_email  VARCHAR(160),
     customer_phone  VARCHAR(30),
     service_type    ENUM('restaurant','catering','cafe','venue') NOT NULL,
-    venue_id        INT          REFERENCES venues(id),
+    venue_id        INT,
     details         TEXT,
     event_date      DATE,
     pax             INT          DEFAULT 1,
     total_amount    DECIMAL(10,2) DEFAULT 0.00,
     status          ENUM('pending','confirmed','in_progress','completed','cancelled') DEFAULT 'pending',
     notes           TEXT,
-    created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+    created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_bookings_venue FOREIGN KEY (venue_id) REFERENCES venues(id)
 );
 
 -- -----------------------------------------------------------
@@ -57,10 +58,12 @@ CREATE TABLE IF NOT EXISTS bookings (
 -- -----------------------------------------------------------
 CREATE TABLE IF NOT EXISTS booking_items (
     id          INT AUTO_INCREMENT PRIMARY KEY,
-    booking_id  INT NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
-    menu_item_id INT NOT NULL REFERENCES menu_items(id),
+    booking_id  INT NOT NULL,
+    menu_item_id INT NOT NULL,
     quantity    INT NOT NULL DEFAULT 1,
-    unit_price  DECIMAL(10,2) NOT NULL
+    unit_price  DECIMAL(10,2) NOT NULL,
+    CONSTRAINT fk_booking_items_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+    CONSTRAINT fk_booking_items_menu FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)
 );
 
 -- -----------------------------------------------------------
