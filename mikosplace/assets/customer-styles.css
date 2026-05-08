@@ -9,15 +9,26 @@
 }
 html{scroll-behavior:smooth;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;
-  background:radial-gradient(circle at 10% 15%,rgba(129,214,123,.20) 0,transparent 30%),
-             radial-gradient(circle at 90% 85%,rgba(182,18,23,.09) 0,transparent 25%),
-             linear-gradient(145deg,#f4fbe9,#eef7e5 55%,#fcfef7);position:relative;}
+  background-color:#f4fbe9;position:relative;}
 body::before{
   content:'';position:fixed;top:0;left:0;right:0;bottom:0;
-  background:linear-gradient(180deg,rgba(18,49,26,0) 0%,rgba(22,138,36,.08) 50%,rgba(18,49,26,0) 100%);
-  pointer-events:none;z-index:1;opacity:0;transition:opacity .4s ease;
+  background-image:
+    linear-gradient(rgba(18,49,26,.78),rgba(18,49,26,.62)),
+    url('/mikosplace/assets/mikosbg.jpg');
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  pointer-events:none;z-index:-2;
 }
-body.scroll-overlay::before{opacity:1;}
+body::after{
+  content:'';position:fixed;top:0;left:0;right:0;bottom:0;
+  background:
+    radial-gradient(circle at 10% 15%,rgba(129,214,123,.16) 0,transparent 30%),
+    radial-gradient(circle at 90% 85%,rgba(182,18,23,.08) 0,transparent 25%),
+    linear-gradient(180deg,rgba(18,49,26,0) 0%,rgba(22,138,36,.12) 50%,rgba(18,49,26,0) 100%);
+  pointer-events:none;z-index:-1;opacity:.95;transition:opacity .4s ease;
+}
+body.scroll-overlay::after{opacity:1;}
 ::-webkit-scrollbar{width:8px}
 ::-webkit-scrollbar-thumb{background:rgba(18,98,33,.22);border-radius:999px}
 
@@ -57,12 +68,7 @@ nav{display:flex;gap:4px;align-items:center;}
   padding: 60px 40px;
   position: relative;
   overflow: hidden;
-  background-image:
-    linear-gradient(rgba(18, 49, 26, 0.85), rgba(18, 49, 26, 0.7)),
-    url('/mikosplace/assets/mikosbg.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  background: transparent;
   color: #fff;
 }
 
@@ -123,12 +129,12 @@ nav{display:flex;gap:4px;align-items:center;}
 
 /* ─── SECTION COMMONS ────────────────────────────────── */
 .section{padding:80px 40px;}
-.section-label{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:10px;}
+.section-label{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--white);margin-bottom:10px;}
 .section-title{font-family:'Playfair Display',serif;font-size:clamp(30px,4vw,44px);line-height:1.1;margin-bottom:16px;}
 .section-sub{color:var(--muted);font-size:16px;max-width:560px;margin-bottom:44px;}
 
 /* ─── SERVICES STRIP ─────────────────────────────────── */
-#services{background:linear-gradient(135deg,rgba(10,86,22,.97),rgba(22,138,36,.90));color:#fff;padding:60px 40px;}
+#services{background:linear-gradient(135deg,rgba(10,86,22,.88),rgba(22,138,36,.80));color:#fff;padding:60px 40px;}
 .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;}
 .service-tile{
   background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.15);
@@ -165,7 +171,7 @@ nav{display:flex;gap:4px;align-items:center;}
 .dish-price.custom{color:var(--muted);font-size:14px;font-style:italic;}
 
 /* ─── VENUES ────────────────────────────────────────── */
-#venues{background:var(--surface-soft);}
+#venues{background:rgba(247,251,242,.88);backdrop-filter:blur(4px);}
 .venues-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;}
 .venue-card{
   background:var(--surface);border-radius:26px;overflow:hidden;
@@ -198,7 +204,7 @@ nav{display:flex;gap:4px;align-items:center;}
 .btn-book:disabled{background:#ccc;cursor:default;}
 
 /* ─── INQUIRY FORM ─────────────────────────────────── */
-#inquiry{background:linear-gradient(135deg,rgba(10,86,22,.96),rgba(22,138,36,.90));color:#fff;}
+#inquiry{background:linear-gradient(135deg,rgba(10,86,22,.86),rgba(22,138,36,.78));color:#fff;}
 #inquiry .section-label{color:#ffd9d9;}
 .form-card{
   background:rgba(255,255,255,.97);border-radius:28px;
@@ -233,7 +239,7 @@ nav{display:flex;gap:4px;align-items:center;}
 }
 
 /* ─── TRACKING ────────────────────────────────────── */
-#track{background:var(--surface-soft);}
+#track{background:rgba(247,251,242,.88);backdrop-filter:blur(4px);}
 .track-box{max-width:560px;}
 .track-input-row{display:flex;gap:10px;margin-bottom:20px;}
 .track-input{
@@ -265,7 +271,7 @@ nav{display:flex;gap:4px;align-items:center;}
 
 /* ─── FOOTER ───────────────────────────────────────── */
 footer{
-  background:linear-gradient(180deg,rgba(5,54,15,.98),rgba(3,38,10,.99));
+  background:linear-gradient(180deg,rgba(5,54,15,.90),rgba(3,38,10,.94));
   color:rgba(255,255,255,.8);padding:50px 40px 30px;
 }
 .footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:40px;margin-bottom:36px;}
