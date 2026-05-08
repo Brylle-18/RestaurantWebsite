@@ -365,6 +365,22 @@ async function trackBooking() {
 
 loadMenu();
 loadVenues();
+
+// Scroll overlay effect for green components
+window.addEventListener('scroll', () => {
+  const greenSections = document.querySelectorAll('#services, #inquiry, .btn-hero-primary, .filter-btn.active, .btn-submit, .btn-track, .btn-book');
+  let showOverlay = false;
+  
+  greenSections.forEach(section => {
+    const rect = section.getBoundingClientRect();
+    // Check if section is visible in viewport
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      showOverlay = true;
+    }
+  });
+  
+  document.body.classList.toggle('scroll-overlay', showOverlay);
+});
 </script>
 </body>
 </html>
