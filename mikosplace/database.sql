@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     total_amount    DECIMAL(10,2) DEFAULT 0.00,
     status          ENUM('pending','confirmed','in_progress','completed','cancelled') DEFAULT 'pending',
     notes           TEXT,
+    pricing_notes   TEXT,
     created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_bookings_venue FOREIGN KEY (venue_id) REFERENCES venues(id)
 );
@@ -64,6 +65,21 @@ CREATE TABLE IF NOT EXISTS booking_items (
     unit_price  DECIMAL(10,2) NOT NULL,
     CONSTRAINT fk_booking_items_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
     CONSTRAINT fk_booking_items_menu FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)
+);
+
+-- -----------------------------------------------------------
+-- BOOKING ADD-ONS (event extras linked to a booking)
+-- -----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS booking_addons (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    booking_id  INT NOT NULL,
+    addon_code  VARCHAR(80),
+    addon_name  VARCHAR(160) NOT NULL,
+    addon_type  VARCHAR(80) NOT NULL DEFAULT 'addon',
+    quantity    INT NOT NULL DEFAULT 1,
+    unit_price  DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    notes       TEXT,
+    CONSTRAINT fk_booking_addons_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
 );
 
 -- -----------------------------------------------------------

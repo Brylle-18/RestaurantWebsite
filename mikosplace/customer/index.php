@@ -113,6 +113,10 @@
   <div class="form-card">
     <div class="error-msg" id="inq-error"></div>
     <div class="form-grid">
+      <div class="booking-helper">
+        <strong>Build your booking details</strong>
+        <span>Choose menu items, event extras, or venue add-ons so our team can prepare a more accurate quote before confirming.</span>
+      </div>
       <div class="form-row">
         <div class="field"><label>Full Name *</label><input id="inq-name" placeholder="Your full name"></div>
         <div class="field"><label>Phone Number *</label><input id="inq-phone" placeholder="09XXXXXXXXX"></div>
@@ -132,11 +136,35 @@
       </div>
       <div class="field" id="venue-select-field" style="display:none">
         <label>Select Venue</label>
-        <select id="inq-venue-id">
+        <select id="inq-venue-id" onchange="renderServiceBuilder()">
           <option value="">Loading venues...</option>
         </select>
       </div>
-      <div class="field"><label>Preferred Date</label><input id="inq-date" type="date"></div>
+      <div class="service-builder" id="service-builder">
+        <div class="service-builder-head">
+          <div>
+            <p class="builder-label">Booking Details</p>
+            <h3 id="service-builder-title">Choose your dining items</h3>
+          </div>
+          <p class="builder-sub" id="service-builder-sub">Pick the dishes and extras you want included in your request.</p>
+        </div>
+        <div class="service-selection-grid">
+          <div class="field">
+            <label id="menu-choice-label">Menu Choices</label>
+            <div class="menu-choice-grid" id="menu-choice-grid">
+              <div class="selection-empty">Loading available options...</div>
+            </div>
+          </div>
+          <div class="field">
+            <label id="addon-choice-label">Add-ons</label>
+            <div class="addon-choice-grid" id="addon-choice-grid">
+              <div class="selection-empty">Loading add-ons...</div>
+            </div>
+          </div>
+        </div>
+        <div class="price-preview" id="price-preview"></div>
+      </div>
+      <div class="field"><label>Preferred Date *</label><input id="inq-date" type="date"></div>
       <div class="field"><label>Special Requests / Notes</label><textarea id="inq-notes" placeholder="Menu preferences, dietary restrictions, occasion details..."></textarea></div>
     </div>
     <button class="btn-submit" type="button" onclick="submitInquiry()">Submit Reservation Request</button>
@@ -192,6 +220,63 @@
 <script>
 const API = 'api.php';
 let menuFilter = '';
+let allMenuItems = [];
+let availableVenues = [];
+const bookingState = {
+  selectedItems: new Map(),
+  selectedAddons: new Map(),
+};
+const SERVICE_CONFIG = {
+  restaurant: {
+    title: 'Choose your restaurant dishes',
+    subtitle: 'Add the dishes you want reserved for your table and include optional celebration extras.',
+    menuLabel: 'Restaurant Menu',
+    addonLabel: 'Dining Add-ons',
+    categories: ['restaurant'],
+    addons: [
+      { code: 'restaurant-cake', name: 'Birthday cake setup', type: 'celebration', unit_price: 1800 },
+      { code: 'restaurant-decor', name: 'Table styling and decor', type: 'setup', unit_price: 1200 },
+      { code: 'restaurant-drinks', name: 'Bottomless iced tea station', type: 'beverage', unit_price: 950 },
+    ],
+  },
+  catering: {
+    title: 'Build your catering request',
+    subtitle: 'Select tray-based dishes first, then add service support so the team can prepare a full event quotation.',
+    menuLabel: 'Catering Menu',
+    addonLabel: 'Catering Add-ons',
+    categories: ['catering'],
+    addons: [
+      { code: 'catering-buffet', name: 'Buffet table setup', type: 'setup', unit_price: 3500 },
+      { code: 'catering-staff', name: 'On-site servers', type: 'staff', unit_price: 2500 },
+      { code: 'catering-drinks', name: 'Beverage station', type: 'beverage', unit_price: 1800 },
+    ],
+  },
+  cafe: {
+    title: 'Pick your cafe favorites',
+    subtitle: 'Choose coffee, pastries, or dessert items for your reservation, then add a few extras for celebrations.',
+    menuLabel: 'Cafe and Pastry Choices',
+    addonLabel: 'Cafe Add-ons',
+    categories: ['cafe', 'pastry'],
+    addons: [
+      { code: 'cafe-platter', name: 'Dessert platter add-on', type: 'dessert', unit_price: 1200 },
+      { code: 'cafe-carafe', name: 'Coffee carafe refill', type: 'beverage', unit_price: 650 },
+      { code: 'cafe-setup', name: 'Mini celebration setup', type: 'setup', unit_price: 900 },
+    ],
+  },
+  venue: {
+    title: 'Configure your venue package',
+    subtitle: 'Choose your venue first, then add the event support items you want included in the initial quote.',
+    menuLabel: 'Venue Package',
+    addonLabel: 'Venue Add-ons',
+    categories: [],
+    addons: [
+      { code: 'venue-sound', name: 'Sound system rental', type: 'equipment', unit_price: 3000 },
+      { code: 'venue-projector', name: 'Projector and screen', type: 'equipment', unit_price: 2000 },
+      { code: 'venue-styling', name: 'Basic event styling', type: 'setup', unit_price: 7500 },
+      { code: 'venue-catering-support', name: 'Catering coordination support', type: 'service', unit_price: 5000 },
+    ],
+  },
+};
 
 const sections = ['home', 'menu-section', 'venues', 'inquiry', 'track'];
 window.addEventListener('scroll', () => {
@@ -218,6 +303,210 @@ async function api(params, method = 'GET') {
   };
   const response = await fetch(url, options);
   return response.json();
+}
+
+function formatCurrency(amount) {
+  return `&#8369;${parseFloat(amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
+}
+
+function getCurrentServiceConfig() {
+  const service = document.getElementById('inq-service').value;
+  return SERVICE_CONFIG[service];
+}
+
+function clearBookingSelections() {
+  bookingState.selectedItems.clear();
+  bookingState.selectedAddons.clear();
+}
+
+async function loadBookingCatalog() {
+  const data = await api({ action: 'menu' });
+  if (data?.ok) {
+    allMenuItems = data.items;
+  }
+  renderServiceBuilder();
+}
+
+function getFilteredServiceItems(service) {
+  const config = SERVICE_CONFIG[service];
+  return allMenuItems.filter((item) => config.categories.includes(item.category));
+}
+
+function updateMenuSelection(itemId, quantityValue) {
+  const quantity = Number(quantityValue);
+  if (quantity > 0) {
+    bookingState.selectedItems.set(itemId, quantity);
+  } else {
+    bookingState.selectedItems.delete(itemId);
+  }
+  renderPricePreview();
+}
+
+function toggleAddonSelection(code, checked) {
+  const addon = getCurrentServiceConfig().addons.find((item) => item.code === code);
+  if (!addon) {
+    return;
+  }
+  if (checked) {
+    bookingState.selectedAddons.set(code, { ...addon, quantity: 1 });
+  } else {
+    bookingState.selectedAddons.delete(code);
+  }
+  renderServiceBuilder();
+}
+
+function updateAddonQuantity(code, quantityValue) {
+  const quantity = Number(quantityValue);
+  if (quantity <= 0) {
+    bookingState.selectedAddons.delete(code);
+  } else if (bookingState.selectedAddons.has(code)) {
+    bookingState.selectedAddons.set(code, {
+      ...bookingState.selectedAddons.get(code),
+      quantity,
+    });
+  }
+  renderPricePreview();
+}
+
+function getPriceEstimate() {
+  const service = document.getElementById('inq-service').value;
+  const selectedVenueId = document.getElementById('inq-venue-id').value;
+  const items = getFilteredServiceItems(service);
+  let subtotal = 0;
+  let hasCustomQuote = false;
+  const lines = [];
+
+  if (service === 'venue' && selectedVenueId) {
+    const venue = availableVenues.find((item) => String(item.id) === String(selectedVenueId));
+    if (venue) {
+      subtotal += Number(venue.rate || 0);
+      lines.push({ label: venue.name, detail: 'Venue rate', amount: Number(venue.rate || 0) });
+    }
+  }
+
+  bookingState.selectedItems.forEach((quantity, itemId) => {
+    const item = items.find((entry) => Number(entry.id) === Number(itemId));
+    if (!item) {
+      return;
+    }
+    const price = Number(item.price || 0);
+    if (price <= 0) {
+      hasCustomQuote = true;
+      lines.push({ label: item.name, detail: `${quantity} selected`, amount: null });
+      return;
+    }
+    const amount = price * quantity;
+    subtotal += amount;
+    lines.push({ label: item.name, detail: `${quantity} x ${formatCurrency(price)}`, amount });
+  });
+
+  bookingState.selectedAddons.forEach((addon) => {
+    const amount = Number(addon.unit_price || 0) * addon.quantity;
+    subtotal += amount;
+    lines.push({ label: addon.name, detail: `${addon.quantity} x ${formatCurrency(addon.unit_price)}`, amount });
+  });
+
+  return { subtotal, hasCustomQuote, lines };
+}
+
+function renderPricePreview() {
+  const preview = document.getElementById('price-preview');
+  const { subtotal, hasCustomQuote, lines } = getPriceEstimate();
+  const hasSelections = lines.length > 0;
+
+  preview.innerHTML = `
+    <div>
+      <p class="price-preview-label">Estimated Pricing</p>
+      <strong>${hasSelections ? formatCurrency(subtotal) : 'No selections yet'}</strong>
+      <p class="price-preview-note">${hasCustomQuote ? 'Some selected items need a custom quote. Final price will be confirmed by the admin team.' : 'This estimate is based on your selected items and add-ons.'}</p>
+    </div>
+    <div class="price-line-list">
+      ${hasSelections
+        ? lines.map((line) => `
+          <div class="price-line">
+            <div>
+              <span>${line.label}</span>
+              <small>${line.detail}</small>
+            </div>
+            <strong>${line.amount === null ? 'Quoted later' : formatCurrency(line.amount)}</strong>
+          </div>`).join('')
+        : '<div class="selection-empty compact">Select menu items or add-ons to build your request.</div>'}
+    </div>`;
+}
+
+function renderServiceBuilder() {
+  const service = document.getElementById('inq-service').value;
+  const config = SERVICE_CONFIG[service];
+  const menuGrid = document.getElementById('menu-choice-grid');
+  const addonGrid = document.getElementById('addon-choice-grid');
+
+  document.getElementById('service-builder-title').textContent = config.title;
+  document.getElementById('service-builder-sub').textContent = config.subtitle;
+  document.getElementById('menu-choice-label').textContent = config.menuLabel;
+  document.getElementById('addon-choice-label').textContent = config.addonLabel;
+
+  const serviceItems = getFilteredServiceItems(service);
+  if (service === 'venue') {
+    const venue = availableVenues.find((item) => String(item.id) === document.getElementById('inq-venue-id').value);
+    menuGrid.innerHTML = `
+      <div class="booking-option static-option">
+        <div>
+          <strong>${venue ? venue.name : 'Choose a venue above'}</strong>
+          <p>${venue ? `${venue.capacity} pax · ${venue.type} venue` : 'Select a venue to start building your event package.'}</p>
+        </div>
+        <span class="option-price">${venue ? formatCurrency(venue.rate) : 'Required'}</span>
+      </div>`;
+  } else if (!serviceItems.length) {
+    menuGrid.innerHTML = '<div class="selection-empty">No menu items available for this service yet.</div>';
+  } else {
+    menuGrid.innerHTML = serviceItems.map((item) => `
+      <div class="booking-option">
+        <div class="booking-option-copy">
+          <strong>${item.name}</strong>
+          <p>${item.description || 'Prepared fresh for your reservation'}</p>
+        </div>
+        <div class="booking-option-meta">
+          <span class="option-price">${Number(item.price) > 0 ? formatCurrency(item.price) : 'Custom quote'}</span>
+          <input
+            type="number"
+            min="0"
+            value="${bookingState.selectedItems.get(Number(item.id)) || 0}"
+            class="option-qty"
+            aria-label="Quantity for ${item.name}"
+            onchange="updateMenuSelection(${item.id}, this.value)"
+          >
+        </div>
+      </div>`).join('');
+  }
+
+  if (!config.addons.length) {
+    addonGrid.innerHTML = '<div class="selection-empty">No add-ons configured for this service yet.</div>';
+  } else {
+    addonGrid.innerHTML = config.addons.map((addon) => {
+      const activeAddon = bookingState.selectedAddons.get(addon.code);
+      return `
+        <div class="booking-addon ${activeAddon ? 'active' : ''}">
+          <label class="addon-check">
+            <input type="checkbox" ${activeAddon ? 'checked' : ''} onchange="toggleAddonSelection('${addon.code}', this.checked)">
+            <span>
+              <strong>${addon.name}</strong>
+              <small>${formatCurrency(addon.unit_price)}</small>
+            </span>
+          </label>
+          <input
+            type="number"
+            min="1"
+            value="${activeAddon?.quantity || 1}"
+            class="option-qty addon-qty"
+            ${activeAddon ? '' : 'disabled'}
+            aria-label="Quantity for ${addon.name}"
+            onchange="updateAddonQuantity('${addon.code}', this.value)"
+          >
+        </div>`;
+    }).join('');
+  }
+
+  renderPricePreview();
 }
 
 async function loadMenu() {
@@ -259,6 +548,8 @@ async function loadVenues() {
     return;
   }
 
+  availableVenues = data.venues;
+
   grid.innerHTML = data.venues.map((venue) => `
     <div class="venue-card">
       <div class="venue-header">
@@ -278,19 +569,23 @@ async function loadVenues() {
     </div>`).join('');
 
   const select = document.getElementById('inq-venue-id');
-  select.innerHTML = data.venues.map((venue) => `<option value="${venue.id}">${venue.name} (&#8369;${parseFloat(venue.rate).toLocaleString('en-PH')})</option>`).join('');
+  select.innerHTML = `<option value="">Choose a venue</option>${data.venues.map((venue) => `<option value="${venue.id}">${venue.name} (&#8369;${parseFloat(venue.rate).toLocaleString('en-PH')})</option>`).join('')}`;
+  renderServiceBuilder();
 }
 
 function prefillVenueBooking(id) {
   document.getElementById('inq-service').value = 'venue';
   onServiceChange();
   document.getElementById('inq-venue-id').value = id;
+  renderServiceBuilder();
   document.getElementById('inquiry').scrollIntoView({ behavior: 'smooth' });
 }
 
 function onServiceChange() {
   const service = document.getElementById('inq-service').value;
   document.getElementById('venue-select-field').style.display = service === 'venue' ? 'block' : 'none';
+  clearBookingSelections();
+  renderServiceBuilder();
 }
 
 async function submitInquiry() {
@@ -308,6 +603,26 @@ async function submitInquiry() {
   }
 
   const service = document.getElementById('inq-service').value;
+  const selectedItems = Array.from(bookingState.selectedItems.entries()).map(([menu_item_id, quantity]) => ({ menu_item_id, quantity }));
+  const selectedAddons = Array.from(bookingState.selectedAddons.values()).map((addon) => ({
+    code: addon.code,
+    name: addon.name,
+    type: addon.type,
+    quantity: addon.quantity,
+    unit_price: addon.unit_price,
+  }));
+
+  if (service !== 'venue' && selectedItems.length === 0) {
+    errorElement.textContent = 'Please choose at least one menu item for this booking.';
+    errorElement.style.display = 'block';
+    return;
+  }
+  if (service === 'venue' && !document.getElementById('inq-venue-id').value) {
+    errorElement.textContent = 'Please select a venue before submitting.';
+    errorElement.style.display = 'block';
+    return;
+  }
+
   const data = await api({
     action: 'inquire',
     customer_name: name,
@@ -318,15 +633,23 @@ async function submitInquiry() {
     event_date: document.getElementById('inq-date').value,
     venue_id: service === 'venue' ? document.getElementById('inq-venue-id').value : '',
     notes: document.getElementById('inq-notes').value,
+    selected_items: JSON.stringify(selectedItems),
+    selected_addons: JSON.stringify(selectedAddons),
   }, 'POST');
 
   if (data?.ok) {
-    successElement.innerHTML = `<strong>Booking submitted.</strong> Your ticket number is <strong>${data.ticket_no}</strong>. Use it to track your booking.`;
+    successElement.innerHTML = `<strong>Booking submitted.</strong> Your ticket number is <strong>${data.ticket_no}</strong>. ${data.custom_quote_required ? 'Some selected items will be quoted by the team.' : `Estimated amount: <strong>${formatCurrency(data.estimated_amount)}</strong>.`} Use your ticket to track updates.`;
     successElement.style.display = 'block';
     document.getElementById('inq-name').value = '';
     document.getElementById('inq-phone').value = '';
     document.getElementById('inq-email').value = '';
+    document.getElementById('inq-pax').value = '2';
+    document.getElementById('inq-date').value = '';
     document.getElementById('inq-notes').value = '';
+    document.getElementById('inq-service').value = 'restaurant';
+    document.getElementById('inq-venue-id').value = '';
+    clearBookingSelections();
+    onServiceChange();
   } else {
     errorElement.textContent = data?.error || 'Something went wrong. Please try again.';
     errorElement.style.display = 'block';
@@ -350,21 +673,27 @@ async function trackBooking() {
   }
 
   const booking = data.booking;
-  const formatAmount = (amount) => `&#8369;${parseFloat(amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
+  const items = data.items || [];
+  const addons = data.addons || [];
   result.innerHTML = `
     <div class="result-row"><span class="lbl">Ticket</span><strong>${booking.ticket_no}</strong></div>
     <div class="result-row"><span class="lbl">Name</span><span>${booking.customer_name}</span></div>
     <div class="result-row"><span class="lbl">Service</span><span style="text-transform:capitalize">${booking.service_type}</span></div>
     <div class="result-row"><span class="lbl">Event Date</span><span>${booking.event_date ? new Date(booking.event_date).toLocaleDateString('en-PH', { dateStyle: 'long' }) : 'Not set'}</span></div>
     <div class="result-row"><span class="lbl">Guests</span><span>${booking.pax} pax</span></div>
-    <div class="result-row"><span class="lbl">Amount</span><span>${Number(booking.total_amount) > 0 ? formatAmount(booking.total_amount) : 'To be quoted'}</span></div>
+    <div class="result-row"><span class="lbl">Amount</span><span>${Number(booking.total_amount) > 0 ? formatCurrency(booking.total_amount) : 'To be quoted'}</span></div>
     <div class="result-row"><span class="lbl">Status</span><span class="badge ${booking.status}">${booking.status.replace('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase())}</span></div>
+    ${booking.pricing_notes ? `<div class="result-row"><span class="lbl">Pricing Notes</span><span style="font-size:13px;color:var(--muted)">${booking.pricing_notes}</span></div>` : ''}
+    ${items.length ? `<div class="result-block"><span class="lbl">Selected Items</span><div class="result-stack">${items.map((item) => `<div class="result-chip">${item.name} x${item.quantity}${Number(item.unit_price) > 0 ? ` · ${formatCurrency(item.unit_price)}` : ' · Custom quote'}</div>`).join('')}</div></div>` : ''}
+    ${addons.length ? `<div class="result-block"><span class="lbl">Add-ons</span><div class="result-stack">${addons.map((addon) => `<div class="result-chip">${addon.addon_name} x${addon.quantity} · ${formatCurrency(addon.unit_price)}</div>`).join('')}</div></div>` : ''}
     ${booking.notes ? `<div class="result-row"><span class="lbl">Notes</span><span style="font-size:13px;color:var(--muted)">${booking.notes}</span></div>` : ''}`;
   result.style.display = 'block';
 }
 
 loadMenu();
+loadBookingCatalog();
 loadVenues();
+onServiceChange();
 
 // Scroll overlay effect for green components
 window.addEventListener('scroll', () => {

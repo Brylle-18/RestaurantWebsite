@@ -259,6 +259,46 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="modal-booking-review">
+  <div class="modal modal-wide">
+    <h3>Review Booking</h3><p class="sub">Set the final price and confirm only after reviewing the customer selections.</p>
+    <div class="review-shell">
+      <div class="review-summary" id="booking-review-summary"></div>
+      <div class="review-grid">
+        <div class="card-lite">
+          <p class="mini-label">Menu Selections</p>
+          <div id="booking-review-items" class="review-list"></div>
+        </div>
+        <div class="card-lite">
+          <p class="mini-label">Add-ons</p>
+          <div id="booking-review-addons" class="review-list"></div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <input id="review-booking-id" type="hidden">
+        <div class="form-row">
+          <div class="field"><label>Status</label>
+            <select id="review-status">
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="field"><label>Final Price (₱)</label><input id="review-amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
+        </div>
+        <div class="field"><label>Pricing Notes</label><textarea id="review-pricing-notes" placeholder="Explain the final quote, inclusions, or custom pricing adjustments."></textarea></div>
+        <div class="field"><label>Internal / Booking Notes</label><textarea id="review-notes" placeholder="Customer notes, coordination details, schedule reminders..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-booking-review')">Close</button>
+      <button class="btn btn-green btn-sm" onclick="saveBookingReview()">Save Booking Review</button>
+    </div>
+  </div>
+</div>
+
 <!-- Add Staff Modal -->
 <div class="modal-backdrop" id="modal-staff-add">
   <div class="modal">
@@ -294,6 +334,7 @@
 
 <script>
 const API = 'api.php';
+let currentBookingReview = null;
 
 //  Section navigation 
 function show(id, btn) {
@@ -382,25 +423,94 @@ async function loadBookings() {
     <tr>
       <td><strong>${b.ticket_no}</strong></td>
       <td>${b.customer_name}<br><small style="color:var(--muted)">${b.customer_phone||''}</small></td>
-      <td style="text-transform:capitalize">${b.service_type}</td>
+      <td style="text-transform:capitalize">${b.service_type}${b.venue_name ? `<br><small style="color:var(--muted)">${b.venue_name}</small>` : ''}</td>
       <td>${b.event_date ? new Date(b.event_date).toLocaleDateString('en-PH') : '-'}</td>
       <td>${b.pax}</td>
-      <td>${fmt(b.total_amount)}</td>
+      <td>${Number(b.total_amount) > 0 ? fmt(b.total_amount) : '<em style="color:var(--muted)">Awaiting quote</em>'}</td>
+      <td>${badge(b.status)}</td>
       <td>
-        <select class="search-select" style="padding:6px 10px;font-size:12px;border-radius:10px;" onchange="updateBookingStatus(${b.id},this.value)">
-          ${['pending','confirmed','in_progress','completed','cancelled'].map(st=>`<option value="${st}" ${b.status===st?'selected':''}>${st.replace('_',' ')}</option>`).join('')}
-        </select>
-      </td>
-      <td>
+        <button class="btn btn-ghost btn-sm" style="border-radius:10px;font-size:12px;padding:6px 10px;margin-right:4px" onclick="openBookingReview(${b.id})">Review</button>
         <button class="btn btn-danger btn-sm" style="border-radius:10px;font-size:12px;padding:6px 10px;" onclick="deleteBooking(${b.id})">Delete</button>
       </td>
     </tr>`).join('')
     : `<tr class="loading-row"><td colspan="8" style="color:var(--muted)">No bookings found</td></tr>`;
 }
 
-async function updateBookingStatus(id, status) {
-  const d = await api({action:'booking_status', id, status}, 'POST');
-  if (d?.ok) toast('Status updated ✓'); else toast('Failed', true);
+function renderReviewList(targetId, items, type) {
+  const target = document.getElementById(targetId);
+  if (!items.length) {
+    target.innerHTML = '<p style="color:var(--muted);font-size:13px">No selections attached to this booking.</p>';
+    return;
+  }
+  target.innerHTML = items.map((item) => `
+    <div class="review-line">
+      <div>
+        <strong>${type === 'menu' ? item.dish : item.addon_name}</strong>
+        <p>${item.quantity} x ${Number(item.unit_price) > 0 ? fmt(item.unit_price) : 'Custom quote'}</p>
+      </div>
+      <span>${Number(item.unit_price) > 0 ? fmt(item.unit_price * item.quantity) : 'Quoted later'}</span>
+    </div>`).join('');
+}
+
+async function openBookingReview(id) {
+  const d = await api({action:'booking_get', id});
+  if (!d?.ok) {
+    toast(d?.error || 'Could not load booking', true);
+    return;
+  }
+
+  currentBookingReview = d;
+  const booking = d.booking;
+  let detailSummary = '';
+  try {
+    const parsedDetails = booking.details ? JSON.parse(booking.details) : null;
+    if (parsedDetails) {
+      detailSummary = [
+        parsedDetails.custom_quote_required ? 'Includes items that still need a custom quote.' : '',
+        parsedDetails.menu_item_count ? `${parsedDetails.menu_item_count} menu item selection(s)` : '',
+        parsedDetails.addon_count ? `${parsedDetails.addon_count} add-on selection(s)` : '',
+      ].filter(Boolean).join(' ');
+    }
+  } catch (error) {
+    detailSummary = '';
+  }
+  document.getElementById('review-booking-id').value = booking.id;
+  document.getElementById('review-status').value = booking.status;
+  document.getElementById('review-amount').value = Number(booking.total_amount || 0) > 0 ? booking.total_amount : '';
+  document.getElementById('review-pricing-notes').value = booking.pricing_notes || '';
+  document.getElementById('review-notes').value = booking.notes || '';
+  document.getElementById('booking-review-summary').innerHTML = `
+    <div class="review-summary-grid">
+      <div class="review-stat"><span>Ticket</span><strong>${booking.ticket_no}</strong></div>
+      <div class="review-stat"><span>Customer</span><strong>${booking.customer_name}</strong><small>${booking.customer_phone || 'No phone provided'}</small></div>
+      <div class="review-stat"><span>Service</span><strong style="text-transform:capitalize">${booking.service_type}</strong><small>${booking.venue_name || 'Standard booking flow'}</small></div>
+      <div class="review-stat"><span>Event Date</span><strong>${booking.event_date ? new Date(booking.event_date).toLocaleDateString('en-PH', { dateStyle: 'long' }) : 'Not set'}</strong><small>${booking.pax} pax</small></div>
+    </div>
+    ${detailSummary ? `<div class="review-note">${detailSummary}</div>` : ''}
+  `;
+  renderReviewList('booking-review-items', d.items || [], 'menu');
+  renderReviewList('booking-review-addons', d.addons || [], 'addon');
+  openModal('modal-booking-review');
+}
+
+async function saveBookingReview() {
+  const payload = {
+    action: 'booking_update',
+    id: document.getElementById('review-booking-id').value,
+    status: document.getElementById('review-status').value,
+    total_amount: document.getElementById('review-amount').value,
+    pricing_notes: document.getElementById('review-pricing-notes').value,
+    notes: document.getElementById('review-notes').value,
+  };
+  const d = await api(payload, 'POST');
+  if (d?.ok) {
+    toast('Booking review saved ✓');
+    closeModal('modal-booking-review');
+    loadBookings();
+    loadDashboard();
+  } else {
+    toast(d?.error || 'Failed to save booking', true);
+  }
 }
 async function deleteBooking(id) {
   if (!confirm('Delete this booking?')) return;

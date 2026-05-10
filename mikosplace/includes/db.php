@@ -7,6 +7,41 @@ define('DB_USER', 'root');
 define('DB_PASS', '');          // Laragon default: empty password
 define('DB_CHARSET', 'utf8mb4');
 
+function ensureBookingSchema(PDO $pdo): void {
+    static $ensured = false;
+    if ($ensured) {
+        return;
+    }
+
+    $columnExists = static function (string $table, string $column) use ($pdo): bool {
+        $stmt = $pdo->prepare(
+            'SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?'
+        );
+        $stmt->execute([DB_NAME, $table, $column]);
+        return (int)$stmt->fetchColumn() > 0;
+    };
+
+    if (!$columnExists('bookings', 'pricing_notes')) {
+        $pdo->exec('ALTER TABLE bookings ADD COLUMN pricing_notes TEXT NULL AFTER notes');
+    }
+
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS booking_addons (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            booking_id INT NOT NULL,
+            addon_code VARCHAR(80) DEFAULT NULL,
+            addon_name VARCHAR(160) NOT NULL,
+            addon_type VARCHAR(80) NOT NULL DEFAULT "addon",
+            quantity INT NOT NULL DEFAULT 1,
+            unit_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            notes TEXT NULL,
+            CONSTRAINT fk_booking_addons_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+    );
+
+    $ensured = true;
+}
+
 function getDB(): PDO {
     static $pdo = null;
     if ($pdo === null) {
@@ -21,6 +56,7 @@ function getDB(): PDO {
             http_response_code(500);
             die(json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]));
         }
+        ensureBookingSchema($pdo);
     }
     return $pdo;
 }

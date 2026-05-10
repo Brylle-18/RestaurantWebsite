@@ -15,6 +15,9 @@ function jsonErr(string $msg, int $code = 400): void {
     echo json_encode(['ok' => false, 'error' => $msg]); exit;
 }
 function sanitize(string $s): string { return htmlspecialchars(trim($s), ENT_QUOTES); }
+function bookingStatusNeedsPrice(string $status): bool {
+    return in_array($status, ['confirmed', 'in_progress', 'completed'], true);
+}
 
 // ── router ──────────────────────────────────────────────────
 switch ($action) {
@@ -31,10 +34,10 @@ switch ($action) {
     case 'bookings':
         $q      = '%' . trim($_GET['q'] ?? '') . '%';
         $status = $_GET['status'] ?? '';
-        $sql    = 'SELECT * FROM bookings WHERE (ticket_no LIKE ? OR customer_name LIKE ? OR customer_email LIKE ?)';
+        $sql    = 'SELECT b.*, v.name AS venue_name FROM bookings b LEFT JOIN venues v ON b.venue_id = v.id WHERE (b.ticket_no LIKE ? OR b.customer_name LIKE ? OR b.customer_email LIKE ?)';
         $params = [$q, $q, $q];
-        if ($status) { $sql .= ' AND status = ?'; $params[] = $status; }
-        $sql .= ' ORDER BY created_at DESC LIMIT 100';
+        if ($status) { $sql .= ' AND b.status = ?'; $params[] = $status; }
+        $sql .= ' ORDER BY b.created_at DESC LIMIT 100';
         $rows = $db->prepare($sql);
         $rows->execute($params);
         jsonOK(['bookings' => $rows->fetchAll()]);
@@ -48,7 +51,9 @@ switch ($action) {
         if (!$booking) jsonErr('Not found', 404);
         $items = $db->prepare('SELECT bi.*, m.name AS dish FROM booking_items bi JOIN menu_items m ON bi.menu_item_id=m.id WHERE bi.booking_id=?');
         $items->execute([$id]);
-        jsonOK(['booking' => $booking, 'items' => $items->fetchAll()]);
+        $addons = $db->prepare('SELECT * FROM booking_addons WHERE booking_id=? ORDER BY addon_type, addon_name');
+        $addons->execute([$id]);
+        jsonOK(['booking' => $booking, 'items' => $items->fetchAll(), 'addons' => $addons->fetchAll()]);
 
     // ── ADD BOOKING ──────────────────────────────────────────
     case 'booking_add':
@@ -74,8 +79,34 @@ switch ($action) {
         $status = $_POST['status'] ?? '';
         $allowed = ['pending','confirmed','in_progress','completed','cancelled'];
         if (!in_array($status, $allowed)) jsonErr('Invalid status');
+        if (bookingStatusNeedsPrice($status)) {
+            $check = $db->prepare('SELECT total_amount FROM bookings WHERE id=?');
+            $check->execute([$id]);
+            $amount = (float)$check->fetchColumn();
+            if ($amount <= 0) {
+                jsonErr('Set a booking price before confirming this reservation');
+            }
+        }
         $db->prepare('UPDATE bookings SET status=? WHERE id=?')->execute([$status, $id]);
         jsonOK(['message' => 'Status updated']);
+
+    // ── REVIEW / UPDATE BOOKING ──────────────────────────────
+    case 'booking_update':
+        $id = (int)($_POST['id'] ?? 0);
+        $status = $_POST['status'] ?? 'pending';
+        $amount = (float)($_POST['total_amount'] ?? 0);
+        $pricingNotes = sanitize($_POST['pricing_notes'] ?? '');
+        $notes = sanitize($_POST['notes'] ?? '');
+        $allowed = ['pending','confirmed','in_progress','completed','cancelled'];
+        if (!in_array($status, $allowed, true)) {
+            jsonErr('Invalid status');
+        }
+        if (bookingStatusNeedsPrice($status) && $amount <= 0) {
+            jsonErr('Please set the booking price before confirming');
+        }
+        $db->prepare('UPDATE bookings SET total_amount=?, pricing_notes=?, notes=?, status=? WHERE id=?')
+           ->execute([$amount, $pricingNotes ?: null, $notes, $status, $id]);
+        jsonOK(['message' => 'Booking updated']);
 
     // ── DELETE BOOKING ───────────────────────────────────────
     case 'booking_delete':
