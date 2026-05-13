@@ -52,11 +52,6 @@
       <p class="fc-val">&#8369;249-&#8369;599</p>
       <p class="fc-sub">Restaurant dishes per serve</p>
     </div>
-    <div class="float-card red">
-      <p class="fc-label">Event Packages</p>
-      <p class="fc-val">3 Venues</p>
-      <p class="fc-sub">Pool, Banquet, and Function</p>
-    </div>
   </div>
 </section>
 
