@@ -116,16 +116,21 @@ INSERT INTO admin_users (username, password, full_name) VALUES
 
 -- Menu Items
 INSERT INTO menu_items (name, category, price, description) VALUES
-('Buttered Chicken',      'restaurant', 299.00, 'Tender chicken in rich butter sauce, good for 2-3 pax'),
-('Garlic Shrimp',         'restaurant', 349.00, 'Sautéed shrimp in garlic butter, good for 2-3 pax'),
-('Calamares',             'restaurant', 249.00, 'Crispy fried squid rings with dipping sauce'),
-('Tuna Kinilaw',          'restaurant', 279.00, 'Fresh tuna cured in vinegar and spices'),
-('Chicken Cordon Bleu',   'restaurant', 399.00, 'Classic chicken stuffed with ham and cheese'),
-('Seafood Platter',       'restaurant', 599.00, 'Mixed seafood for 3-4 pax'),
-('Canton Guisado',        'catering',   0.00,  'Stir-fried noodles for events (price per tray)'),
-('Pancit Palabok',        'catering',   0.00,  'Filipino noodles in shrimp sauce (price per tray)'),
-('Brewed Coffee',         'cafe',       89.00, 'Freshly brewed barako coffee'),
-('Pastry of the Day',     'pastry',     75.00, 'Ask our staff for today\'s selection');
+('Pork Adobo',                'restaurant', 620.00, 'Slow-braised pork in soy sauce, vinegar, garlic, and bay leaves, sized for 4 pax'),
+('Sinigang na Baboy',         'restaurant', 760.00, 'Tender pork in tamarind broth with kangkong, radish, okra, and tomatoes, sized for 4 pax'),
+('Kare-Kare',                 'restaurant', 880.00, 'Peanut-braised beef and vegetables served with bagoong, sized for 4 pax'),
+('Crispy Pata',               'restaurant', 950.00, 'Golden pork knuckle with crackling skin and soy-vinegar dip, sized for 4 pax'),
+('Chicken Inasal',            'restaurant', 680.00, 'Char-grilled chicken marinated in local spices and calamansi, sized for 4 pax'),
+('Pancit Canton',             'catering',   520.00, 'Wok-tossed egg noodles with vegetables and chicken, sized for 4 pax'),
+('Pancit Bihon',              'catering',   480.00, 'Light rice noodles stir-fried with vegetables, pork, and citrus notes, sized for 4 pax'),
+('Lumpiang Shanghai',         'catering',   420.00, 'Crisp pork spring rolls with sweet chili sauce, good for 4 pax'),
+('Garlic Rice Platter',       'catering',   180.00, 'Fragrant garlic fried rice platter for 4 pax'),
+('Steamed Rice Bucket',       'catering',   140.00, 'Steamed rice served family-style for 4 pax'),
+('Iced Tea Pitcher',          'cafe',       180.00, 'House-brewed iced tea pitcher for 4 pax'),
+('Calamansi Juice Pitcher',   'cafe',       220.00, 'Fresh calamansi cooler pitcher for 4 pax'),
+('Sago''t Gulaman Pitcher',   'cafe',       240.00, 'Classic Filipino refreshment with tapioca pearls and gulaman for 4 pax'),
+('Leche Flan',                'pastry',     220.00, 'Silky caramel custard platter for sharing'),
+('Buko Pandan',               'pastry',     280.00, 'Chilled young coconut and pandan jelly dessert bowl for 4 pax');
 
 -- Venues
 INSERT INTO venues (name, type, capacity, rate, description) VALUES

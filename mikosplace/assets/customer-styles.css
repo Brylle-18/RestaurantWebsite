@@ -388,6 +388,84 @@ nav {
 }
 
 /* ─── MENU ─────────────────────────────────────────── */
+.menu-table-wrap {
+  display: grid;
+  gap: 24px;
+}
+.menu-table-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 252, 243, 0.96));
+  border: 1px solid rgba(10, 86, 22, 0.08);
+  border-radius: 28px;
+  padding: 26px;
+  box-shadow: var(--shadow);
+}
+.menu-table-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.menu-table-head h3 {
+  font-family: "Playfair Display", serif;
+  font-size: 28px;
+  color: var(--green-dk);
+}
+.menu-table-head p {
+  color: var(--muted);
+  font-size: 14px;
+}
+.menu-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 18px;
+}
+.menu-table th,
+.menu-table td {
+  text-align: left;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(10, 86, 22, 0.08);
+  vertical-align: top;
+}
+.menu-table thead th {
+  background: rgba(10, 86, 22, 0.92);
+  color: #fff;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.menu-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.75);
+}
+.menu-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.menu-table td:last-child,
+.menu-table th:last-child {
+  white-space: nowrap;
+}
+.menu-image-placeholders {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+.menu-image-placeholders img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 2px dashed rgba(10, 86, 22, 0.22);
+  background:
+    linear-gradient(135deg, rgba(22, 138, 36, 0.08), rgba(194, 54, 22, 0.08)),
+    #f8fbf4;
+  padding: 10px;
+}
+.menu-image-placeholders img[src=""] {
+  min-height: 160px;
+}
 .menu-filters {
   display: flex;
   gap: 10px;
@@ -473,6 +551,41 @@ nav {
   color: var(--muted);
   font-size: 14px;
   font-style: italic;
+}
+
+@media (max-width: 720px) {
+  .menu-table-card {
+    padding: 20px;
+  }
+  .menu-table-head h3 {
+    font-size: 24px;
+  }
+  .menu-table,
+  .menu-table thead,
+  .menu-table tbody,
+  .menu-table tr,
+  .menu-table th,
+  .menu-table td {
+    display: block;
+  }
+  .menu-table thead {
+    display: none;
+  }
+  .menu-table tbody tr {
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(10, 86, 22, 0.08);
+    border-radius: 18px;
+    padding: 4px 0;
+    margin-bottom: 12px;
+  }
+  .menu-table td {
+    border-bottom: none;
+    padding: 10px 16px;
+  }
+  .menu-table td:last-child {
+    color: var(--red);
+    font-weight: 800;
+  }
 }
 
 /* ─── VENUES ────────────────────────────────────────── */

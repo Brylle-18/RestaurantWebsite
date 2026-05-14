@@ -49,8 +49,8 @@
   <div class="hero-float">
     <div class="float-card">
       <p class="fc-label">Est. Price Range</p>
-      <p class="fc-val">&#8369;249-&#8369;599</p>
-      <p class="fc-sub">Restaurant dishes per serve</p>
+      <p class="fc-val">&#8369;140-&#8369;950</p>
+      <p class="fc-sub">Shareable menu rates for 4 pax</p>
     </div>
   </div>
 </section>
@@ -73,20 +73,141 @@
 
 <section class="section" id="menu-section">
   <p class="section-label">Our Menu</p>
-  <h2 class="section-title">Crafted with love,<br>served with pride</h2>
-  <p class="section-sub">Browse our menu, from signature seafood dishes to light cafe fare.</p>
+  <h2 class="section-title">Filipino favorites,<br>good for 4 pax</h2>
+  <p class="section-sub">A clean group menu with hearty Filipino classics, realistic 4-person serving prices, and ready image slots you can fill in later.</p>
 
-  <div class="menu-filters">
-    <input class="menu-search" id="menu-search" placeholder="Search dishes..." oninput="loadMenu()">
-    <button class="filter-btn active" type="button" onclick="setMenuFilter('', this)">All</button>
-    <button class="filter-btn" type="button" onclick="setMenuFilter('restaurant', this)">Restaurant</button>
-    <button class="filter-btn" type="button" onclick="setMenuFilter('catering', this)">Catering</button>
-    <button class="filter-btn" type="button" onclick="setMenuFilter('cafe', this)">Cafe</button>
-    <button class="filter-btn" type="button" onclick="setMenuFilter('pastry', this)">Pastry</button>
-  </div>
+  <div class="menu-table-wrap">
+    <div class="menu-table-card">
+      <div class="menu-table-head">
+        <h3>Main Entrees</h3>
+        <p><strong>All prices below are for 4 people.</strong></p>
+      </div>
+      <table class="menu-table">
+        <thead>
+          <tr>
+            <th>Dish</th>
+            <th>Description</th>
+            <th>Price (PHP)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Pork Adobo</strong></td>
+            <td>Slow-braised pork in soy sauce, vinegar, garlic, and bay leaves with a rich, savory glaze.</td>
+            <td><strong>&#8369;620.00</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Sinigang na Baboy</strong></td>
+            <td>Tender pork simmered in a bright tamarind broth with kangkong, radish, okra, and tomatoes.</td>
+            <td><strong>&#8369;760.00</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Kare-Kare</strong></td>
+            <td>Peanut-stewed beef and vegetables served with bagoong for a deep, comforting Filipino classic.</td>
+            <td><strong>&#8369;880.00</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Crispy Pata</strong></td>
+            <td>Golden pork knuckle with crackling skin, served with a tangy soy-vinegar dipping sauce.</td>
+            <td><strong>&#8369;950.00</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="menu-image-placeholders">
+        <img src="" alt="Pork Adobo">
+        <img src="" alt="Sinigang na Baboy">
+        <img src="" alt="Kare-Kare">
+        <img src="" alt="Crispy Pata">
+      </div>
+    </div>
 
-  <div class="menu-grid" id="menu-grid">
-    <div class="loading-state"><span class="spinner"></span> Loading menu...</div>
+    <div class="menu-table-card">
+      <div class="menu-table-head">
+        <h3>Sides / Noodles</h3>
+        <p><strong>Made for sharing at the table.</strong></p>
+      </div>
+      <table class="menu-table">
+        <thead>
+          <tr>
+            <th>Dish</th>
+            <th>Description</th>
+            <th>Price (PHP)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Pancit Canton</strong></td>
+            <td>Wok-tossed egg noodles with vegetables, chicken, and a savory stir-fried finish.</td>
+            <td><strong>&#8369;520.00</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Lumpiang Shanghai</strong></td>
+            <td>Crisp bite-sized pork spring rolls served with sweet chili sauce, ideal for group sharing.</td>
+            <td><strong>&#8369;420.00</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Garlic Rice Platter</strong></td>
+            <td>Fragrant fried rice tossed with roasted garlic, a perfect partner for every entree.</td>
+            <td><strong>&#8369;180.00</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Steamed Rice Bucket</strong></td>
+            <td>Fluffy steamed rice portioned for four, ready to round out the feast.</td>
+            <td><strong>&#8369;140.00</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="menu-image-placeholders">
+        <img src="" alt="Pancit Canton">
+        <img src="" alt="Lumpiang Shanghai">
+        <img src="" alt="Garlic Rice Platter">
+        <img src="" alt="Steamed Rice Bucket">
+      </div>
+    </div>
+
+    <div class="menu-table-card">
+      <div class="menu-table-head">
+        <h3>Desserts / Drinks</h3>
+        <p><strong>Sweet finishes and refreshing pitchers for 4 pax.</strong></p>
+      </div>
+      <table class="menu-table">
+        <thead>
+          <tr>
+            <th>Dish</th>
+            <th>Description</th>
+            <th>Price (PHP)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Leche Flan</strong></td>
+            <td>Silky caramel custard with a smooth, creamy texture that is easy to pass around the table.</td>
+            <td><strong>&#8369;220.00</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Buko Pandan</strong></td>
+            <td>Chilled young coconut and pandan jelly dessert in a lightly sweet cream blend.</td>
+            <td><strong>&#8369;280.00</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Iced Tea Pitcher</strong></td>
+            <td>Refreshing house-brewed iced tea served in a pitcher for the whole group.</td>
+            <td><strong>&#8369;180.00</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Calamansi Juice Pitcher</strong></td>
+            <td>Bright and citrusy local lime cooler with a clean, refreshing finish.</td>
+            <td><strong>&#8369;220.00</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="menu-image-placeholders">
+        <img src="" alt="Leche Flan">
+        <img src="" alt="Buko Pandan">
+        <img src="" alt="Iced Tea Pitcher">
+        <img src="" alt="Calamansi Juice Pitcher">
+      </div>
+    </div>
   </div>
 </section>
 
@@ -505,8 +626,12 @@ function renderServiceBuilder() {
 }
 
 async function loadMenu() {
-  const query = document.getElementById('menu-search').value;
   const grid = document.getElementById('menu-grid');
+  const search = document.getElementById('menu-search');
+  if (!grid || !search) {
+    return;
+  }
+  const query = search.value;
   grid.innerHTML = '<div class="loading-state"><span class="spinner"></span> Loading...</div>';
 
   const data = await api({ action: 'menu', q: query, category: menuFilter });
@@ -531,7 +656,9 @@ async function loadMenu() {
 function setMenuFilter(category, button) {
   menuFilter = category;
   document.querySelectorAll('.filter-btn').forEach((item) => item.classList.remove('active'));
-  button.classList.add('active');
+  if (button) {
+    button.classList.add('active');
+  }
   loadMenu();
 }
 
