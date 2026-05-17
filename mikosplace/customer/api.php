@@ -90,7 +90,12 @@ function computeSelectionTotals(array $menuSelections, array $menuCatalog, array
     }
 
     foreach ($addons as $addon) {
-        $addonTotal += ((float)$addon['unit_price']) * $addon['quantity'];
+        $price = (float)$addon['unit_price'];
+        if ($price <= 0) {
+            $hasCustomQuote = true;
+            continue;
+        }
+        $addonTotal += $price * $addon['quantity'];
     }
 
     return [

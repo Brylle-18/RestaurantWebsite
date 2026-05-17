@@ -116,21 +116,34 @@ INSERT INTO admin_users (username, password, full_name) VALUES
 
 -- Menu Items
 INSERT INTO menu_items (name, category, price, description) VALUES
-('Pork Adobo',                'restaurant', 620.00, 'Slow-braised pork in soy sauce, vinegar, garlic, and bay leaves, sized for 4 pax'),
-('Sinigang na Baboy',         'restaurant', 760.00, 'Tender pork in tamarind broth with kangkong, radish, okra, and tomatoes, sized for 4 pax'),
-('Kare-Kare',                 'restaurant', 880.00, 'Peanut-braised beef and vegetables served with bagoong, sized for 4 pax'),
-('Crispy Pata',               'restaurant', 950.00, 'Golden pork knuckle with crackling skin and soy-vinegar dip, sized for 4 pax'),
-('Chicken Inasal',            'restaurant', 680.00, 'Char-grilled chicken marinated in local spices and calamansi, sized for 4 pax'),
-('Pancit Canton',             'catering',   520.00, 'Wok-tossed egg noodles with vegetables and chicken, sized for 4 pax'),
-('Pancit Bihon',              'catering',   480.00, 'Light rice noodles stir-fried with vegetables, pork, and citrus notes, sized for 4 pax'),
-('Lumpiang Shanghai',         'catering',   420.00, 'Crisp pork spring rolls with sweet chili sauce, good for 4 pax'),
-('Garlic Rice Platter',       'catering',   180.00, 'Fragrant garlic fried rice platter for 4 pax'),
-('Steamed Rice Bucket',       'catering',   140.00, 'Steamed rice served family-style for 4 pax'),
-('Iced Tea Pitcher',          'cafe',       180.00, 'House-brewed iced tea pitcher for 4 pax'),
-('Calamansi Juice Pitcher',   'cafe',       220.00, 'Fresh calamansi cooler pitcher for 4 pax'),
-('Sago''t Gulaman Pitcher',   'cafe',       240.00, 'Classic Filipino refreshment with tapioca pearls and gulaman for 4 pax'),
-('Leche Flan',                'pastry',     220.00, 'Silky caramel custard platter for sharing'),
-('Buko Pandan',               'pastry',     280.00, 'Chilled young coconut and pandan jelly dessert bowl for 4 pax');
+('Pancit Guisado',            'restaurant', 0.00, 'Stir-fried mixed noodles with vegetables, pork, and shrimp. Final pricing depends on selected portion size.'),
+('Pancit Bihon',              'restaurant', 0.00, 'Thin rice noodles with soy sauce, garlic, vegetables, and chicken. Final pricing depends on selected portion size.'),
+('Lumpiang Shanghai',         'restaurant', 0.00, 'Crispy pork spring rolls served with sweet and sour dipping sauce. Final pricing depends on selected portion size.'),
+('Lumpiang Sariwa',           'restaurant', 0.00, 'Fresh spring rolls with ubod and vegetables topped with peanut sauce. Final pricing depends on selected portion size.'),
+('Pork Adobo',                'restaurant', 0.00, 'Pork belly braised in soy sauce, vinegar, garlic, and peppercorns. Final pricing depends on selected portion size.'),
+('Crispy Pata',               'restaurant', 0.00, 'Deep-fried pork knuckle with crunchy skin and tender meat. Final pricing depends on selected portion size.'),
+('Lechon Kawali',             'restaurant', 0.00, 'Crispy pork belly chunks served with liver sauce. Final pricing depends on selected portion size.'),
+('Pork Menudo',               'restaurant', 0.00, 'Pork stew with tomato sauce, liver, potatoes, raisins, and carrots. Final pricing depends on selected portion size.'),
+('Kare-Kare',                 'restaurant', 0.00, 'Oxtail and tripe in peanut sauce served with shrimp paste. Final pricing depends on selected portion size.'),
+('Beef Caldereta',            'restaurant', 0.00, 'Hearty beef stew with tomato sauce, liver spread, cheese, and peppers. Final pricing depends on selected portion size.'),
+('Bistek Tagalog',            'restaurant', 0.00, 'Soy and calamansi beef topped with onion rings. Final pricing depends on selected portion size.'),
+('Chicken Adobo',             'restaurant', 0.00, 'Chicken simmered in garlic, soy sauce, vinegar, and bay leaves. Final pricing depends on selected portion size.'),
+('Chicken Inasal',            'restaurant', 0.00, 'Visayan-style grilled chicken marinated in lemongrass, calamansi, and achuete oil. Final pricing depends on selected portion size.'),
+('Chicken Afritada',          'restaurant', 0.00, 'Chicken stewed in tomato sauce with potatoes, carrots, and bell peppers. Final pricing depends on selected portion size.'),
+('Inihaw na Pusit',           'restaurant', 0.00, 'Charcoal-grilled squid stuffed with onions and tomatoes. Final pricing depends on selected portion size.'),
+('Daing na Bangus',           'restaurant', 0.00, 'Deep-fried milkfish marinated in vinegar, garlic, and peppercorns. Final pricing depends on selected portion size.'),
+('Sinigang na Hipon',         'restaurant', 0.00, 'Shrimp in a sour tamarind broth with local vegetables. Final pricing depends on selected portion size.'),
+('Pinakbet',                  'restaurant', 0.00, 'Mixed vegetables sauteed in shrimp paste with crispy pork bits. Final pricing depends on selected portion size.'),
+('Ginataang Sitaw at Kalabasa','restaurant',0.00, 'String beans and squash cooked in rich coconut milk. Final pricing depends on selected portion size.'),
+('Halo-Halo',                 'restaurant', 0.00, 'Shaved ice dessert with sweet beans, fruits, leche flan, and ube ice cream. Final pricing depends on selected portion size.'),
+('Leche Flan',                'restaurant', 0.00, 'Velvety caramel custard dessert. Final pricing depends on selected portion size.'),
+('Buko Pandan',               'restaurant', 0.00, 'Pandan jelly and young coconut in sweetened cream. Final pricing depends on selected portion size.'),
+('Turon',                     'restaurant', 0.00, 'Caramelized banana and jackfruit spring roll dessert. Final pricing depends on selected portion size.'),
+('Cassava Cake',              'restaurant', 0.00, 'Moist cassava cake finished with creamy custard. Final pricing depends on selected portion size.'),
+('Sago''t Gulaman',           'restaurant', 0.00, 'Classic iced Filipino drink with syrup, tapioca pearls, and gelatin. Final pricing depends on selected portion size.'),
+('Fresh Buko Juice',          'restaurant', 0.00, 'Naturally sweet coconut water served chilled. Final pricing depends on selected portion size.'),
+('Calamansi Juice',           'restaurant', 0.00, 'Freshly squeezed native lime drink served iced or hot. Final pricing depends on selected portion size.'),
+('Mango Shake',               'restaurant', 0.00, 'Creamy ripe mango shake blended with milk and ice. Final pricing depends on selected portion size.');
 
 -- Venues
 INSERT INTO venues (name, type, capacity, rate, description) VALUES
@@ -147,6 +160,6 @@ INSERT INTO staff (name, role, assignment, shift_start, shift_end, status) VALUE
 
 -- Sample bookings  
 INSERT INTO bookings (ticket_no, customer_name, customer_email, customer_phone, service_type, pax, total_amount, status, event_date) VALUES
-('#MP-201', 'Jose Rizal',       'jose@example.com', '09171234567', 'restaurant', 3,  548.00, 'confirmed',   CURDATE()),
-('#MP-202', 'Apolinario Mabini', 'apo@example.com', '09189876543', 'catering',   50, 0.00,   'in_progress', CURDATE()),
-('#MP-203', 'Gabriela Silang',  'gab@example.com', '09201112222', 'cafe',        2,  164.00, 'completed',   CURDATE());
+('#MP-201', 'Jose Rizal',        'jose@example.com', '09171234567', 'restaurant', 4,  0.00, 'confirmed',   CURDATE()),
+('#MP-202', 'Apolinario Mabini', 'apo@example.com',  '09189876543', 'venue',     50, 10000.00, 'in_progress', CURDATE()),
+('#MP-203', 'Gabriela Silang',   'gab@example.com',  '09201112222', 'restaurant', 6, 0.00, 'pending',     CURDATE());
