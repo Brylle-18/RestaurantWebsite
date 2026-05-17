@@ -166,6 +166,11 @@ switch ($action) {
 
     // ── SUBMIT BOOKING INQUIRY ───────────────────────────────
     case 'inquire':
+        // Spam protection: check honeypot
+        if (!empty($_POST['honey'])) {
+            jsonErr('Spam detected');
+        }
+
         $name    = sanitize($_POST['customer_name'] ?? '');
         $email   = filter_var(trim($_POST['customer_email'] ?? ''), FILTER_VALIDATE_EMAIL);
         $phone   = trim($_POST['customer_phone'] ?? '');
@@ -207,11 +212,7 @@ switch ($action) {
             jsonErr('Please select at least one menu choice for this booking');
         }
 
-        // Auto-generate ticket number
-        $last   = $db->query("SELECT id FROM bookings ORDER BY id DESC LIMIT 1")->fetchColumn();
-        $ticket = '#MP-' . str_pad(($last ? $last + 1 : 300), 3, '0', STR_PAD_LEFT);
-
-        // Venue amount auto-fill
+        // Venue amount auto-fill & Availability Check
         $venue_id = null;
         $amount = 0.00;
         if ($service === 'venue') {
@@ -227,6 +228,13 @@ switch ($action) {
                     jsonErr('Selected venue is unavailable');
                 }
                 $amount = (float)$vr['rate'];
+
+                // CONCURRENCY CHECK: Is venue already booked for this date?
+                $check = $db->prepare("SELECT COUNT(*) FROM bookings WHERE venue_id = ? AND event_date = ? AND status IN ('confirmed', 'in_progress', 'completed')");
+                $check->execute([$venue_id, $date]);
+                if ((int)$check->fetchColumn() > 0) {
+                    jsonErr('This venue is already fully booked for the selected date. Please try another date or venue.');
+                }
             }
         }
 
@@ -249,15 +257,20 @@ switch ($action) {
         $db->beginTransaction();
         try {
             $db->prepare('INSERT INTO bookings (ticket_no,customer_name,customer_email,customer_phone,service_type,venue_id,details,pax,event_date,total_amount,notes,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
-               ->execute([$ticket,$name,$email,$phone,$service,$venue_id,$details,$pax,$date,$amount,$notes,'pending']);
+               ->execute(['TEMP', $name,$email,$phone,$service,$venue_id,$details,$pax,$date,$amount,$notes,'pending']);
+            
             $bookingId = (int)$db->lastInsertId();
+            $ticket = '#MP-' . str_pad($bookingId + 299, 3, '0', STR_PAD_LEFT);
+            $db->prepare('UPDATE bookings SET ticket_no=? WHERE id=?')->execute([$ticket, $bookingId]);
+
             persistBookingSelections($db, $bookingId, $menuSelections, $menuCatalog, $addonSelections);
             $db->commit();
         } catch (Throwable $e) {
             if ($db->inTransaction()) {
                 $db->rollBack();
             }
-            jsonErr('Could not save your booking right now', 500);
+            error_log("Booking error: " . $e->getMessage());
+            jsonErr('Could not save your booking right now. Please try again later.', 500);
         }
 
         jsonOK([

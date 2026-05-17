@@ -233,6 +233,10 @@
         <strong>Build your booking details</strong>
         <span>Choose menu items, event extras, or venue add-ons so our team can prepare a more accurate quote before confirming.</span>
       </div>
+      <div class="field" style="display:none">
+        <label>Keep this field empty</label>
+        <input id="inq-honey" type="text" autocomplete="off">
+      </div>
       <div class="form-row">
         <div class="field"><label>Full Name *</label><input id="inq-name" placeholder="Your full name"></div>
         <div class="field"><label>Phone Number *</label><input id="inq-phone" placeholder="09XXXXXXXXX"></div>
@@ -425,6 +429,11 @@ function formatCurrency(amount) {
   return `&#8369;${parseFloat(amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
 }
 
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
 function getCurrentServiceConfig() {
   const service = document.getElementById('inq-service').value;
   return SERVICE_CONFIG[service];
@@ -541,8 +550,8 @@ function renderPricePreview() {
         ? lines.map((line) => `
           <div class="price-line">
             <div>
-              <span>${line.label}</span>
-              <small>${line.detail}</small>
+              <span>${esc(line.label)}</span>
+              <small>${esc(line.detail)}</small>
             </div>
             <strong>${line.amount === null ? 'Quoted later' : formatCurrency(line.amount)}</strong>
           </div>`).join('')
@@ -567,8 +576,8 @@ function renderServiceBuilder() {
     menuGrid.innerHTML = `
       <div class="booking-option static-option">
         <div>
-          <strong>${venue ? venue.name : 'Choose a venue above'}</strong>
-          <p>${venue ? `${venue.capacity} pax · ${venue.type} venue` : 'Select a venue to start building your event package.'}</p>
+          <strong>${venue ? esc(venue.name) : 'Choose a venue above'}</strong>
+          <p>${venue ? `${venue.capacity} pax · ${esc(venue.type)} venue` : 'Select a venue to start building your event package.'}</p>
         </div>
         <span class="option-price">${venue ? formatCurrency(venue.rate) : 'Required'}</span>
       </div>`;
@@ -578,8 +587,8 @@ function renderServiceBuilder() {
     menuGrid.innerHTML = serviceItems.map((item) => `
       <div class="booking-option">
         <div class="booking-option-copy">
-          <strong>${item.name}</strong>
-          <p>${item.description || 'Prepared fresh for your reservation'}</p>
+          <strong>${esc(item.name)}</strong>
+          <p>${esc(item.description || 'Prepared fresh for your reservation')}</p>
         </div>
         <div class="booking-option-meta">
           <span class="option-price">${Number(item.price) > 0 ? formatCurrency(item.price) : 'Custom quote'}</span>
@@ -588,7 +597,7 @@ function renderServiceBuilder() {
             min="0"
             value="${bookingState.selectedItems.get(Number(item.id)) || 0}"
             class="option-qty"
-            aria-label="Quantity for ${item.name}"
+            aria-label="Quantity for ${esc(item.name)}"
             onchange="updateMenuSelection(${item.id}, this.value)"
           >
         </div>
@@ -605,7 +614,7 @@ function renderServiceBuilder() {
           <label class="addon-check">
             <input type="checkbox" ${activeAddon ? 'checked' : ''} onchange="toggleAddonSelection('${addon.code}', this.checked)">
             <span>
-              <strong>${addon.name}</strong>
+              <strong>${esc(addon.name)}</strong>
               <small>${formatCurrency(addon.unit_price)}</small>
             </span>
           </label>
@@ -615,7 +624,7 @@ function renderServiceBuilder() {
             value="${activeAddon?.quantity || 1}"
             class="option-qty addon-qty"
             ${activeAddon ? '' : 'disabled'}
-            aria-label="Quantity for ${addon.name}"
+            aria-label="Quantity for ${esc(addon.name)}"
             onchange="updateAddonQuantity('${addon.code}', this.value)"
           >
         </div>`;
@@ -643,9 +652,9 @@ async function loadMenu() {
   grid.innerHTML = data.items.length
     ? data.items.map((item) => `
       <div class="dish-card">
-        <p class="dish-cat">${item.category}</p>
-        <h3 class="dish-name">${item.name}</h3>
-        <p class="dish-desc">${item.description || 'A delicious offering from our kitchen'}</p>
+        <p class="dish-cat">${esc(item.category)}</p>
+        <h3 class="dish-name">${esc(item.name)}</h3>
+        <p class="dish-desc">${esc(item.description || 'A delicious offering from our kitchen')}</p>
         ${Number(item.price) > 0
           ? `<p class="dish-price">&#8369;${parseFloat(item.price).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</p>`
           : '<p class="dish-price custom">Custom quote</p>'}
@@ -675,14 +684,14 @@ async function loadVenues() {
   grid.innerHTML = data.venues.map((venue) => `
     <div class="venue-card">
       <div class="venue-header">
-        <h3>${venue.name}</h3>
-        <p class="venue-type-tag">${venue.type} venue</p>
+        <h3>${esc(venue.name)}</h3>
+        <p class="venue-type-tag">${esc(venue.type)} venue</p>
       </div>
       <div class="venue-body">
         <p class="venue-rate">&#8369;${parseFloat(venue.rate).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</p>
         <div class="venue-detail"><strong>Capacity</strong><span>${venue.capacity} pax</span></div>
-        <div class="venue-detail"><strong>Type</strong><span style="text-transform:capitalize">${venue.type}</span></div>
-        <div class="venue-detail"><strong>Description</strong><span>${venue.description || 'Perfect for your occasion'}</span></div>
+        <div class="venue-detail"><strong>Type</strong><span style="text-transform:capitalize">${esc(venue.type)}</span></div>
+        <div class="venue-detail"><strong>Description</strong><span>${esc(venue.description || 'Perfect for your occasion')}</span></div>
         <span class="venue-avail ${venue.is_available ? 'yes' : 'no'}">${venue.is_available ? '&#10003; Available' : '&#10005; Booked'}</span>
         <button class="btn-book" type="button" onclick='prefillVenueBooking(${venue.id})' ${venue.is_available ? '' : 'disabled'}>
           ${venue.is_available ? 'Book This Venue' : 'Currently Unavailable'}
@@ -691,7 +700,7 @@ async function loadVenues() {
     </div>`).join('');
 
   const select = document.getElementById('inq-venue-id');
-  select.innerHTML = `<option value="">Choose a venue</option>${data.venues.map((venue) => `<option value="${venue.id}">${venue.name} (&#8369;${parseFloat(venue.rate).toLocaleString('en-PH')})</option>`).join('')}`;
+  select.innerHTML = `<option value="">Choose a venue</option>${data.venues.map((venue) => `<option value="${venue.id}">${esc(venue.name)} (&#8369;${parseFloat(venue.rate).toLocaleString('en-PH')})</option>`).join('')}`;
   renderServiceBuilder();
 }
 
@@ -757,10 +766,11 @@ async function submitInquiry() {
     notes: document.getElementById('inq-notes').value,
     selected_items: JSON.stringify(selectedItems),
     selected_addons: JSON.stringify(selectedAddons),
+    honey: document.getElementById('inq-honey').value,
   }, 'POST');
 
   if (data?.ok) {
-    successElement.innerHTML = `<strong>Booking submitted.</strong> Your ticket number is <strong>${data.ticket_no}</strong>. ${data.custom_quote_required ? 'Some selected items will be quoted by the team.' : `Estimated amount: <strong>${formatCurrency(data.estimated_amount)}</strong>.`} Use your ticket to track updates.`;
+    successElement.innerHTML = `<strong>Booking submitted.</strong> Your ticket number is <strong>${esc(data.ticket_no)}</strong>. ${data.custom_quote_required ? 'Some selected items will be quoted by the team.' : `Estimated amount: <strong>${formatCurrency(data.estimated_amount)}</strong>.`} Use your ticket to track updates.`;
     successElement.style.display = 'block';
     document.getElementById('inq-name').value = '';
     document.getElementById('inq-phone').value = '';
@@ -798,17 +808,17 @@ async function trackBooking() {
   const items = data.items || [];
   const addons = data.addons || [];
   result.innerHTML = `
-    <div class="result-row"><span class="lbl">Ticket</span><strong>${booking.ticket_no}</strong></div>
-    <div class="result-row"><span class="lbl">Name</span><span>${booking.customer_name}</span></div>
-    <div class="result-row"><span class="lbl">Service</span><span style="text-transform:capitalize">${booking.service_type}</span></div>
+    <div class="result-row"><span class="lbl">Ticket</span><strong>${esc(booking.ticket_no)}</strong></div>
+    <div class="result-row"><span class="lbl">Name</span><span>${esc(booking.customer_name)}</span></div>
+    <div class="result-row"><span class="lbl">Service</span><span style="text-transform:capitalize">${esc(booking.service_type)}</span></div>
     <div class="result-row"><span class="lbl">Event Date</span><span>${booking.event_date ? new Date(booking.event_date).toLocaleDateString('en-PH', { dateStyle: 'long' }) : 'Not set'}</span></div>
     <div class="result-row"><span class="lbl">Guests</span><span>${booking.pax} pax</span></div>
     <div class="result-row"><span class="lbl">Amount</span><span>${Number(booking.total_amount) > 0 ? formatCurrency(booking.total_amount) : 'To be quoted'}</span></div>
-    <div class="result-row"><span class="lbl">Status</span><span class="badge ${booking.status}">${booking.status.replace('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase())}</span></div>
-    ${booking.pricing_notes ? `<div class="result-row"><span class="lbl">Pricing Notes</span><span style="font-size:13px;color:var(--muted)">${booking.pricing_notes}</span></div>` : ''}
-    ${items.length ? `<div class="result-block"><span class="lbl">Selected Items</span><div class="result-stack">${items.map((item) => `<div class="result-chip">${item.name} x${item.quantity}${Number(item.unit_price) > 0 ? ` · ${formatCurrency(item.unit_price)}` : ' · Custom quote'}</div>`).join('')}</div></div>` : ''}
-    ${addons.length ? `<div class="result-block"><span class="lbl">Add-ons</span><div class="result-stack">${addons.map((addon) => `<div class="result-chip">${addon.addon_name} x${addon.quantity} · ${formatCurrency(addon.unit_price)}</div>`).join('')}</div></div>` : ''}
-    ${booking.notes ? `<div class="result-row"><span class="lbl">Notes</span><span style="font-size:13px;color:var(--muted)">${booking.notes}</span></div>` : ''}`;
+    <div class="result-row"><span class="lbl">Status</span><span class="badge ${esc(booking.status)}">${esc(booking.status.replace('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase()))}</span></div>
+    ${booking.pricing_notes ? `<div class="result-row"><span class="lbl">Pricing Notes</span><span style="font-size:13px;color:var(--muted)">${esc(booking.pricing_notes)}</span></div>` : ''}
+    ${items.length ? `<div class="result-block"><span class="lbl">Selected Items</span><div class="result-stack">${items.map((item) => `<div class="result-chip">${esc(item.name)} x${item.quantity}${Number(item.unit_price) > 0 ? ` · ${formatCurrency(item.unit_price)}` : ' · Custom quote'}</div>`).join('')}</div></div>` : ''}
+    ${addons.length ? `<div class="result-block"><span class="lbl">Add-ons</span><div class="result-stack">${addons.map((addon) => `<div class="result-chip">${esc(addon.addon_name)} x${addon.quantity} · ${formatCurrency(addon.unit_price)}</div>`).join('')}</div></div>` : ''}
+    ${booking.notes ? `<div class="result-row"><span class="lbl">Notes</span><span style="font-size:13px;color:var(--muted)">${esc(booking.notes)}</span></div>` : ''}`;
   result.style.display = 'block';
 }
 
@@ -817,21 +827,30 @@ loadBookingCatalog();
 loadVenues();
 onServiceChange();
 
-// Scroll overlay effect for green components
-window.addEventListener('scroll', () => {
-  const greenSections = document.querySelectorAll('#services, #inquiry, .btn-hero-primary, .filter-btn.active, .btn-submit, .btn-track, .btn-book');
-  let showOverlay = false;
-  
-  greenSections.forEach(section => {
-    const rect = section.getBoundingClientRect();
-    // Check if section is visible in viewport
-    if (rect.top < window.innerHeight && rect.bottom > 0) {
-      showOverlay = true;
-    }
+// Scroll overlay effect for green components using IntersectionObserver for better performance
+const scrollObserver = new IntersectionObserver((entries) => {
+  // Use a simple check: if any of the observed entries are intersecting, we might want the overlay
+  // But we need to keep track of all visible elements
+  const visibleGreenElements = document.querySelectorAll('.observe-green[data-visible="true"]');
+  document.body.classList.toggle('scroll-overlay', visibleGreenElements.length > 0);
+}, { threshold: 0.1 });
+
+function initScrollObserver() {
+  const selectors = '#services, #inquiry, .btn-hero-primary, .btn-submit, .btn-track, .btn-book';
+  document.querySelectorAll(selectors).forEach(el => {
+    el.classList.add('observe-green');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        entry.target.setAttribute('data-visible', entry.isIntersecting ? 'true' : 'false');
+        const anyVisible = document.querySelectorAll('.observe-green[data-visible="true"]').length > 0;
+        document.body.classList.toggle('scroll-overlay', anyVisible);
+      });
+    }, { threshold: 0 });
+    observer.observe(el);
   });
-  
-  document.body.classList.toggle('scroll-overlay', showOverlay);
-});
+}
+
+initScrollObserver();
 </script>
 </body>
 </html>

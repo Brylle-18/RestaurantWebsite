@@ -392,6 +392,10 @@ function badge(status) {
   return `<span class="badge ${map[status]||'grey'}">${label}</span>`;
 }
 function fmt(n) { return '₱' + parseFloat(n||0).toLocaleString('en-PH',{minimumFractionDigits:2}); }
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
 
 //  DASHBOARD 
 async function loadDashboard() {
@@ -409,9 +413,9 @@ async function loadDashboard() {
   const tb = document.getElementById('recent-bookings');
   tb.innerHTML = r.recent.length ? r.recent.map(b => `
     <tr>
-      <td><strong>${b.ticket_no}</strong></td>
-      <td>${b.customer_name}</td>
-      <td style="text-transform:capitalize">${b.service_type}</td>
+      <td><strong>${esc(b.ticket_no)}</strong></td>
+      <td>${esc(b.customer_name)}</td>
+      <td style="text-transform:capitalize">${esc(b.service_type)}</td>
       <td>${fmt(b.total_amount)}</td>
       <td>${badge(b.status)}</td>
       <td>${new Date(b.created_at).toLocaleDateString('en-PH')}</td>
@@ -427,9 +431,9 @@ async function loadBookings() {
   if (!d) { tb.innerHTML = `<tr class="loading-row"><td colspan="8">Error loading</td></tr>`; return; }
   tb.innerHTML = d.bookings.length ? d.bookings.map(b => `
     <tr>
-      <td><strong>${b.ticket_no}</strong></td>
-      <td>${b.customer_name}<br><small style="color:var(--muted)">${b.customer_phone||''}</small></td>
-      <td style="text-transform:capitalize">${b.service_type}${b.venue_name ? `<br><small style="color:var(--muted)">${b.venue_name}</small>` : ''}</td>
+      <td><strong>${esc(b.ticket_no)}</strong></td>
+      <td>${esc(b.customer_name)}<br><small style="color:var(--muted)">${esc(b.customer_phone||'')}</small></td>
+      <td style="text-transform:capitalize">${esc(b.service_type)}${b.venue_name ? `<br><small style="color:var(--muted)">${esc(b.venue_name)}</small>` : ''}</td>
       <td>${b.event_date ? new Date(b.event_date).toLocaleDateString('en-PH') : '-'}</td>
       <td>${b.pax}</td>
       <td>${Number(b.total_amount) > 0 ? fmt(b.total_amount) : '<em style="color:var(--muted)">Awaiting quote</em>'}</td>
@@ -451,7 +455,7 @@ function renderReviewList(targetId, items, type) {
   target.innerHTML = items.map((item) => `
     <div class="review-line">
       <div>
-        <strong>${type === 'menu' ? item.dish : item.addon_name}</strong>
+        <strong>${type === 'menu' ? esc(item.dish) : esc(item.addon_name)}</strong>
         <p>${item.quantity} x ${Number(item.unit_price) > 0 ? fmt(item.unit_price) : 'Custom quote'}</p>
       </div>
       <span>${Number(item.unit_price) > 0 ? fmt(item.unit_price * item.quantity) : 'Quoted later'}</span>
@@ -487,12 +491,12 @@ async function openBookingReview(id) {
   document.getElementById('review-notes').value = booking.notes || '';
   document.getElementById('booking-review-summary').innerHTML = `
     <div class="review-summary-grid">
-      <div class="review-stat"><span>Ticket</span><strong>${booking.ticket_no}</strong></div>
-      <div class="review-stat"><span>Customer</span><strong>${booking.customer_name}</strong><small>${booking.customer_phone || 'No phone provided'}</small></div>
-      <div class="review-stat"><span>Service</span><strong style="text-transform:capitalize">${booking.service_type}</strong><small>${booking.venue_name || 'Standard booking flow'}</small></div>
+      <div class="review-stat"><span>Ticket</span><strong>${esc(booking.ticket_no)}</strong></div>
+      <div class="review-stat"><span>Customer</span><strong>${esc(booking.customer_name)}</strong><small>${esc(booking.customer_phone || 'No phone provided')}</small></div>
+      <div class="review-stat"><span>Service</span><strong style="text-transform:capitalize">${esc(booking.service_type)}</strong><small>${esc(booking.venue_name || 'Standard booking flow')}</small></div>
       <div class="review-stat"><span>Event Date</span><strong>${booking.event_date ? new Date(booking.event_date).toLocaleDateString('en-PH', { dateStyle: 'long' }) : 'Not set'}</strong><small>${booking.pax} pax</small></div>
     </div>
-    ${detailSummary ? `<div class="review-note">${detailSummary}</div>` : ''}
+    ${detailSummary ? `<div class="review-note">${esc(detailSummary)}</div>` : ''}
   `;
   renderReviewList('booking-review-items', d.items || [], 'menu');
   renderReviewList('booking-review-addons', d.addons || [], 'addon');
@@ -549,10 +553,10 @@ async function loadMenu() {
   if (!d) return;
   tb.innerHTML = d.items.length ? d.items.map(m => `
     <tr>
-      <td><strong>${m.name}</strong></td>
-      <td style="text-transform:capitalize"><span class="badge ${m.category==='restaurant'?'success':m.category==='cafe'?'info':'grey'}">${m.category}</span></td>
+      <td><strong>${esc(m.name)}</strong></td>
+      <td style="text-transform:capitalize"><span class="badge ${m.category==='restaurant'?'success':m.category==='cafe'?'info':'grey'}">${esc(m.category)}</span></td>
       <td>${m.price > 0 ? fmt(m.price) : '<em style="color:var(--muted)">Custom</em>'}</td>
-      <td style="color:var(--muted);font-size:13px">${m.description||'-'}</td>
+      <td style="color:var(--muted);font-size:13px">${esc(m.description||'-')}</td>
       <td>${m.is_available ? '<span class="badge success">Yes</span>' : '<span class="badge warning">No</span>'}</td>
       <td>
         <button class="btn btn-ghost btn-sm" style="border-radius:10px;font-size:12px;padding:6px 10px;margin-right:4px"
@@ -591,11 +595,11 @@ async function loadVenues() {
   if (!d) return;
   g.innerHTML = d.venues.map(v => `
     <div class="venue-card ${v.is_available?'':'unavailable'}">
-      <h4>${v.name}</h4>
-      <p class="venue-type">${v.type} venue</p>
+      <h4>${esc(v.name)}</h4>
+      <p class="venue-type">${esc(v.type)} venue</p>
       <p class="venue-rate">${fmt(v.rate)}</p>
       <p class="venue-cap">Capacity: ${v.capacity} pax</p>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:14px">${v.description||''}</p>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:14px">${esc(v.description||'')}</p>
       <div class="venue-actions">
         <button class="btn btn-sm ${v.is_available?'btn-ghost':'btn-green'}" onclick="toggleVenue(${v.id},${v.is_available})">
           ${v.is_available ? 'Mark Unavailable' : 'Mark Available'}
@@ -616,14 +620,14 @@ async function loadStaff() {
   if (!d) return;
   tb.innerHTML = d.staff.length ? d.staff.map(s => `
     <tr>
-      <td><strong>${s.name}</strong></td>
-      <td>${s.role}</td>
-      <td style="color:var(--muted);font-size:13px">${s.assignment||'-'}</td>
-      <td style="font-size:13px">${s.shift_start||''} - ${s.shift_end||''}</td>
+      <td><strong>${esc(s.name)}</strong></td>
+      <td>${esc(s.role)}</td>
+      <td style="color:var(--muted);font-size:13px">${esc(s.assignment||'-')}</td>
+      <td style="font-size:13px">${esc(s.shift_start||'')} - ${esc(s.shift_end||'')}</td>
       <td>${badge(s.status)}</td>
       <td>
         <select class="search-select" style="padding:6px 10px;font-size:12px;border-radius:10px;margin-right:4px" onchange="updateStaffStatus(${s.id},this.value)">
-          ${['on_duty','off_duty','prepping','on_leave'].map(st=>`<option value="${st}" ${s.status===st?'selected':''}>${st.replace('_',' ')}</option>`).join('')}
+          ${['on_duty','off_duty','prepping','on_leave'].map(st=>`<option value="${st}" ${s.status===st?'selected':''}>${esc(st.replace('_',' '))}</option>`).join('')}
         </select>
         <button class="btn btn-danger btn-sm" style="border-radius:10px;font-size:12px;padding:6px 10px" onclick="deleteStaff(${s.id})">Remove</button>
       </td>
@@ -659,14 +663,14 @@ async function loadReports() {
   const g = document.getElementById('reports-grid');
   const byService = d.by_service.map(r => `
     <div class="report-stat">
-      <p class="lbl" style="text-transform:capitalize">${r.service_type}</p>
+      <p class="lbl" style="text-transform:capitalize">${esc(r.service_type)}</p>
       <p class="val">${r.cnt} bookings &nbsp;·&nbsp; ${fmt(r.total)}</p>
     </div>`).join('');
   const topDishes = d.top_dishes.length
-    ? `<ol style="padding-left:18px;color:var(--text)">${d.top_dishes.map(x=>`<li style="margin-bottom:8px">${x.name} <span style="color:var(--muted);font-size:12px">(${x.qty} orders)</span></li>`).join('')}</ol>`
+    ? `<ol style="padding-left:18px;color:var(--text)">${d.top_dishes.map(x=>`<li style="margin-bottom:8px">${esc(x.name)} <span style="color:var(--muted);font-size:12px">(${x.qty} orders)</span></li>`).join('')}</ol>`
     : '<p style="color:var(--muted);font-size:13px">No dish data yet</p>';
   const statusCounts = d.status_counts.map(s => `
-    <div class="report-stat"><p class="lbl" style="text-transform:capitalize">${s.status.replace('_',' ')}</p><p class="val">${s.cnt}</p></div>`).join('');
+    <div class="report-stat"><p class="lbl" style="text-transform:capitalize">${esc(s.status.replace('_',' '))}</p><p class="val">${s.cnt}</p></div>`).join('');
 
   g.innerHTML = `
     <div class="card">

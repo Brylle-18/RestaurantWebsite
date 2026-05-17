@@ -71,12 +71,20 @@ switch ($action) {
         $amount  = (float)($_POST['total_amount'] ?? 0);
         $notes   = sanitize($_POST['notes'] ?? '');
         if (!$name) jsonErr('Customer name required');
-        // Generate ticket number
-        $last = $db->query("SELECT id FROM bookings ORDER BY id DESC LIMIT 1")->fetchColumn();
-        $ticket = '#MP-' . str_pad(($last ? $last + 1 : 300), 3, '0', STR_PAD_LEFT);
-        $db->prepare('INSERT INTO bookings (ticket_no,customer_name,customer_email,customer_phone,service_type,pax,event_date,total_amount,notes) VALUES (?,?,?,?,?,?,?,?,?)')
-           ->execute([$ticket,$name,$email,$phone,$service,$pax,$date,$amount,$notes]);
-        jsonOK(['id' => $db->lastInsertId(), 'ticket_no' => $ticket]);
+        
+        $db->beginTransaction();
+        try {
+            $db->prepare('INSERT INTO bookings (ticket_no,customer_name,customer_email,customer_phone,service_type,pax,event_date,total_amount,notes) VALUES (?,?,?,?,?,?,?,?,?)')
+               ->execute(['TEMP',$name,$email,$phone,$service,$pax,$date,$amount,$notes]);
+            $id = $db->lastInsertId();
+            $ticket = '#MP-' . str_pad($id + 299, 3, '0', STR_PAD_LEFT);
+            $db->prepare('UPDATE bookings SET ticket_no=? WHERE id=?')->execute([$ticket, $id]);
+            $db->commit();
+            jsonOK(['id' => $id, 'ticket_no' => $ticket]);
+        } catch (Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            jsonErr('Failed to add booking');
+        }
 
     // ── UPDATE BOOKING STATUS ────────────────────────────────
     case 'booking_status':
@@ -84,14 +92,25 @@ switch ($action) {
         $status = $_POST['status'] ?? '';
         $allowed = ['pending','confirmed','in_progress','completed','cancelled'];
         if (!in_array($status, $allowed)) jsonErr('Invalid status');
-        if (bookingStatusNeedsPrice($status)) {
-            $check = $db->prepare('SELECT total_amount FROM bookings WHERE id=?');
-            $check->execute([$id]);
-            $amount = (float)$check->fetchColumn();
-            if ($amount <= 0) {
-                jsonErr('Set a booking price before confirming this reservation');
+        
+        $row = $db->prepare('SELECT service_type, venue_id, event_date, total_amount FROM bookings WHERE id=?');
+        $row->execute([$id]);
+        $booking = $row->fetch();
+        if (!$booking) jsonErr('Booking not found');
+
+        if (bookingStatusNeedsPrice($status) && (float)$booking['total_amount'] <= 0) {
+            jsonErr('Set a booking price before confirming this reservation');
+        }
+
+        // Availability check when confirming a venue booking
+        if ($booking['service_type'] === 'venue' && $booking['venue_id'] && $booking['event_date'] && in_array($status, ['confirmed', 'in_progress', 'completed'])) {
+            $check = $db->prepare("SELECT COUNT(*) FROM bookings WHERE venue_id = ? AND event_date = ? AND status IN ('confirmed', 'in_progress', 'completed') AND id != ?");
+            $check->execute([$booking['venue_id'], $booking['event_date'], $id]);
+            if ((int)$check->fetchColumn() > 0) {
+                jsonErr('Cannot confirm: This venue is already booked for that date.');
             }
         }
+
         $db->prepare('UPDATE bookings SET status=? WHERE id=?')->execute([$status, $id]);
         jsonOK(['message' => 'Status updated']);
 
@@ -106,9 +125,25 @@ switch ($action) {
         if (!in_array($status, $allowed, true)) {
             jsonErr('Invalid status');
         }
+        
+        $row = $db->prepare('SELECT service_type, venue_id, event_date FROM bookings WHERE id=?');
+        $row->execute([$id]);
+        $booking = $row->fetch();
+        if (!$booking) jsonErr('Booking not found');
+
         if (bookingStatusNeedsPrice($status) && $amount <= 0) {
             jsonErr('Please set the booking price before confirming');
         }
+
+        // Availability check when confirming a venue booking
+        if ($booking['service_type'] === 'venue' && $booking['venue_id'] && $booking['event_date'] && in_array($status, ['confirmed', 'in_progress', 'completed'])) {
+            $check = $db->prepare("SELECT COUNT(*) FROM bookings WHERE venue_id = ? AND event_date = ? AND status IN ('confirmed', 'in_progress', 'completed') AND id != ?");
+            $check->execute([$booking['venue_id'], $booking['event_date'], $id]);
+            if ((int)$check->fetchColumn() > 0) {
+                jsonErr('Cannot confirm: This venue is already booked for that date.');
+            }
+        }
+
         $db->prepare('UPDATE bookings SET total_amount=?, pricing_notes=?, notes=?, status=? WHERE id=?')
            ->execute([$amount, $pricingNotes ?: null, $notes, $status, $id]);
         jsonOK(['message' => 'Booking updated']);
