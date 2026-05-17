@@ -11,6 +11,7 @@ if (!empty($_SESSION['admin_id'])) {
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireCsrf();
     $user = trim($_POST['username'] ?? '');
     $pass = $_POST['password'] ?? '';
     if (adminLogin($user, $pass)) {
@@ -44,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
     <form method="POST">
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(getCsrfToken(), ENT_QUOTES) ?>">
       <div class="field">
         <label>Username</label>
         <input type="text" name="username" placeholder="Enter username" required autocomplete="username">

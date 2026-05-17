@@ -167,8 +167,8 @@ switch ($action) {
     // ── SUBMIT BOOKING INQUIRY ───────────────────────────────
     case 'inquire':
         $name    = sanitize($_POST['customer_name'] ?? '');
-        $email   = sanitize($_POST['customer_email'] ?? '');
-        $phone   = sanitize($_POST['customer_phone'] ?? '');
+        $email   = filter_var(trim($_POST['customer_email'] ?? ''), FILTER_VALIDATE_EMAIL);
+        $phone   = trim($_POST['customer_phone'] ?? '');
         $service = $_POST['service_type'] ?? 'restaurant';
         $pax     = (int)($_POST['pax'] ?? 1);
         $date    = $_POST['event_date'] ?: null;
@@ -177,9 +177,28 @@ switch ($action) {
         $addonSelections = normalizeAddonSelections(parseJsonArray($_POST['selected_addons'] ?? ''));
 
         if (!$name || !$phone) jsonErr('Name and phone number are required');
+        
+        // Basic phone validation (at least 7-15 digits, allows +, -, spaces)
+        if (!preg_match('/^[0-9\-\+\s]{7,15}$/', $phone)) {
+            jsonErr('Please enter a valid phone number');
+        }
+        
+        if ($_POST['customer_email'] && !$email) {
+            jsonErr('Please enter a valid email address');
+        }
+
         if (!in_array($service, ['restaurant','catering','cafe','venue'])) jsonErr('Invalid service type');
         if ($pax < 1) jsonErr('Guest count must be at least 1');
-        if (!$date) jsonErr('Please select your preferred date');
+        
+        if (!$date) {
+            jsonErr('Please select your preferred date');
+        } else {
+            $bookingDate = new DateTime($date);
+            $today = new DateTime('today');
+            if ($bookingDate < $today) {
+                jsonErr('The booking date cannot be in the past');
+            }
+        }
 
         $allowedCategories = bookingConfig()[$service];
         $menuCatalog = fetchMenuCatalog($db, $allowedCategories);

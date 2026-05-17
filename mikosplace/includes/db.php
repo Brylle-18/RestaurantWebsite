@@ -1,11 +1,26 @@
 <?php
-// includes/db.php — PDO database connection for Laragon (MySQL)
+// includes/db.php — PDO database connection
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'mikosplace');
-define('DB_USER', 'root');
-define('DB_PASS', '');          // Laragon default: empty password
-define('DB_CHARSET', 'utf8mb4');
+/**
+ * Basic .env loader
+ */
+function loadEnv(string $path): void {
+    if (!file_exists($path)) return;
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        list($name, $value) = explode('=', $line, 2);
+        $_ENV[trim($name)] = trim($value);
+    }
+}
+
+loadEnv(__DIR__ . '/../.env');
+
+define('DB_HOST', $_ENV['DB_HOST'] ?? 'localhost');
+define('DB_NAME', $_ENV['DB_NAME'] ?? 'mikosplace');
+define('DB_USER', $_ENV['DB_USER'] ?? 'root');
+define('DB_PASS', $_ENV['DB_PASS'] ?? '');
+define('DB_CHARSET', $_ENV['DB_CHARSET'] ?? 'utf8mb4');
 
 function ensureBookingSchema(PDO $pdo): void {
     static $ensured = false;
@@ -53,8 +68,9 @@ function getDB(): PDO {
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ]);
         } catch (PDOException $e) {
+            error_log("Database connection failed: " . $e->getMessage());
             http_response_code(500);
-            die(json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]));
+            die(json_encode(['error' => 'A system error occurred. Please try again later.']));
         }
         ensureBookingSchema($pdo);
     }

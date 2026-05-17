@@ -4,6 +4,7 @@
     require_once __DIR__ . '/../includes/auth.php';
     requireAdmin();
     $adminName = htmlspecialchars($_SESSION['admin_name'] ?? 'Admin');
+    $csrfToken = getCsrfToken();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -334,6 +335,7 @@
 
 <script>
 const API = 'api.php';
+const CSRF_TOKEN = <?php echo json_encode($csrfToken, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 let currentBookingReview = null;
 
 //  Section navigation 
@@ -354,9 +356,13 @@ function show(id, btn) {
 //  API helpers 
 async function api(params, method = 'GET') {
   try {
+    const payload = new URLSearchParams(params);
+    if (method !== 'GET') {
+      payload.set('csrf_token', CSRF_TOKEN);
+    }
     const opts = method === 'GET'
       ? { method: 'GET' }
-      : { method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded'}, body: new URLSearchParams(params) };
+      : { method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded'}, body: payload };
     const url = method === 'GET' ? API + '?' + new URLSearchParams(params) : API;
     const r = await fetch(url, opts);
     return await r.json();
@@ -529,12 +535,7 @@ async function addBooking() {
     total_amount: document.getElementById('b-amount').value,
     notes: document.getElementById('b-notes').value,
   };
-  // Direct DB insert via inline PHP endpoint
-  const r = await fetch(API, {
-    method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body: new URLSearchParams(payload)
-  });
-  const d = await r.json();
+  const d = await api(payload, 'POST');
   if (d?.ok) { toast('Booking created ✓'); closeModal('modal-booking-add'); loadBookings(); }
   else toast(d?.error || 'Failed', true);
 }

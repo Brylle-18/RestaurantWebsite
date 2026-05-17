@@ -5,6 +5,11 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 requireAdmin();
 
+// Enforce CSRF protection for POST requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireCsrf();
+}
+
 $db     = getDB();
 $action = $_REQUEST['action'] ?? '';
 

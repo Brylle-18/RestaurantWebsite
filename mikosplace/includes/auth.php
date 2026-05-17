@@ -1,7 +1,37 @@
 <?php
 // includes/auth.php — session-based authentication for admin and customers
 
-session_start();
+// Secure session settings
+if (session_status() === PHP_SESSION_NONE) {
+    session_start([
+        'cookie_httponly' => true,
+        'cookie_secure'   => isset($_SERVER['HTTPS']),
+        'cookie_samesite' => 'Lax',
+    ]);
+}
+
+// ============================================================
+// CSRF PROTECTION
+// ============================================================
+
+function getCsrfToken(): string {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function validateCsrfToken(?string $token): bool {
+    return !empty($token) && hash_equals($_SESSION['csrf_token'] ?? '', $token);
+}
+
+function requireCsrf(): void {
+    $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+    if (!validateCsrfToken($token)) {
+        http_response_code(403);
+        die(json_encode(['ok' => false, 'error' => 'Invalid CSRF token']));
+    }
+}
 
 // ============================================================
 // ADMIN FUNCTIONS
