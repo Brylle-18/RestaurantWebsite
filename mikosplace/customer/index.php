@@ -543,14 +543,17 @@ function renderServiceBuilder() {
             return `
               <label class="package-card ${active ? 'active' : ''}">
                 <input type="radio" name="venue-package" ${active ? 'checked' : ''} onchange="toggleVenuePackage('${pkg.code}')">
-                <div class="package-card-copy">
-                  <div class="package-card-top">
-                    <strong>${esc(pkg.name)}</strong>
-                    <span class="option-price">${esc(pkg.price)}</span>
-                  </div>
-                  <p>${esc(pkg.summary)}</p>
-                  <div class="package-chip-row">
-                    ${pkg.inclusions.map((item) => `<span class="package-chip">${esc(item)}</span>`).join('')}
+                <div class="package-card-shell">
+                  <span class="package-radio" aria-hidden="true"></span>
+                  <div class="package-card-copy">
+                    <div class="package-card-top">
+                      <strong>${esc(pkg.name)}</strong>
+                      <span class="option-price">${esc(pkg.price)}</span>
+                    </div>
+                    <p>${esc(pkg.summary)}</p>
+                    <div class="package-chip-row">
+                      ${pkg.inclusions.map((item) => `<span class="package-chip">${esc(item)}</span>`).join('')}
+                    </div>
                   </div>
                 </div>
               </label>`;
