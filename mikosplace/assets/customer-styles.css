@@ -765,12 +765,11 @@ nav {
 .booking-panel {
   display: grid;
   gap: 18px;
-  padding: 28px;
+  padding: 32px;
   border-radius: 28px;
-  background: rgba(255, 255, 255, 0.16);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 32px 70px rgba(6, 30, 12, 0.18);
-  backdrop-filter: blur(18px);
+  background: #ffffff;
+  border: 1px solid rgba(10, 86, 22, 0.1);
+  box-shadow: 0 32px 70px rgba(6, 30, 12, 0.12);
 }
 .form-grid {
   display: grid;
@@ -870,13 +869,13 @@ nav {
   line-height: 1.6;
 }
 .booking-panel .builder-label {
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--green);
 }
 .booking-panel .service-builder-head h3 {
-  color: #fff;
+  color: var(--text);
 }
 .booking-panel .builder-sub {
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--muted);
 }
 .service-selection-grid {
   display: grid;
@@ -894,12 +893,12 @@ nav {
   align-items: center;
 }
 .catalog-section-head h4 {
-  color: #fff;
+  color: var(--green-dk);
   font-size: 18px;
   font-family: "Playfair Display", serif;
 }
 .catalog-section-head span {
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--muted);
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -914,20 +913,21 @@ nav {
   display: grid;
   gap: 12px;
 }
-.catalog-card,
-.booking-option,
-.booking-addon {
+.catalog-card {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
-  padding: 14px 16px;
+  padding: 20px;
   border-radius: 18px;
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid rgba(10, 86, 22, 0.08);
+  background: #fdfdfd;
+  box-shadow: 0 4px 12px rgba(10, 86, 22, 0.03);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-.catalog-card {
-  padding: 16px;
+.catalog-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(10, 86, 22, 0.06);
 }
 .catalog-thumb {
   width: 92px;
