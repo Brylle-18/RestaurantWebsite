@@ -155,8 +155,8 @@
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Description</th><th>Available</th><th>Actions</th></tr></thead>
-            <tbody id="menu-tbody"><tr class="loading-row"><td colspan="6"><span class="spinner"></span></td></tr></tbody>
+            <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Description</th><th>Available</th><th>Actions</th></tr></thead>
+            <tbody id="menu-tbody"><tr class="loading-row"><td colspan="7"><span class="spinner"></span></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -252,6 +252,7 @@
         <div class="field"><label>Price (₱)</label><input id="m-price" type="number" min="0" step="0.01" placeholder="0.00"></div>
       </div>
       <div class="field"><label>Description</label><textarea id="m-desc" placeholder="Short description..."></textarea></div>
+      <div class="field"><label>Image Filename</label><input id="m-image" placeholder="e.g. adobo.jpg (saved in assets/dishes/)"></div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-menu-add')">Cancel</button>
@@ -553,6 +554,11 @@ async function loadMenu() {
   if (!d) return;
   tb.innerHTML = d.items.length ? d.items.map(m => `
     <tr>
+      <td>
+        <img src="../assets/dishes/${esc(m.image_path || 'default-dish.jpg')}" 
+             style="width:50px;height:50px;object-fit:cover;border-radius:8px;background:#eee"
+             onerror="this.src='../assets/mikosplace.jpg'">
+      </td>
       <td><strong>${esc(m.name)}</strong></td>
       <td style="text-transform:capitalize"><span class="badge ${m.category==='restaurant'?'success':m.category==='cafe'?'info':'grey'}">${esc(m.category)}</span></td>
       <td>${m.price > 0 ? fmt(m.price) : '<em style="color:var(--muted)">Custom</em>'}</td>
@@ -565,7 +571,7 @@ async function loadMenu() {
           onclick="deleteMenuItem(${m.id})">Delete</button>
       </td>
     </tr>`).join('')
-    : `<tr class="loading-row"><td colspan="6" style="color:var(--muted)">No items found</td></tr>`;
+    : `<tr class="loading-row"><td colspan="7" style="color:var(--muted)">No items found</td></tr>`;
 }
 
 async function toggleMenuAvail(id, cur) {
@@ -584,6 +590,7 @@ async function addMenuItem() {
     category: document.getElementById('m-cat').value,
     price: document.getElementById('m-price').value,
     description: document.getElementById('m-desc').value,
+    image_path: document.getElementById('m-image').value,
   }, 'POST');
   if (d?.ok) { toast('Item added ✓'); closeModal('modal-menu-add'); loadMenu(); } else toast(d?.error||'Failed', true);
 }

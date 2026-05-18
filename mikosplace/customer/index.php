@@ -3,74 +3,74 @@ $restaurantMenuCatalog = [
     [
         'category' => 'Noodles / Pancit',
         'items' => [
-            ['name' => 'Pancit Guisado', 'description' => 'Stir-fried mixed noodles cooked with shredded vegetables, sliced pork, and shrimp.', 'price' => '₱240', 'price_value' => 240],
-            ['name' => 'Pancit Bihon', 'description' => 'Stir-fried thin rice noodles seasoned with soy sauce, garlic, vegetables, and chicken pieces.', 'price' => '₱220', 'price_value' => 220],
+            ['name' => 'Pancit Guisado', 'description' => 'Stir-fried mixed noodles cooked with shredded vegetables, sliced pork, and shrimp.', 'price' => '₱160 - ₱240', 'image_path' => 'pancit-guisado.jpg'],
+            ['name' => 'Pancit Bihon', 'description' => 'Stir-fried thin rice noodles seasoned with soy sauce, garlic, vegetables, and chicken pieces.', 'price' => '₱150 - ₱220', 'image_path' => 'pancit-bihon.jpg'],
         ],
     ],
     [
         'category' => 'Appetizers / Pampagana',
         'items' => [
-            ['name' => 'Lumpiang Shanghai', 'description' => 'Crispy, deep-fried minced pork spring rolls served with a sweet and sour dipping sauce.', 'price' => '₱150', 'price_value' => 150],
-            ['name' => 'Lumpiang Sariwa', 'description' => 'Fresh spring rolls packed with heart of palm and vegetables, topped with a sweet peanut sauce.', 'price' => '₱120', 'price_value' => 120],
+            ['name' => 'Lumpiang Shanghai', 'description' => 'Crispy, deep-fried minced pork spring rolls served with a sweet and sour dipping sauce.', 'price' => '₱90 - ₱150', 'image_path' => 'lumpiang-shanghai.jpg'],
+            ['name' => 'Lumpiang Sariwa', 'description' => 'Fresh spring rolls packed with heart of palm (ubod) and vegetables, wrapped in a soft crepe wrapper and topped with a sweet peanut sauce.', 'price' => '₱70 - ₱120', 'image_path' => 'lumpiang-sariwa.jpg'],
         ],
     ],
     [
         'category' => 'Pork / Baboy',
         'items' => [
-            ['name' => 'Pork Adobo', 'description' => 'Pork belly braised in soy sauce, vinegar, garlic, and peppercorns.', 'price' => '₱290', 'price_value' => 290],
-            ['name' => 'Crispy Pata', 'description' => 'Whole deep-fried pork knuckle with crunchy skin and tender meat.', 'price' => '₱680', 'price_value' => 680],
-            ['name' => 'Lechon Kawali', 'description' => 'Pan-roasted crispy pork belly chunks served with liver sauce.', 'price' => '₱320', 'price_value' => 320],
-            ['name' => 'Pork Menudo', 'description' => 'Pork stew cooked with tomato sauce, liver, potatoes, raisins, and carrots.', 'price' => '₱250', 'price_value' => 250],
+            ['name' => 'Pork Adobo', 'description' => 'Pork belly braised in soy sauce, vinegar, garlic, and peppercorns.', 'price' => '₱210 - ₱290', 'image_path' => 'pork-adobo.jpg'],
+            ['name' => 'Crispy Pata', 'description' => 'Whole deep-fried pork knuckle with crunchy skin and tender meat.', 'price' => '₱450 - ₱680', 'image_path' => 'crispy-pata.jpg'],
+            ['name' => 'Lechon Kawali', 'description' => 'Pan-roasted, crispy deep-fried pork belly chunks served with liver sauce.', 'price' => '₱230 - ₱320', 'image_path' => 'lechon-kawali.webp'],
+            ['name' => 'Pork Menudo', 'description' => 'Pork stew cooked with tomato sauce, liver, potatoes, raisins, and carrots.', 'price' => '₱180 - ₱250', 'image_path' => 'pork-menudo.jpg'],
         ],
     ],
     [
         'category' => 'Beef / Baka',
         'items' => [
-            ['name' => 'Kare-Kare', 'description' => 'Oxtail and tripe stewed in a rich peanut sauce, served with shrimp paste.', 'price' => '₱480', 'price_value' => 480],
-            ['name' => 'Beef Caldereta', 'description' => 'Hearty beef stew in tomato sauce, liver spread, cheese, and bell peppers.', 'price' => '₱380', 'price_value' => 380],
-            ['name' => 'Bistek Tagalog', 'description' => 'Thinly sliced beef marinated in soy sauce and calamansi, topped with onion rings.', 'price' => '₱340', 'price_value' => 340],
+            ['name' => 'Kare-Kare', 'description' => 'Oxtail and tripe stewed in a rich peanut sauce, served with shrimp paste.', 'price' => '₱350 - ₱480', 'image_path' => 'beef-kare.webp'],
+            ['name' => 'Beef Caldereta', 'description' => 'Hearty beef stew in tomato sauce, liver spread, cheese, and bell peppers.', 'price' => '₱280 - ₱380', 'image_path' => 'beef-caldereta.jpg'],
+            ['name' => 'Bistek Tagalog', 'description' => 'Thinly sliced beef marinated in soy sauce and calamansi, topped with onion rings.', 'price' => '₱250 - ₱340', 'image_path' => 'bistek-tagalog.jpg'],
         ],
     ],
     [
         'category' => 'Chicken / Manok',
         'items' => [
-            ['name' => 'Chicken Adobo', 'description' => 'Chicken pieces simmered in garlic, soy sauce, vinegar, and bay leaves.', 'price' => '₱260', 'price_value' => 260],
-            ['name' => 'Chicken Inasal', 'description' => 'Visayan-style grilled chicken marinated in lemongrass, calamansi, and achuete oil.', 'price' => '₱210', 'price_value' => 210],
-            ['name' => 'Chicken Afritada', 'description' => 'Chicken pieces stewed in tomato sauce with potatoes, carrots, and bell peppers.', 'price' => '₱240', 'price_value' => 240],
+            ['name' => 'Chicken Adobo', 'description' => 'Chicken pieces simmered in garlic, soy sauce, vinegar, and bay leaves.', 'price' => '₱190 - ₱260', 'image_path' => 'chicken-adobo.jpg'],
+            ['name' => 'Chicken Inasal', 'description' => 'Visayan-style grilled chicken marinated in lemongrass, calamansi, and achuete oil.', 'price' => '₱150 - ₱210', 'image_path' => 'chicken-inasal.jpg'],
+            ['name' => 'Chicken Afritada', 'description' => 'Chicken pieces stewed in tomato sauce with potatoes, carrots, and bell peppers.', 'price' => '₱180 - ₱240', 'image_path' => 'chicken-afritada.jpg'],
         ],
     ],
     [
         'category' => 'Seafood / Isda at Dagat',
         'items' => [
-            ['name' => 'Inihaw na Pusit', 'description' => 'Charcoal-grilled whole squid stuffed with chopped onions and tomatoes.', 'price' => '₱350', 'price_value' => 350],
-            ['name' => 'Daing na Bangus', 'description' => 'Deep-fried milkfish marinated in vinegar, garlic, and peppercorns.', 'price' => '₱260', 'price_value' => 260],
-            ['name' => 'Sinigang na Hipon', 'description' => 'Plump shrimp in a sour, tangy tamarind broth with local vegetables.', 'price' => '₱350', 'price_value' => 350],
+            ['name' => 'Inihaw na Pusit', 'description' => 'Charcoal-grilled whole squid stuffed with chopped onions and tomatoes.', 'price' => '₱250 - ₱350', 'image_path' => 'inihaw-pusit.jpg'],
+            ['name' => 'Daing na Bangus', 'description' => 'Deep-fried milkfish marinated in vinegar, garlic, and peppercorns.', 'price' => '₱180 - ₱260', 'image_path' => 'daing-bangus.webp'],
+            ['name' => 'Sinigang na Hipon', 'description' => 'Plump shrimp in a sour, tangy tamarind broth with local vegetables.', 'price' => '₱260 - ₱350', 'image_path' => 'sinigang-hipon.webp'],
         ],
     ],
     [
         'category' => 'Vegetables / Gulay',
         'items' => [
-            ['name' => 'Pinakbet', 'description' => 'Mixed vegetables sauteed in shrimp paste and topped with crispy pork bits.', 'price' => '₱210', 'price_value' => 210],
-            ['name' => 'Ginataang Sitaw at Kalabasa', 'description' => 'String beans and squash cooked in rich, savory coconut milk.', 'price' => '₱190', 'price_value' => 190],
+            ['name' => 'Pinakbet', 'description' => 'Mixed vegetables sautéed in shrimp paste and topped with crispy pork bits.', 'price' => '₱140 - ₱210', 'image_path' => 'pinakbet.jpg'],
+            ['name' => 'Ginataang Sitaw at Kalabasa', 'description' => 'String beans and squash cooked in rich, savory coconut milk.', 'price' => '₱130 - ₱190', 'image_path' => 'ginataang-sitaw-kalabasa.jpg'],
         ],
     ],
     [
         'category' => 'Desserts / Panghimagas',
         'items' => [
-            ['name' => 'Halo-Halo', 'description' => 'Shaved ice layered with sweet beans, fruits, and leche flan, topped with ube ice cream.', 'price' => '₱160', 'price_value' => 160],
-            ['name' => 'Leche Flan', 'description' => 'A rich, velvety caramel custard made from egg yolks and condensed milk.', 'price' => '₱120', 'price_value' => 120],
-            ['name' => 'Buko Pandan', 'description' => 'Cubed pandan jelly and young coconut strips tossed in sweetened cream.', 'price' => '₱130', 'price_value' => 130],
-            ['name' => 'Turon', 'description' => 'Deep-fried banana and jackfruit wrapped in a spring roll wrapper with caramelized sugar.', 'price' => '₱90', 'price_value' => 90],
-            ['name' => 'Cassava Cake', 'description' => 'Moist baked cassava cake finished with a creamy custard topping.', 'price' => '₱110', 'price_value' => 110],
+            ['name' => 'Halo-Halo', 'description' => 'Shaved ice layered with sweet beans, fruits, and leche flan, topped with ube ice cream.', 'price' => '₱90 - ₱160', 'image_path' => 'halo-halo.jpg'],
+            ['name' => 'Leche Flan', 'description' => 'A rich, velvety caramel custard made from egg yolks and condensed milk.', 'price' => '₱70 - ₱120', 'image_path' => 'leche-flan.jpg'],
+            ['name' => 'Buko Pandan', 'description' => 'Cubed pandan-flavored jelly and young coconut strips tossed in sweetened cream.', 'price' => '₱80 - ₱130', 'image_path' => 'buko-pandan.webp'],
+            ['name' => 'Turon', 'description' => 'Deep-fried banana and jackfruit wrapped in a spring roll wrapper, coated in caramelized brown sugar.', 'price' => '₱50 - ₱90', 'image_path' => 'turon.jpg'],
+            ['name' => 'Cassava Cake', 'description' => 'A moist, baked traditional cake made from grated cassava and topped with a creamy custard layer.', 'price' => '₱60 - ₱110', 'image_path' => 'casava-cake.jpg'],
         ],
     ],
     [
         'category' => 'Beverages / Inumin',
-        'items' => [
-            ['name' => "Sago't Gulaman", 'description' => 'Classic iced drink with brown sugar syrup, tapioca pearls, and gelatin.', 'price' => '₱85', 'price_value' => 85],
-            ['name' => 'Fresh Buko Juice', 'description' => 'Refreshing naturally sweet coconut water served chilled with meat.', 'price' => '₱110', 'price_value' => 110],
-            ['name' => 'Calamansi Juice', 'description' => 'Sweetened citrus drink made from freshly squeezed native limes.', 'price' => '₱95', 'price_value' => 95],
-            ['name' => 'Mango Shake', 'description' => 'A thick blended smoothie made from ripe mangoes, milk, and ice.', 'price' => '₱140', 'price_value' => 140],
+                         'items' => [
+            ['name' => "Sago't Gulaman", 'description' => 'A classic iced drink sweetened with brown sugar syrup, filled with tapioca pearls and gelatin.', 'price' => '₱50 - ₱85', 'image_path' => 'sagot-gulaman.webp'],
+            ['name' => 'Fresh Buko Juice', 'description' => 'Refreshing, naturally sweet coconut water served straight from the shell or in a glass with meat.', 'price' => '₱70 - ₱110', 'image_path' => 'fresh-buko.jpg'],
+            ['name' => 'Calamansi Juice', 'description' => 'Sweetened citrus drink made from freshly squeezed native Philippine limes, served iced or hot.', 'price' => '₱60 - ₱95', 'image_path' => 'calamansi-juice.jpg'],
+            ['name' => 'Mango Shake', 'description' => 'A thick, blended smoothie made from ripe sweet yellow mangoes, milk, and ice.', 'price' => '₱90 - ₱140', 'image_path' => 'mango-shake.jpg'],
         ],
     ],
 ];
@@ -104,7 +104,7 @@ $venueFoodPackages = [
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Miko's Place - Seafoods, Grill and Catering</title>
+<title>Miko's Place - Seafoods, Grill and Events</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
@@ -139,7 +139,7 @@ $venueFoodPackages = [
   <div class="hero-blob b1"></div>
   <div class="hero-blob b2"></div>
   <div class="hero-content">
-    <div class="hero-tag">Seafood, Grill, and Catering Services</div>
+    <div class="hero-tag">Seafood, Grill, and Event Services</div>
     <h1>Miko's Place</h1>
     <p>From comforting Filipino restaurant favorites to venue-ready food packages, everything is prepared for memorable gatherings at Miko's Place.</p>
     <div class="hero-actions">
@@ -148,11 +148,6 @@ $venueFoodPackages = [
     </div>
   </div>
   <div class="hero-float">
-    <div class="float-card">
-      <p class="fc-label">Est. Price Range</p>
-      <p class="fc-val">&#8369;140-&#8369;950</p>
-      <p class="fc-sub">Shareable menu rates for 4 pax</p>
-    </div>
   </div>
 </section>
 
@@ -163,7 +158,7 @@ $venueFoodPackages = [
   </div>
   <div class="services-grid">
     <div class="service-tile"><span class="icon">Restaurant</span><h4>Restaurant</h4><p>Filipino comfort food, seafood favorites, and family-style sharing plates</p></div>
-    <div class="service-tile"><span class="icon">Catering</span><h4>Food Packages</h4><p>Bundled event-ready meal packages tailored for celebrations and gatherings</p></div>
+    <div class="service-tile"><span class="icon">Events</span><h4>Food Packages</h4><p>Bundled event-ready meal packages tailored for celebrations and gatherings</p></div>
     <div class="service-tile"><span class="icon">Pool</span><h4>Pool and Pavilion</h4><p>Outdoor pool with covered pavilion for 50 guests</p></div>
     <div class="service-tile"><span class="icon">Banquet</span><h4>Banquet Hall</h4><p>Elegant indoor venue for up to 40 guests</p></div>
     <div class="service-tile"><span class="icon">Events</span><h4>Function Hall</h4><p>Premium event space with 50-person capacity</p></div>
@@ -172,49 +167,45 @@ $venueFoodPackages = [
 
 <section class="section" id="menu-section">
   <p class="section-label">Our Menu</p>
-  <h2 class="section-title">Filipino classics,<br>grouped by category</h2>
-  <p class="section-sub">Browse by category instead of scrolling through one long list. Each dish is shown with a clear guest-facing price.</p>
+  <h2 class="section-title">Filipino classics</h2>
+  <p class="section-sub">Browse our authentic dishes.</p>
 
-  <div class="menu-browser">
-    <div class="menu-tab-row" id="menu-tab-row">
-      <?php foreach ($restaurantMenuCatalog as $index => $group): ?>
-        <button
-          type="button"
-          class="menu-tab-btn <?= $index === 0 ? 'active' : '' ?>"
-          data-menu-tab="menu-panel-<?= $index ?>"
-        >
+  <div class="menu-tabs-container">
+    <div class="menu-tabs">
+      <?php $firstCategory = true; foreach ($restaurantMenuCatalog as $index => $group): ?>
+        <button class="menu-tab <?= $firstCategory ? 'active' : '' ?>" data-category="<?= htmlspecialchars($group['category'], ENT_QUOTES) ?>" onclick="switchMenuTab(this)">
           <?= htmlspecialchars($group['category'], ENT_QUOTES) ?>
-          <span><?= count($group['items']) ?> items</span>
+          <span class="tab-count"><?= count($group['items']) ?></span>
         </button>
-      <?php endforeach; ?>
+        <?php $firstCategory = false; endforeach; ?>
     </div>
 
-    <div class="menu-panels">
-      <?php foreach ($restaurantMenuCatalog as $index => $group): ?>
-        <div class="menu-panel <?= $index === 0 ? 'active' : '' ?>" id="menu-panel-<?= $index ?>">
-          <div class="menu-panel-head">
-            <div>
-              <h3><?= htmlspecialchars($group['category'], ENT_QUOTES) ?></h3>
-              <p>Chef-selected favorites for dine-in reservations, advance orders, and event inquiries.</p>
-            </div>
-            <span class="menu-panel-badge">Starts at <?= htmlspecialchars($group['items'][0]['price'], ENT_QUOTES) ?></span>
+    <div class="menu-tab-content">
+      <?php $firstCategory = true; foreach ($restaurantMenuCatalog as $group): ?>
+        <div class="menu-tab-pane <?= $firstCategory ? 'active' : '' ?>" data-category="<?= htmlspecialchars($group['category'], ENT_QUOTES) ?>">
+          <div class="menu-category-header">
+            <h3><?= htmlspecialchars($group['category'], ENT_QUOTES) ?></h3>
+            <p><strong>Pricing varies by order size and final serving preparation.</strong></p>
           </div>
-
-          <div class="menu-card-grid">
+          
+          <div class="menu-items-grid">
             <?php foreach ($group['items'] as $item): ?>
-              <article class="menu-card">
-                <div class="menu-card-top">
-                  <div>
-                    <h4><?= htmlspecialchars($item['name'], ENT_QUOTES) ?></h4>
-                    <p><?= htmlspecialchars($item['description'], ENT_QUOTES) ?></p>
-                  </div>
-                  <strong><?= htmlspecialchars($item['price'], ENT_QUOTES) ?></strong>
+              <div class="menu-item-card">
+                <div class="menu-item-image">
+                  <img src="/mikosplace/assets/dishes/<?= htmlspecialchars($item['image_path'] ?? 'default-dish.jpg', ENT_QUOTES) ?>" 
+                       alt="<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>"
+                       onerror="this.src='/mikosplace/assets/mikosplace.jpg'">
                 </div>
-              </article>
+                <div class="menu-item-info">
+                  <h4><?= htmlspecialchars($item['name'], ENT_QUOTES) ?></h4>
+                  <p class="menu-item-desc"><?= htmlspecialchars($item['description'], ENT_QUOTES) ?></p>
+                  <p class="menu-item-price"><?= htmlspecialchars($item['price'], ENT_QUOTES) ?></p>
+                </div>
+              </div>
             <?php endforeach; ?>
           </div>
         </div>
-      <?php endforeach; ?>
+        <?php $firstCategory = false; endforeach; ?>
     </div>
   </div>
 </section>
@@ -235,56 +226,87 @@ $venueFoodPackages = [
   <p class="section-sub" style="color:rgba(255,255,255,.78)">Fill in the form and our team will confirm your booking shortly.</p>
 
   <div class="booking-shell">
-    <div class="form-card booking-form-card">
-      <div class="error-msg" id="inq-error"></div>
-      <div class="form-grid">
-      <div class="booking-helper">
-        <strong>Build your booking details</strong>
-        <span>Choose your booking type on the left, then review and select dishes or packages from the panel on the right.</span>
-      </div>
-      <div class="field" style="display:none">
-        <label>Keep this field empty</label>
-        <input id="inq-honey" type="text" autocomplete="off">
-      </div>
-      <div class="form-row">
-        <div class="field"><label>Full Name *</label><input id="inq-name" placeholder="Your full name"></div>
-        <div class="field"><label>Phone Number *</label><input id="inq-phone" placeholder="09XXXXXXXXX"></div>
-      </div>
-      <div class="field"><label>Email Address</label><input id="inq-email" type="email" placeholder="email@example.com (optional)"></div>
-      <div class="form-row">
-        <div class="field">
-          <label>Service Type *</label>
-          <select id="inq-service" onchange="onServiceChange()">
-            <option value="restaurant">Restaurant Reservation</option>
-            <option value="venue">Venue Rental</option>
+    <div class="booking-container">
+      <div class="form-card booking-form-card">
+        <div class="error-msg" id="inq-error"></div>
+        <div class="form-grid">
+        <div class="booking-helper">
+          <strong>Build your booking details</strong>
+          <span>Choose your booking type on the left, then review and select dishes or packages from the panel on the right.</span>
+        </div>
+        <div class="field" style="display:none">
+          <label>Keep this field empty</label>
+          <input id="inq-honey" type="text" autocomplete="off">
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Full Name *</label><input id="inq-name" placeholder="Your full name"></div>
+          <div class="field"><label>Phone Number *</label><input id="inq-phone" placeholder="09XXXXXXXXX"></div>
+        </div>
+        <div class="field"><label>Email Address</label><input id="inq-email" type="email" placeholder="email@example.com (optional)"></div>
+        <div class="form-row">
+          <div class="field">
+            <label>Service Type *</label>
+            <select id="inq-service" onchange="onServiceChange()">
+              <option value="restaurant">Restaurant</option>
+              <option value="venue">Venue Rental</option>
+            </select>
+          </div>
+          <div class="field"><label>Number of Guests *</label><input id="inq-pax" type="number" min="1" value="2" placeholder="e.g. 10"></div>
+        </div>
+        <div class="field" id="venue-select-field" style="display:none">
+          <label>Select Venue</label>
+          <select id="inq-venue-id" onchange="renderServiceBuilder()">
+            <option value="">Loading venues...</option>
           </select>
         </div>
-        <div class="field"><label>Number of Guests *</label><input id="inq-pax" type="number" min="1" value="2" placeholder="e.g. 10"></div>
-      </div>
-      <div class="field" id="venue-select-field" style="display:none">
-        <label>Select Venue</label>
-        <select id="inq-venue-id" onchange="renderServiceBuilder()">
-          <option value="">Loading venues...</option>
-        </select>
-      </div>
-      <div class="field"><label>Preferred Date *</label><input id="inq-date" type="date"></div>
-      <div class="field"><label>Special Requests / Notes</label><textarea id="inq-notes" placeholder="Menu preferences, dietary restrictions, occasion details..."></textarea></div>
-      <div class="price-preview" id="price-preview"></div>
-      </div>
-      <button class="btn-submit" type="button" onclick="submitInquiry()">Submit Reservation Request</button>
-      <div class="success-msg" id="inq-success"></div>
-    </div>
-    <aside class="booking-panel" id="service-builder">
-      <div class="service-builder-head">
-        <div>
-          <p class="builder-label">Booking Selections</p>
-          <h3 id="service-builder-title">Choose your restaurant dishes</h3>
+        <div class="field"><label>Preferred Date *</label><input id="inq-date" type="date"></div>
+        <div class="field"><label>Special Requests / Notes</label><textarea id="inq-notes" placeholder="Menu preferences, dietary restrictions, occasion details..."></textarea></div>
+        <div class="price-preview" id="price-preview"></div>
         </div>
-        <p class="builder-sub" id="service-builder-sub">Select menu items or a venue food package to help the team prepare your quotation.</p>
+        <button class="btn-submit" type="button" onclick="submitInquiry()">Submit Reservation Request</button>
+        <div class="success-msg" id="inq-success"></div>
       </div>
-      <div class="builder-tab-row" id="builder-tab-row" style="display:none"></div>
-      <div class="service-panel-content" id="service-panel-content">
-        <div class="selection-empty">Loading booking options...</div>
+
+      <aside class="booking-panel" id="service-builder">
+        <div class="service-builder-head">
+          <div>
+            <p class="builder-label">Booking Selections</p>
+            <h3 id="service-builder-title">Choose your restaurant dishes</h3>
+          </div>
+          <p class="builder-sub" id="service-builder-sub">Select menu items or a venue food package to help the team prepare your quotation.</p>
+        </div>
+        <div class="service-panel-content" id="service-panel-content">
+          <div class="selection-empty">Loading booking options...</div>
+        </div>
+      </aside>
+    </div>
+
+    <aside class="menu-preview-panel" id="menu-preview-panel">
+      <div class="menu-preview-head">
+        <p class="builder-label">Current Menu Display</p>
+        <h3>Browse menu by category</h3>
+      </div>
+      <div class="menu-preview-tabs">
+        <?php foreach ($restaurantMenuCatalog as $index => $group): ?>
+          <button class="menu-preview-tab <?= $index === 0 ? 'active' : '' ?>" data-category="<?= htmlspecialchars($group['category'], ENT_QUOTES) ?>" onclick="switchPreviewMenuTab(this)">
+            <?= htmlspecialchars(substr($group['category'], 0, 8), ENT_QUOTES) ?>
+          </button>
+        <?php endforeach; ?>
+      </div>
+      <div class="menu-preview-content">
+        <?php $firstCategory = true; foreach ($restaurantMenuCatalog as $group): ?>
+          <div class="menu-preview-pane <?= $firstCategory ? 'active' : '' ?>" data-category="<?= htmlspecialchars($group['category'], ENT_QUOTES) ?>">
+            <?php foreach ($group['items'] as $item): ?>
+              <div class="menu-preview-item">
+                <div class="preview-item-head">
+                  <strong><?= htmlspecialchars($item['name'], ENT_QUOTES) ?></strong>
+                  <span class="preview-item-price"><?= htmlspecialchars($item['price'], ENT_QUOTES) ?></span>
+                </div>
+                <p class="preview-item-desc"><?= htmlspecialchars($item['description'], ENT_QUOTES) ?></p>
+              </div>
+            <?php endforeach; ?>
+          </div>
+          <?php $firstCategory = false; endforeach; ?>
       </div>
     </aside>
   </div>
@@ -315,7 +337,6 @@ $venueFoodPackages = [
       <h4>Services</h4>
       <ul>
         <li><a href="#menu-section">Restaurant Menu</a></li>
-        <li><a href="#menu-section">Catering</a></li>
         <li><a href="#venues">Event Venues</a></li>
       </ul>
     </div>
@@ -336,6 +357,7 @@ $venueFoodPackages = [
 
 <script>
 const API = 'api.php';
+let menuFilter = '';
 let allMenuItems = [];
 let availableVenues = [];
 const RESTAURANT_MENU_CATALOG = <?= json_encode($restaurantMenuCatalog, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
@@ -344,15 +366,14 @@ const bookingState = {
   selectedItems: new Map(),
   selectedAddons: new Map(),
 };
-let activeBuilderCategory = 0;
 const SERVICE_CONFIG = {
   restaurant: {
     title: 'Choose your restaurant dishes',
-    subtitle: 'Switch categories to keep the booking panel compact, then set the quantity for the dishes you want included.',
+    subtitle: 'Browse our Filipino classics by category and select the dishes you want for your reservation.',
   },
   venue: {
     title: 'Configure your venue package',
-    subtitle: 'Choose your venue first, then pair it with a bundled food package for a faster initial quotation.',
+    subtitle: 'Choose your venue first, then pair it with a bundled food package for your event.',
   },
 };
 
@@ -416,7 +437,7 @@ function getRestaurantBookingGroups() {
     items: group.items
       .map((item) => {
         const dbItem = allMenuItems.find((entry) => entry.category === 'restaurant' && entry.name === item.name);
-        return dbItem ? { ...item, id: Number(dbItem.id), numericPrice: Number(item.price_value || 0) } : null;
+        return dbItem ? { ...item, id: Number(dbItem.id), image_path: dbItem.image_path } : null;
       })
       .filter(Boolean),
   })).filter((group) => group.items.length > 0);
@@ -452,6 +473,7 @@ function getPriceEstimate() {
   const service = document.getElementById('inq-service').value;
   const selectedVenueId = document.getElementById('inq-venue-id').value;
   let subtotal = 0;
+  let hasCustomQuote = false;
   const lines = [];
 
   if (service === 'venue' && selectedVenueId) {
@@ -471,14 +493,14 @@ function getPriceEstimate() {
     if (!item) {
       return;
     }
-    const lineAmount = Number(item.numericPrice || 0) * quantity;
-    subtotal += lineAmount;
-    lines.push({ label: item.name, detail: `${quantity} item(s) · ${item.price}`, amount: lineAmount });
+    hasCustomQuote = true;
+    lines.push({ label: item.name, detail: `${quantity} item(s) · ${item.price}`, amount: null });
   });
 
   bookingState.selectedAddons.forEach((addon) => {
     const amount = Number(addon.unit_price || 0) * addon.quantity;
     if (amount <= 0) {
+      hasCustomQuote = true;
       lines.push({ label: addon.name, detail: addon.display_price || 'Quoted with venue', amount: null });
       return;
     }
@@ -486,7 +508,6 @@ function getPriceEstimate() {
     lines.push({ label: addon.name, detail: `${addon.quantity} x ${formatCurrency(addon.unit_price)}`, amount });
   });
 
-  const hasCustomQuote = lines.some((line) => line.amount === null);
   return { subtotal, hasCustomQuote, lines };
 }
 
@@ -524,14 +545,11 @@ function renderServiceBuilder() {
   const service = document.getElementById('inq-service').value;
   const config = SERVICE_CONFIG[service];
   const panel = document.getElementById('service-panel-content');
-  const builderTabs = document.getElementById('builder-tab-row');
 
   document.getElementById('service-builder-title').textContent = config.title;
   document.getElementById('service-builder-sub').textContent = config.subtitle;
 
   if (service === 'venue') {
-    builderTabs.style.display = 'none';
-    builderTabs.innerHTML = '';
     const venue = availableVenues.find((item) => String(item.id) === document.getElementById('inq-venue-id').value);
     panel.innerHTML = `
       <div class="catalog-section">
@@ -574,35 +592,22 @@ function renderServiceBuilder() {
   } else {
     const groups = getRestaurantBookingGroups();
     if (!groups.length) {
-      builderTabs.style.display = 'none';
-      builderTabs.innerHTML = '';
       panel.innerHTML = '<div class="selection-empty">Restaurant booking items are still loading. Please wait a moment.</div>';
     } else {
-      if (activeBuilderCategory >= groups.length) {
-        activeBuilderCategory = 0;
-      }
-      builderTabs.style.display = 'flex';
-      builderTabs.innerHTML = groups.map((group, index) => `
-        <button
-          type="button"
-          class="builder-tab-btn ${index === activeBuilderCategory ? 'active' : ''}"
-          onclick="setBuilderCategory(${index})"
-        >
-          ${esc(group.category)}
-          <span>${group.items.length}</span>
-        </button>
-      `).join('');
-
-      const activeGroup = groups[activeBuilderCategory];
-      panel.innerHTML = `
+      panel.innerHTML = groups.map((group) => `
         <div class="catalog-section">
           <div class="catalog-section-head">
-            <h4>${esc(activeGroup.category)}</h4>
-            <span>${activeGroup.items.length} item${activeGroup.items.length > 1 ? 's' : ''}</span>
+            <h4>${esc(group.category)}</h4>
+            <span>${group.items.length} item${group.items.length > 1 ? 's' : ''}</span>
           </div>
-          <div class="menu-category-list compact-menu-list">
-            ${activeGroup.items.map((item) => `
-              <div class="catalog-card booking-menu-card">
+          <div class="menu-category-list">
+            ${group.items.map((item) => `
+              <div class="catalog-card">
+                <div class="catalog-thumb">
+                  <img src="/mikosplace/assets/dishes/${esc(item.image_path || 'default-dish.jpg')}" 
+                       alt="${esc(item.name)}"
+                       onerror="this.src='/mikosplace/assets/mikosplace.jpg'">
+                </div>
                 <div class="catalog-card-copy">
                   <div class="catalog-card-top">
                     <strong>${esc(item.name)}</strong>
@@ -610,33 +615,90 @@ function renderServiceBuilder() {
                   </div>
                   <p>${esc(item.description)}</p>
                   <div class="catalog-card-actions">
-                    <div class="price-note">Per serving suggestion</div>
-                    <div class="qty-stepper">
-                      <button type="button" class="qty-step-btn" onclick="changeMenuQty(${item.id}, -1)">−</button>
-                      <span class="qty-pill">${bookingState.selectedItems.get(Number(item.id)) || 0}</span>
-                      <button type="button" class="qty-step-btn" onclick="changeMenuQty(${item.id}, 1)">+</button>
-                    </div>
+                    <label class="qty-label" for="qty-${item.id}">Qty</label>
+                    <input
+                      id="qty-${item.id}"
+                      type="number"
+                      min="0"
+                      value="${bookingState.selectedItems.get(Number(item.id)) || 0}"
+                      class="option-qty"
+                      aria-label="Quantity for ${esc(item.name)}"
+                      onchange="updateMenuSelection(${item.id}, this.value)"
+                    >
                   </div>
                 </div>
               </div>`).join('')}
           </div>
-        </div>`;
+        </div>`).join('');
     }
   }
 
   renderPricePreview();
 }
 
-function setBuilderCategory(index) {
-  activeBuilderCategory = index;
-  renderServiceBuilder();
+function setMenuFilter(category, button) {
+  menuFilter = category;
+  document.querySelectorAll('.filter-btn').forEach((item) => item.classList.remove('active'));
+  if (button) {
+    button.classList.add('active');
+  }
+  loadMenu();
 }
 
-function changeMenuQty(itemId, delta) {
-  const current = bookingState.selectedItems.get(Number(itemId)) || 0;
-  const next = Math.max(0, current + delta);
-  updateMenuSelection(Number(itemId), next);
-  renderServiceBuilder();
+function switchMenuTab(tabButton) {
+  const category = tabButton.getAttribute('data-category');
+  document.querySelectorAll('.menu-tab').forEach((btn) => btn.classList.remove('active'));
+  document.querySelectorAll('.menu-tab-pane').forEach((pane) => pane.classList.remove('active'));
+  
+  tabButton.classList.add('active');
+  document.querySelector(`.menu-tab-pane[data-category="${CSS.escape(category)}"]`).classList.add('active');
+}
+
+function switchPreviewMenuTab(tabButton) {
+  const category = tabButton.getAttribute('data-category');
+  document.querySelectorAll('.menu-preview-tab').forEach((btn) => btn.classList.remove('active'));
+  document.querySelectorAll('.menu-preview-pane').forEach((pane) => pane.classList.remove('active'));
+  
+  tabButton.classList.add('active');
+  document.querySelector(`.menu-preview-pane[data-category="${CSS.escape(category)}"]`).classList.add('active');
+}
+
+async function loadMenu() {
+  const grid = document.getElementById('menu-grid');
+  const search = document.getElementById('menu-search');
+  if (!grid || !search) {
+    return;
+  }
+  const query = search.value;
+  grid.innerHTML = '<div class="loading-state"><span class="spinner"></span> Loading...</div>';
+
+  const data = await api({ action: 'menu', q: query, category: menuFilter });
+  if (!data || !data.ok) {
+    grid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px">Could not load menu.</p>';
+    return;
+  }
+
+  grid.innerHTML = data.items.length
+    ? data.items.map((item) => `
+      <div class="dish-card">
+        <div class="dish-thumb" style="width:100%;height:160px;margin-bottom:12px;overflow:hidden;border-radius:12px;background:rgba(255,255,255,.05)">
+          <img src="/mikosplace/assets/dishes/${esc(item.image_path || 'default-dish.jpg')}" 
+               alt="${esc(item.name)}"
+               style="width:100%;height:100%;object-fit:cover"
+               onerror="this.src='/mikosplace/assets/mikosplace.jpg'">
+        </div>
+        <p class="dish-cat">${esc(item.category)}</p>
+        <h3 class="dish-name">${esc(item.name)}</h3>
+    : '<p style="color:var(--muted);text-align:center;grid-column:1/-1;padding:40px">No items found for this category.</p>';
+}
+
+function setMenuFilter(category, button) {
+  menuFilter = category;
+  document.querySelectorAll('.filter-btn').forEach((item) => item.classList.remove('active'));
+  if (button) {
+    button.classList.add('active');
+  }
+  loadMenu();
 }
 
 async function loadVenues() {
@@ -683,6 +745,8 @@ function prefillVenueBooking(id) {
 function onServiceChange() {
   const service = document.getElementById('inq-service').value;
   document.getElementById('venue-select-field').style.display = service === 'venue' ? 'block' : 'none';
+  const menuPanel = document.getElementById('menu-preview-panel');
+  menuPanel.style.display = service === 'restaurant' ? 'block' : 'none';
   clearBookingSelections();
   renderServiceBuilder();
 }
@@ -790,20 +854,13 @@ async function trackBooking() {
   result.style.display = 'block';
 }
 
+loadMenu();
 loadBookingCatalog();
 loadVenues();
 onServiceChange();
 
-document.querySelectorAll('.menu-tab-btn').forEach((button) => {
-  button.addEventListener('click', () => {
-    document.querySelectorAll('.menu-tab-btn').forEach((item) => item.classList.remove('active'));
-    document.querySelectorAll('.menu-panel').forEach((panel) => panel.classList.remove('active'));
-    button.classList.add('active');
-    document.getElementById(button.dataset.menuTab).classList.add('active');
-  });
-});
-
-// Scroll overlay effect for green components using IntersectionObserver for better performance
+// Show menu preview panel for restaurant on initial load
+document.getElementById('menu-preview-panel').style.display = 'block';
 const scrollObserver = new IntersectionObserver((entries) => {
   // Use a simple check: if any of the observed entries are intersecting, we might want the overlay
   // But we need to keep track of all visible elements

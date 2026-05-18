@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS menu_items (
     category    ENUM('restaurant','catering','cafe','pastry') NOT NULL,
     price       DECIMAL(10,2)  NOT NULL,
     description TEXT,
+    image_path  VARCHAR(255)   DEFAULT 'default-dish.jpg',
     is_available TINYINT(1)    DEFAULT 1,
     created_at  TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
 );

@@ -172,8 +172,9 @@ switch ($action) {
         $cat   = $_POST['category'] ?? '';
         $price = (float)($_POST['price'] ?? 0);
         $desc  = sanitize($_POST['description'] ?? '');
+        $img   = sanitize($_POST['image_path'] ?? 'default-dish.jpg');
         if (!$name || !$cat) jsonErr('Name and category required');
-        $db->prepare('INSERT INTO menu_items (name,category,price,description) VALUES (?,?,?,?)')->execute([$name,$cat,$price,$desc]);
+        $db->prepare('INSERT INTO menu_items (name,category,price,description,image_path) VALUES (?,?,?,?,?)')->execute([$name,$cat,$price,$desc,$img]);
         jsonOK(['id' => $db->lastInsertId(), 'message' => 'Item added']);
 
     // ── UPDATE MENU ITEM ─────────────────────────────────────
@@ -182,8 +183,23 @@ switch ($action) {
         $name  = sanitize($_POST['name'] ?? '');
         $price = (float)($_POST['price'] ?? 0);
         $desc  = sanitize($_POST['description'] ?? '');
+        $img   = sanitize($_POST['image_path'] ?? '');
         $avail = (int)($_POST['is_available'] ?? 1);
-        $db->prepare('UPDATE menu_items SET name=?,price=?,description=?,is_available=? WHERE id=?')->execute([$name,$price,$desc,$avail,$id]);
+
+        // If name is '_', it's a toggle-only update from the dashboard
+        if ($name === '_') {
+            $db->prepare('UPDATE menu_items SET is_available=? WHERE id=?')->execute([$avail, $id]);
+        } else {
+            $sql = 'UPDATE menu_items SET name=?, price=?, description=?, is_available=?';
+            $params = [$name, $price, $desc, $avail];
+            if ($img) {
+                $sql .= ', image_path=?';
+                $params[] = $img;
+            }
+            $sql .= ' WHERE id=?';
+            $params[] = $id;
+            $db->prepare($sql)->execute($params);
+        }
         jsonOK(['message' => 'Updated']);
 
     // ── DELETE MENU ITEM ─────────────────────────────────────

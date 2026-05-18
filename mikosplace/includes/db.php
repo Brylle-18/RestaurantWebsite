@@ -40,6 +40,49 @@ function ensureBookingSchema(PDO $pdo): void {
         $pdo->exec('ALTER TABLE bookings ADD COLUMN pricing_notes TEXT NULL AFTER notes');
     }
 
+    if (!$columnExists('menu_items', 'image_path')) {
+        $pdo->exec('ALTER TABLE menu_items ADD COLUMN image_path VARCHAR(255) DEFAULT "default-dish.jpg" AFTER description');
+    }
+
+    // Run migration for existing items if they still have the default image
+    $checkMig = $pdo->query("SELECT COUNT(*) FROM menu_items WHERE image_path = 'default-dish.jpg'")->fetchColumn();
+    if ($checkMig > 0) {
+        $mapping = [
+            'Pancit Guisado' => 'pancit-guisado.jpg',
+            'Pancit Bihon' => 'pancit-bihon.jpg',
+            'Lumpiang Shanghai' => 'lumpiang-shanghai.webp',
+            'Lumpiang Sariwa' => 'lumpian-sariwa.jpg',
+            'Pork Adobo' => 'pork-adobo.jpg',
+            'Crispy Pata' => 'crispy-pata.jpg',
+            'Lechon Kawali' => 'lechon-kawali.webp',
+            'Pork Menudo' => 'pork-menudo.jpg',
+            'Kare-Kare' => 'beef-kare.webp',
+            'Beef Caldereta' => 'beef-caldereta.jpg',
+            'Bistek Tagalog' => 'bistek-tagalog.jpg',
+            'Chicken Adobo' => 'chicken-adobo.jpg',
+            'Chicken Inasal' => 'chicken-inasal.jpg',
+            'Chicken Afritada' => 'chicken-afritada.jpg',
+            'Inihaw na Pusit' => 'inihaw-pusit.jpg',
+            'Daing na Bangus' => 'daing-bangus.webp',
+            'Sinigang na Hipon' => 'sinigang-hipon.webp',
+            'Pinakbet' => 'pinakbet.jpg',
+            'Ginataang Sitaw at Kalabasa' => 'ginataang-sitaw-kalabasa.jpg',
+            'Halo-Halo' => 'halo-halo.jpg',
+            'Leche Flan' => 'leche-flan.jpg',
+            'Buko Pandan' => 'buko-pandan.webp',
+            'Turon' => 'turon.jpg',
+            'Cassava Cake' => 'casava-cake.jpg',
+            "Sago't Gulaman" => 'sagot-gulaman.webp',
+            'Fresh Buko Juice' => 'fresh-buko.jpg',
+            'Calamansi Juice' => 'calamansi-juice.jpg',
+            'Mango Shake' => 'mango-shake.jpg',
+        ];
+        $migStmt = $pdo->prepare("UPDATE menu_items SET image_path = ? WHERE name = ? AND image_path = 'default-dish.jpg'");
+        foreach ($mapping as $name => $path) {
+            $migStmt->execute([$path, $name]);
+        }
+    }
+
     $pdo->exec(
         'CREATE TABLE IF NOT EXISTS booking_addons (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -55,42 +98,42 @@ function ensureBookingSchema(PDO $pdo): void {
     );
 
     $restaurantMenuSeed = [
-        ['Pancit Guisado', 'restaurant', 0.00, 'Stir-fried mixed noodles with vegetables, pork, and shrimp. Final pricing depends on selected portion size.'],
-        ['Pancit Bihon', 'restaurant', 0.00, 'Thin rice noodles with soy sauce, garlic, vegetables, and chicken. Final pricing depends on selected portion size.'],
-        ['Lumpiang Shanghai', 'restaurant', 0.00, 'Crispy pork spring rolls with sweet and sour dipping sauce. Final pricing depends on selected portion size.'],
-        ['Lumpiang Sariwa', 'restaurant', 0.00, 'Fresh spring rolls with ubod and vegetables topped with peanut sauce. Final pricing depends on selected portion size.'],
-        ['Pork Adobo', 'restaurant', 0.00, 'Pork belly braised in soy sauce, vinegar, garlic, and peppercorns. Final pricing depends on selected portion size.'],
-        ['Crispy Pata', 'restaurant', 0.00, 'Deep-fried pork knuckle with crunchy skin and tender meat. Final pricing depends on selected portion size.'],
-        ['Lechon Kawali', 'restaurant', 0.00, 'Crispy deep-fried pork belly chunks served with liver sauce. Final pricing depends on selected portion size.'],
-        ['Pork Menudo', 'restaurant', 0.00, 'Pork stew with tomato sauce, liver, potatoes, raisins, and carrots. Final pricing depends on selected portion size.'],
-        ['Kare-Kare', 'restaurant', 0.00, 'Oxtail and tripe in rich peanut sauce served with shrimp paste. Final pricing depends on selected portion size.'],
-        ['Beef Caldereta', 'restaurant', 0.00, 'Beef stew with tomato sauce, liver spread, cheese, and peppers. Final pricing depends on selected portion size.'],
-        ['Bistek Tagalog', 'restaurant', 0.00, 'Soy and calamansi beef topped with onion rings. Final pricing depends on selected portion size.'],
-        ['Chicken Adobo', 'restaurant', 0.00, 'Chicken simmered in garlic, soy sauce, vinegar, and bay leaves. Final pricing depends on selected portion size.'],
-        ['Chicken Inasal', 'restaurant', 0.00, 'Visayan-style grilled chicken with lemongrass, calamansi, and achuete oil. Final pricing depends on selected portion size.'],
-        ['Chicken Afritada', 'restaurant', 0.00, 'Chicken stew in tomato sauce with potatoes, carrots, and bell peppers. Final pricing depends on selected portion size.'],
-        ['Inihaw na Pusit', 'restaurant', 0.00, 'Charcoal-grilled squid stuffed with onions and tomatoes. Final pricing depends on selected portion size.'],
-        ['Daing na Bangus', 'restaurant', 0.00, 'Deep-fried milkfish marinated in vinegar, garlic, and peppercorns. Final pricing depends on selected portion size.'],
-        ['Sinigang na Hipon', 'restaurant', 0.00, 'Shrimp in a sour tamarind broth with local vegetables. Final pricing depends on selected portion size.'],
-        ['Pinakbet', 'restaurant', 0.00, 'Mixed vegetables sauteed in shrimp paste and topped with crispy pork bits. Final pricing depends on selected portion size.'],
-        ['Ginataang Sitaw at Kalabasa', 'restaurant', 0.00, 'String beans and squash cooked in savory coconut milk. Final pricing depends on selected portion size.'],
-        ['Halo-Halo', 'restaurant', 0.00, 'Shaved ice dessert with sweet beans, fruits, leche flan, and ube ice cream. Final pricing depends on selected portion size.'],
-        ['Leche Flan', 'restaurant', 0.00, 'Velvety caramel custard dessert. Final pricing depends on selected portion size.'],
-        ['Buko Pandan', 'restaurant', 0.00, 'Pandan jelly and young coconut in sweetened cream. Final pricing depends on selected portion size.'],
-        ['Turon', 'restaurant', 0.00, 'Caramelized banana and jackfruit spring roll dessert. Final pricing depends on selected portion size.'],
-        ['Cassava Cake', 'restaurant', 0.00, 'Moist cassava cake topped with creamy custard. Final pricing depends on selected portion size.'],
-        ["Sago't Gulaman", 'restaurant', 0.00, 'Classic iced Filipino drink with syrup, tapioca pearls, and gelatin. Final pricing depends on selected portion size.'],
-        ['Fresh Buko Juice', 'restaurant', 0.00, 'Naturally sweet coconut water served chilled. Final pricing depends on selected portion size.'],
-        ['Calamansi Juice', 'restaurant', 0.00, 'Freshly squeezed native lime drink served iced or hot. Final pricing depends on selected portion size.'],
-        ['Mango Shake', 'restaurant', 0.00, 'Creamy ripe mango shake blended with milk and ice. Final pricing depends on selected portion size.'],
+        ['Pancit Guisado', 'restaurant', 0.00, 'Stir-fried mixed noodles with vegetables, pork, and shrimp. Final pricing depends on selected portion size.', 'pancit-guisado.jpg'],
+        ['Pancit Bihon', 'restaurant', 0.00, 'Thin rice noodles with soy sauce, garlic, vegetables, and chicken. Final pricing depends on selected portion size.', 'pancit-bihon.jpg'],
+        ['Lumpiang Shanghai', 'restaurant', 0.00, 'Crispy pork spring rolls with sweet and sour dipping sauce. Final pricing depends on selected portion size.', 'lumpiang-shanghai.webp'],
+        ['Lumpiang Sariwa', 'restaurant', 0.00, 'Fresh spring rolls with ubod and vegetables topped with peanut sauce. Final pricing depends on selected portion size.', 'lumpian-sariwa.jpg'],
+        ['Pork Adobo', 'restaurant', 0.00, 'Pork belly braised in soy sauce, vinegar, garlic, and peppercorns. Final pricing depends on selected portion size.', 'pork-adobo.jpg'],
+        ['Crispy Pata', 'restaurant', 0.00, 'Deep-fried pork knuckle with crunchy skin and tender meat. Final pricing depends on selected portion size.', 'crispy-pata.jpg'],
+        ['Lechon Kawali', 'restaurant', 0.00, 'Crispy deep-fried pork belly chunks served with liver sauce. Final pricing depends on selected portion size.', 'lechon-kawali.webp'],
+        ['Pork Menudo', 'restaurant', 0.00, 'Pork stew with tomato sauce, liver, potatoes, raisins, and carrots. Final pricing depends on selected portion size.', 'pork-menudo.jpg'],
+        ['Kare-Kare', 'restaurant', 0.00, 'Oxtail and tripe in rich peanut sauce served with shrimp paste. Final pricing depends on selected portion size.', 'beef-kare.webp'],
+        ['Beef Caldereta', 'restaurant', 0.00, 'Beef stew with tomato sauce, liver spread, cheese, and peppers. Final pricing depends on selected portion size.', 'beef-caldereta.jpg'],
+        ['Bistek Tagalog', 'restaurant', 0.00, 'Soy and calamansi beef topped with onion rings. Final pricing depends on selected portion size.', 'bistek-tagalog.jpg'],
+        ['Chicken Adobo', 'restaurant', 0.00, 'Chicken simmered in garlic, soy sauce, vinegar, and bay leaves. Final pricing depends on selected portion size.', 'chicken-adobo.jpg'],
+        ['Chicken Inasal', 'restaurant', 0.00, 'Visayan-style grilled chicken with lemongrass, calamansi, and achuete oil. Final pricing depends on selected portion size.', 'chicken-inasal.jpg'],
+        ['Chicken Afritada', 'restaurant', 0.00, 'Chicken stew in tomato sauce with potatoes, carrots, and bell peppers. Final pricing depends on selected portion size.', 'chicken-afritada.jpg'],
+        ['Inihaw na Pusit', 'restaurant', 0.00, 'Charcoal-grilled squid stuffed with onions and tomatoes. Final pricing depends on selected portion size.', 'inihaw-pusit.jpg'],
+        ['Daing na Bangus', 'restaurant', 0.00, 'Deep-fried milkfish marinated in vinegar, garlic, and peppercorns. Final pricing depends on selected portion size.', 'daing-bangus.webp'],
+        ['Sinigang na Hipon', 'restaurant', 0.00, 'Shrimp in a sour tamarind broth with local vegetables. Final pricing depends on selected portion size.', 'sinigang-hipon.webp'],
+        ['Pinakbet', 'restaurant', 0.00, 'Mixed vegetables sauteed in shrimp paste and topped with crispy pork bits. Final pricing depends on selected portion size.', 'pinakbet.jpg'],
+        ['Ginataang Sitaw at Kalabasa', 'restaurant', 0.00, 'String beans and squash cooked in savory coconut milk. Final pricing depends on selected portion size.', 'ginataang-sitaw-kalabasa.jpg'],
+        ['Halo-Halo', 'restaurant', 0.00, 'Shaved ice dessert with sweet beans, fruits, leche flan, and ube ice cream. Final pricing depends on selected portion size.', 'halo-halo.jpg'],
+        ['Leche Flan', 'restaurant', 0.00, 'Velvety caramel custard dessert. Final pricing depends on selected portion size.', 'leche-flan.jpg'],
+        ['Buko Pandan', 'restaurant', 0.00, 'Pandan jelly and young coconut in sweetened cream. Final pricing depends on selected portion size.', 'buko-pandan.webp'],
+        ['Turon', 'restaurant', 0.00, 'Caramelized banana and jackfruit spring roll dessert. Final pricing depends on selected portion size.', 'turon.jpg'],
+        ['Cassava Cake', 'restaurant', 0.00, 'Moist cassava cake topped with creamy custard. Final pricing depends on selected portion size.', 'casava-cake.jpg'],
+        ["Sago't Gulaman", 'restaurant', 0.00, 'Classic iced Filipino drink with syrup, tapioca pearls, and gelatin. Final pricing depends on selected portion size.', 'sagot-gulaman.webp'],
+        ['Fresh Buko Juice', 'restaurant', 0.00, 'Naturally sweet coconut water served chilled. Final pricing depends on selected portion size.', 'fresh-buko.jpg'],
+        ['Calamansi Juice', 'restaurant', 0.00, 'Freshly squeezed native lime drink served iced or hot. Final pricing depends on selected portion size.', 'calamansi-juice.jpg'],
+        ['Mango Shake', 'restaurant', 0.00, 'Creamy ripe mango shake blended with milk and ice. Final pricing depends on selected portion size.', 'mango-shake.jpg'],
     ];
 
     $seedStmt = $pdo->prepare('SELECT id FROM menu_items WHERE name = ? LIMIT 1');
-    $insertStmt = $pdo->prepare('INSERT INTO menu_items (name, category, price, description, is_available) VALUES (?,?,?,?,1)');
-    foreach ($restaurantMenuSeed as [$name, $category, $price, $description]) {
+    $insertStmt = $pdo->prepare('INSERT INTO menu_items (name, category, price, description, image_path, is_available) VALUES (?,?,?,?,?,1)');
+    foreach ($restaurantMenuSeed as [$name, $category, $price, $description, $img]) {
         $seedStmt->execute([$name]);
         if (!$seedStmt->fetchColumn()) {
-            $insertStmt->execute([$name, $category, $price, $description]);
+            $insertStmt->execute([$name, $category, $price, $description, $img]);
         }
     }
 

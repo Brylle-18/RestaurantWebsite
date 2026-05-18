@@ -138,7 +138,7 @@ switch ($action) {
     case 'menu':
         $q   = '%' . trim($_GET['q'] ?? '') . '%';
         $cat = $_GET['category'] ?? '';
-        $sql = 'SELECT id,name,category,price,description FROM menu_items WHERE is_available=1 AND (name LIKE ? OR description LIKE ?)';
+        $sql = 'SELECT id,name,category,price,description,image_path FROM menu_items WHERE is_available=1 AND (name LIKE ? OR description LIKE ?)';
         $p   = [$q, $q];
         if ($cat) { $sql .= ' AND category = ?'; $p[] = $cat; }
         $sql .= ' ORDER BY category, name';
