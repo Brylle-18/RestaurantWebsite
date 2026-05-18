@@ -3,74 +3,74 @@ $restaurantMenuCatalog = [
     [
         'category' => 'Noodles / Pancit',
         'items' => [
-            ['name' => 'Pancit Guisado', 'description' => 'Stir-fried mixed noodles cooked with shredded vegetables, sliced pork, and shrimp.', 'price' => '₱160 - ₱240'],
-            ['name' => 'Pancit Bihon', 'description' => 'Stir-fried thin rice noodles seasoned with soy sauce, garlic, vegetables, and chicken pieces.', 'price' => '₱150 - ₱220'],
+            ['name' => 'Pancit Guisado', 'description' => 'Stir-fried mixed noodles cooked with shredded vegetables, sliced pork, and shrimp.', 'price' => '₱240', 'price_value' => 240],
+            ['name' => 'Pancit Bihon', 'description' => 'Stir-fried thin rice noodles seasoned with soy sauce, garlic, vegetables, and chicken pieces.', 'price' => '₱220', 'price_value' => 220],
         ],
     ],
     [
         'category' => 'Appetizers / Pampagana',
         'items' => [
-            ['name' => 'Lumpiang Shanghai', 'description' => 'Crispy, deep-fried minced pork spring rolls served with a sweet and sour dipping sauce.', 'price' => '₱90 - ₱150'],
-            ['name' => 'Lumpiang Sariwa', 'description' => 'Fresh spring rolls packed with heart of palm and vegetables, topped with a sweet peanut sauce.', 'price' => '₱70 - ₱120'],
+            ['name' => 'Lumpiang Shanghai', 'description' => 'Crispy, deep-fried minced pork spring rolls served with a sweet and sour dipping sauce.', 'price' => '₱150', 'price_value' => 150],
+            ['name' => 'Lumpiang Sariwa', 'description' => 'Fresh spring rolls packed with heart of palm and vegetables, topped with a sweet peanut sauce.', 'price' => '₱120', 'price_value' => 120],
         ],
     ],
     [
         'category' => 'Pork / Baboy',
         'items' => [
-            ['name' => 'Pork Adobo', 'description' => 'Pork belly braised in soy sauce, vinegar, garlic, and peppercorns.', 'price' => '₱210 - ₱290'],
-            ['name' => 'Crispy Pata', 'description' => 'Whole deep-fried pork knuckle with crunchy skin and tender meat.', 'price' => '₱450 - ₱680'],
-            ['name' => 'Lechon Kawali', 'description' => 'Pan-roasted crispy pork belly chunks served with liver sauce.', 'price' => '₱230 - ₱320'],
-            ['name' => 'Pork Menudo', 'description' => 'Pork stew cooked with tomato sauce, liver, potatoes, raisins, and carrots.', 'price' => '₱180 - ₱250'],
+            ['name' => 'Pork Adobo', 'description' => 'Pork belly braised in soy sauce, vinegar, garlic, and peppercorns.', 'price' => '₱290', 'price_value' => 290],
+            ['name' => 'Crispy Pata', 'description' => 'Whole deep-fried pork knuckle with crunchy skin and tender meat.', 'price' => '₱680', 'price_value' => 680],
+            ['name' => 'Lechon Kawali', 'description' => 'Pan-roasted crispy pork belly chunks served with liver sauce.', 'price' => '₱320', 'price_value' => 320],
+            ['name' => 'Pork Menudo', 'description' => 'Pork stew cooked with tomato sauce, liver, potatoes, raisins, and carrots.', 'price' => '₱250', 'price_value' => 250],
         ],
     ],
     [
         'category' => 'Beef / Baka',
         'items' => [
-            ['name' => 'Kare-Kare', 'description' => 'Oxtail and tripe stewed in a rich peanut sauce, served with shrimp paste.', 'price' => '₱350 - ₱480'],
-            ['name' => 'Beef Caldereta', 'description' => 'Hearty beef stew in tomato sauce, liver spread, cheese, and bell peppers.', 'price' => '₱280 - ₱380'],
-            ['name' => 'Bistek Tagalog', 'description' => 'Thinly sliced beef marinated in soy sauce and calamansi, topped with onion rings.', 'price' => '₱250 - ₱340'],
+            ['name' => 'Kare-Kare', 'description' => 'Oxtail and tripe stewed in a rich peanut sauce, served with shrimp paste.', 'price' => '₱480', 'price_value' => 480],
+            ['name' => 'Beef Caldereta', 'description' => 'Hearty beef stew in tomato sauce, liver spread, cheese, and bell peppers.', 'price' => '₱380', 'price_value' => 380],
+            ['name' => 'Bistek Tagalog', 'description' => 'Thinly sliced beef marinated in soy sauce and calamansi, topped with onion rings.', 'price' => '₱340', 'price_value' => 340],
         ],
     ],
     [
         'category' => 'Chicken / Manok',
         'items' => [
-            ['name' => 'Chicken Adobo', 'description' => 'Chicken pieces simmered in garlic, soy sauce, vinegar, and bay leaves.', 'price' => '₱190 - ₱260'],
-            ['name' => 'Chicken Inasal', 'description' => 'Visayan-style grilled chicken marinated in lemongrass, calamansi, and achuete oil.', 'price' => '₱150 - ₱210'],
-            ['name' => 'Chicken Afritada', 'description' => 'Chicken pieces stewed in tomato sauce with potatoes, carrots, and bell peppers.', 'price' => '₱180 - ₱240'],
+            ['name' => 'Chicken Adobo', 'description' => 'Chicken pieces simmered in garlic, soy sauce, vinegar, and bay leaves.', 'price' => '₱260', 'price_value' => 260],
+            ['name' => 'Chicken Inasal', 'description' => 'Visayan-style grilled chicken marinated in lemongrass, calamansi, and achuete oil.', 'price' => '₱210', 'price_value' => 210],
+            ['name' => 'Chicken Afritada', 'description' => 'Chicken pieces stewed in tomato sauce with potatoes, carrots, and bell peppers.', 'price' => '₱240', 'price_value' => 240],
         ],
     ],
     [
         'category' => 'Seafood / Isda at Dagat',
         'items' => [
-            ['name' => 'Inihaw na Pusit', 'description' => 'Charcoal-grilled whole squid stuffed with chopped onions and tomatoes.', 'price' => '₱250 - ₱350'],
-            ['name' => 'Daing na Bangus', 'description' => 'Deep-fried milkfish marinated in vinegar, garlic, and peppercorns.', 'price' => '₱180 - ₱260'],
-            ['name' => 'Sinigang na Hipon', 'description' => 'Plump shrimp in a sour, tangy tamarind broth with local vegetables.', 'price' => '₱260 - ₱350'],
+            ['name' => 'Inihaw na Pusit', 'description' => 'Charcoal-grilled whole squid stuffed with chopped onions and tomatoes.', 'price' => '₱350', 'price_value' => 350],
+            ['name' => 'Daing na Bangus', 'description' => 'Deep-fried milkfish marinated in vinegar, garlic, and peppercorns.', 'price' => '₱260', 'price_value' => 260],
+            ['name' => 'Sinigang na Hipon', 'description' => 'Plump shrimp in a sour, tangy tamarind broth with local vegetables.', 'price' => '₱350', 'price_value' => 350],
         ],
     ],
     [
         'category' => 'Vegetables / Gulay',
         'items' => [
-            ['name' => 'Pinakbet', 'description' => 'Mixed vegetables sauteed in shrimp paste and topped with crispy pork bits.', 'price' => '₱140 - ₱210'],
-            ['name' => 'Ginataang Sitaw at Kalabasa', 'description' => 'String beans and squash cooked in rich, savory coconut milk.', 'price' => '₱130 - ₱190'],
+            ['name' => 'Pinakbet', 'description' => 'Mixed vegetables sauteed in shrimp paste and topped with crispy pork bits.', 'price' => '₱210', 'price_value' => 210],
+            ['name' => 'Ginataang Sitaw at Kalabasa', 'description' => 'String beans and squash cooked in rich, savory coconut milk.', 'price' => '₱190', 'price_value' => 190],
         ],
     ],
     [
         'category' => 'Desserts / Panghimagas',
         'items' => [
-            ['name' => 'Halo-Halo', 'description' => 'Shaved ice layered with sweet beans, fruits, and leche flan, topped with ube ice cream.', 'price' => '₱90 - ₱160'],
-            ['name' => 'Leche Flan', 'description' => 'A rich, velvety caramel custard made from egg yolks and condensed milk.', 'price' => '₱70 - ₱120'],
-            ['name' => 'Buko Pandan', 'description' => 'Cubed pandan jelly and young coconut strips tossed in sweetened cream.', 'price' => '₱80 - ₱130'],
-            ['name' => 'Turon', 'description' => 'Deep-fried banana and jackfruit wrapped in a spring roll wrapper with caramelized sugar.', 'price' => '₱50 - ₱90'],
-            ['name' => 'Cassava Cake', 'description' => 'Moist baked cassava cake finished with a creamy custard topping.', 'price' => '₱60 - ₱110'],
+            ['name' => 'Halo-Halo', 'description' => 'Shaved ice layered with sweet beans, fruits, and leche flan, topped with ube ice cream.', 'price' => '₱160', 'price_value' => 160],
+            ['name' => 'Leche Flan', 'description' => 'A rich, velvety caramel custard made from egg yolks and condensed milk.', 'price' => '₱120', 'price_value' => 120],
+            ['name' => 'Buko Pandan', 'description' => 'Cubed pandan jelly and young coconut strips tossed in sweetened cream.', 'price' => '₱130', 'price_value' => 130],
+            ['name' => 'Turon', 'description' => 'Deep-fried banana and jackfruit wrapped in a spring roll wrapper with caramelized sugar.', 'price' => '₱90', 'price_value' => 90],
+            ['name' => 'Cassava Cake', 'description' => 'Moist baked cassava cake finished with a creamy custard topping.', 'price' => '₱110', 'price_value' => 110],
         ],
     ],
     [
         'category' => 'Beverages / Inumin',
         'items' => [
-            ['name' => "Sago't Gulaman", 'description' => 'Classic iced drink with brown sugar syrup, tapioca pearls, and gelatin.', 'price' => '₱50 - ₱85'],
-            ['name' => 'Fresh Buko Juice', 'description' => 'Refreshing naturally sweet coconut water served chilled with meat.', 'price' => '₱70 - ₱110'],
-            ['name' => 'Calamansi Juice', 'description' => 'Sweetened citrus drink made from freshly squeezed native limes.', 'price' => '₱60 - ₱95'],
-            ['name' => 'Mango Shake', 'description' => 'A thick blended smoothie made from ripe mangoes, milk, and ice.', 'price' => '₱90 - ₱140'],
+            ['name' => "Sago't Gulaman", 'description' => 'Classic iced drink with brown sugar syrup, tapioca pearls, and gelatin.', 'price' => '₱85', 'price_value' => 85],
+            ['name' => 'Fresh Buko Juice', 'description' => 'Refreshing naturally sweet coconut water served chilled with meat.', 'price' => '₱110', 'price_value' => 110],
+            ['name' => 'Calamansi Juice', 'description' => 'Sweetened citrus drink made from freshly squeezed native limes.', 'price' => '₱95', 'price_value' => 95],
+            ['name' => 'Mango Shake', 'description' => 'A thick blended smoothie made from ripe mangoes, milk, and ice.', 'price' => '₱140', 'price_value' => 140],
         ],
     ],
 ];
@@ -173,42 +173,49 @@ $venueFoodPackages = [
 <section class="section" id="menu-section">
   <p class="section-label">Our Menu</p>
   <h2 class="section-title">Filipino classics,<br>grouped by category</h2>
-  <p class="section-sub">Updated restaurant dishes with serving-price ranges and image slots you can populate later.</p>
+  <p class="section-sub">Browse by category instead of scrolling through one long list. Each dish is shown with a clear guest-facing price.</p>
 
-  <div class="menu-table-wrap">
-    <?php foreach ($restaurantMenuCatalog as $group): ?>
-      <div class="menu-table-card">
-        <div class="menu-table-head">
-          <h3><?= htmlspecialchars($group['category'], ENT_QUOTES) ?></h3>
-          <p><strong>Pricing varies by order size and final serving preparation.</strong></p>
-        </div>
-        <table class="menu-table">
-          <thead>
-            <tr>
-              <th>Dish</th>
-              <th>Description</th>
-              <th>Price (PHP)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php foreach ($group['items'] as $item): ?>
-              <tr>
-                <td><strong><?= htmlspecialchars($item['name'], ENT_QUOTES) ?></strong></td>
-                <td><?= htmlspecialchars($item['description'], ENT_QUOTES) ?></td>
-                <td><strong><?= htmlspecialchars($item['price'], ENT_QUOTES) ?></strong></td>
-              </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
-        <div class="menu-image-placeholders">
-          <?php foreach ($group['items'] as $item): ?>
-            <div class="menu-image-slot" aria-label="<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>">
-              <span>Image for <?= htmlspecialchars($item['name'], ENT_QUOTES) ?></span>
+  <div class="menu-browser">
+    <div class="menu-tab-row" id="menu-tab-row">
+      <?php foreach ($restaurantMenuCatalog as $index => $group): ?>
+        <button
+          type="button"
+          class="menu-tab-btn <?= $index === 0 ? 'active' : '' ?>"
+          data-menu-tab="menu-panel-<?= $index ?>"
+        >
+          <?= htmlspecialchars($group['category'], ENT_QUOTES) ?>
+          <span><?= count($group['items']) ?> items</span>
+        </button>
+      <?php endforeach; ?>
+    </div>
+
+    <div class="menu-panels">
+      <?php foreach ($restaurantMenuCatalog as $index => $group): ?>
+        <div class="menu-panel <?= $index === 0 ? 'active' : '' ?>" id="menu-panel-<?= $index ?>">
+          <div class="menu-panel-head">
+            <div>
+              <h3><?= htmlspecialchars($group['category'], ENT_QUOTES) ?></h3>
+              <p>Chef-selected favorites for dine-in reservations, advance orders, and event inquiries.</p>
             </div>
-          <?php endforeach; ?>
+            <span class="menu-panel-badge">Starts at <?= htmlspecialchars($group['items'][0]['price'], ENT_QUOTES) ?></span>
+          </div>
+
+          <div class="menu-card-grid">
+            <?php foreach ($group['items'] as $item): ?>
+              <article class="menu-card">
+                <div class="menu-card-top">
+                  <div>
+                    <h4><?= htmlspecialchars($item['name'], ENT_QUOTES) ?></h4>
+                    <p><?= htmlspecialchars($item['description'], ENT_QUOTES) ?></p>
+                  </div>
+                  <strong><?= htmlspecialchars($item['price'], ENT_QUOTES) ?></strong>
+                </div>
+              </article>
+            <?php endforeach; ?>
+          </div>
         </div>
-      </div>
-    <?php endforeach; ?>
+      <?php endforeach; ?>
+    </div>
   </div>
 </section>
 
@@ -275,6 +282,7 @@ $venueFoodPackages = [
         </div>
         <p class="builder-sub" id="service-builder-sub">Select menu items or a venue food package to help the team prepare your quotation.</p>
       </div>
+      <div class="builder-tab-row" id="builder-tab-row" style="display:none"></div>
       <div class="service-panel-content" id="service-panel-content">
         <div class="selection-empty">Loading booking options...</div>
       </div>
@@ -328,7 +336,6 @@ $venueFoodPackages = [
 
 <script>
 const API = 'api.php';
-let menuFilter = '';
 let allMenuItems = [];
 let availableVenues = [];
 const RESTAURANT_MENU_CATALOG = <?= json_encode($restaurantMenuCatalog, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
@@ -337,10 +344,11 @@ const bookingState = {
   selectedItems: new Map(),
   selectedAddons: new Map(),
 };
+let activeBuilderCategory = 0;
 const SERVICE_CONFIG = {
   restaurant: {
     title: 'Choose your restaurant dishes',
-    subtitle: 'Browse the restaurant menu by category and select the dishes you want included in your reservation request.',
+    subtitle: 'Switch categories to keep the booking panel compact, then set the quantity for the dishes you want included.',
   },
   venue: {
     title: 'Configure your venue package',
@@ -408,7 +416,7 @@ function getRestaurantBookingGroups() {
     items: group.items
       .map((item) => {
         const dbItem = allMenuItems.find((entry) => entry.category === 'restaurant' && entry.name === item.name);
-        return dbItem ? { ...item, id: Number(dbItem.id) } : null;
+        return dbItem ? { ...item, id: Number(dbItem.id), numericPrice: Number(item.price_value || 0) } : null;
       })
       .filter(Boolean),
   })).filter((group) => group.items.length > 0);
@@ -444,7 +452,6 @@ function getPriceEstimate() {
   const service = document.getElementById('inq-service').value;
   const selectedVenueId = document.getElementById('inq-venue-id').value;
   let subtotal = 0;
-  let hasCustomQuote = false;
   const lines = [];
 
   if (service === 'venue' && selectedVenueId) {
@@ -464,14 +471,14 @@ function getPriceEstimate() {
     if (!item) {
       return;
     }
-    hasCustomQuote = true;
-    lines.push({ label: item.name, detail: `${quantity} item(s) · ${item.price}`, amount: null });
+    const lineAmount = Number(item.numericPrice || 0) * quantity;
+    subtotal += lineAmount;
+    lines.push({ label: item.name, detail: `${quantity} item(s) · ${item.price}`, amount: lineAmount });
   });
 
   bookingState.selectedAddons.forEach((addon) => {
     const amount = Number(addon.unit_price || 0) * addon.quantity;
     if (amount <= 0) {
-      hasCustomQuote = true;
       lines.push({ label: addon.name, detail: addon.display_price || 'Quoted with venue', amount: null });
       return;
     }
@@ -479,6 +486,7 @@ function getPriceEstimate() {
     lines.push({ label: addon.name, detail: `${addon.quantity} x ${formatCurrency(addon.unit_price)}`, amount });
   });
 
+  const hasCustomQuote = lines.some((line) => line.amount === null);
   return { subtotal, hasCustomQuote, lines };
 }
 
@@ -516,11 +524,14 @@ function renderServiceBuilder() {
   const service = document.getElementById('inq-service').value;
   const config = SERVICE_CONFIG[service];
   const panel = document.getElementById('service-panel-content');
+  const builderTabs = document.getElementById('builder-tab-row');
 
   document.getElementById('service-builder-title').textContent = config.title;
   document.getElementById('service-builder-sub').textContent = config.subtitle;
 
   if (service === 'venue') {
+    builderTabs.style.display = 'none';
+    builderTabs.innerHTML = '';
     const venue = availableVenues.find((item) => String(item.id) === document.getElementById('inq-venue-id').value);
     panel.innerHTML = `
       <div class="catalog-section">
@@ -563,20 +574,35 @@ function renderServiceBuilder() {
   } else {
     const groups = getRestaurantBookingGroups();
     if (!groups.length) {
+      builderTabs.style.display = 'none';
+      builderTabs.innerHTML = '';
       panel.innerHTML = '<div class="selection-empty">Restaurant booking items are still loading. Please wait a moment.</div>';
     } else {
-      panel.innerHTML = groups.map((group) => `
+      if (activeBuilderCategory >= groups.length) {
+        activeBuilderCategory = 0;
+      }
+      builderTabs.style.display = 'flex';
+      builderTabs.innerHTML = groups.map((group, index) => `
+        <button
+          type="button"
+          class="builder-tab-btn ${index === activeBuilderCategory ? 'active' : ''}"
+          onclick="setBuilderCategory(${index})"
+        >
+          ${esc(group.category)}
+          <span>${group.items.length}</span>
+        </button>
+      `).join('');
+
+      const activeGroup = groups[activeBuilderCategory];
+      panel.innerHTML = `
         <div class="catalog-section">
           <div class="catalog-section-head">
-            <h4>${esc(group.category)}</h4>
-            <span>${group.items.length} item${group.items.length > 1 ? 's' : ''}</span>
+            <h4>${esc(activeGroup.category)}</h4>
+            <span>${activeGroup.items.length} item${activeGroup.items.length > 1 ? 's' : ''}</span>
           </div>
-          <div class="menu-category-list">
-            ${group.items.map((item) => `
-              <div class="catalog-card">
-                <div class="catalog-thumb">
-                  <span>Image later</span>
-                </div>
+          <div class="menu-category-list compact-menu-list">
+            ${activeGroup.items.map((item) => `
+              <div class="catalog-card booking-menu-card">
                 <div class="catalog-card-copy">
                   <div class="catalog-card-top">
                     <strong>${esc(item.name)}</strong>
@@ -584,62 +610,33 @@ function renderServiceBuilder() {
                   </div>
                   <p>${esc(item.description)}</p>
                   <div class="catalog-card-actions">
-                    <label class="qty-label" for="qty-${item.id}">Qty</label>
-                    <input
-                      id="qty-${item.id}"
-                      type="number"
-                      min="0"
-                      value="${bookingState.selectedItems.get(Number(item.id)) || 0}"
-                      class="option-qty"
-                      aria-label="Quantity for ${esc(item.name)}"
-                      onchange="updateMenuSelection(${item.id}, this.value)"
-                    >
+                    <div class="price-note">Per serving suggestion</div>
+                    <div class="qty-stepper">
+                      <button type="button" class="qty-step-btn" onclick="changeMenuQty(${item.id}, -1)">−</button>
+                      <span class="qty-pill">${bookingState.selectedItems.get(Number(item.id)) || 0}</span>
+                      <button type="button" class="qty-step-btn" onclick="changeMenuQty(${item.id}, 1)">+</button>
+                    </div>
                   </div>
                 </div>
               </div>`).join('')}
           </div>
-        </div>`).join('');
+        </div>`;
     }
   }
 
   renderPricePreview();
 }
 
-async function loadMenu() {
-  const grid = document.getElementById('menu-grid');
-  const search = document.getElementById('menu-search');
-  if (!grid || !search) {
-    return;
-  }
-  const query = search.value;
-  grid.innerHTML = '<div class="loading-state"><span class="spinner"></span> Loading...</div>';
-
-  const data = await api({ action: 'menu', q: query, category: menuFilter });
-  if (!data || !data.ok) {
-    grid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px">Could not load menu.</p>';
-    return;
-  }
-
-  grid.innerHTML = data.items.length
-    ? data.items.map((item) => `
-      <div class="dish-card">
-        <p class="dish-cat">${esc(item.category)}</p>
-        <h3 class="dish-name">${esc(item.name)}</h3>
-        <p class="dish-desc">${esc(item.description || 'A delicious offering from our kitchen')}</p>
-        ${Number(item.price) > 0
-          ? `<p class="dish-price">&#8369;${parseFloat(item.price).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</p>`
-          : '<p class="dish-price custom">Custom quote</p>'}
-      </div>`).join('')
-    : '<p style="color:var(--muted);text-align:center;grid-column:1/-1;padding:40px">No items found for this category.</p>';
+function setBuilderCategory(index) {
+  activeBuilderCategory = index;
+  renderServiceBuilder();
 }
 
-function setMenuFilter(category, button) {
-  menuFilter = category;
-  document.querySelectorAll('.filter-btn').forEach((item) => item.classList.remove('active'));
-  if (button) {
-    button.classList.add('active');
-  }
-  loadMenu();
+function changeMenuQty(itemId, delta) {
+  const current = bookingState.selectedItems.get(Number(itemId)) || 0;
+  const next = Math.max(0, current + delta);
+  updateMenuSelection(Number(itemId), next);
+  renderServiceBuilder();
 }
 
 async function loadVenues() {
@@ -793,10 +790,18 @@ async function trackBooking() {
   result.style.display = 'block';
 }
 
-loadMenu();
 loadBookingCatalog();
 loadVenues();
 onServiceChange();
+
+document.querySelectorAll('.menu-tab-btn').forEach((button) => {
+  button.addEventListener('click', () => {
+    document.querySelectorAll('.menu-tab-btn').forEach((item) => item.classList.remove('active'));
+    document.querySelectorAll('.menu-panel').forEach((panel) => panel.classList.remove('active'));
+    button.classList.add('active');
+    document.getElementById(button.dataset.menuTab).classList.add('active');
+  });
+});
 
 // Scroll overlay effect for green components using IntersectionObserver for better performance
 const scrollObserver = new IntersectionObserver((entries) => {
