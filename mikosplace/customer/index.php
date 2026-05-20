@@ -138,7 +138,7 @@ $venueFoodPackages = [
 <section id="home">
   <div class="hero-blob b1"></div>
   <div class="hero-blob b2"></div>
-  <div class="hero-content">
+  <div class="mg-center hero-content">
     <div class="hero-tag">Seafood, Grill, and Event Services</div>
     <h1>Miko's Place</h1>
     <p>From comforting Filipino restaurant favorites to venue-ready food packages, everything is prepared for memorable gatherings at Miko's Place.</p>
