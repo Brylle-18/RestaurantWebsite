@@ -39,9 +39,14 @@ switch ($action) {
     case 'bookings':
         $q      = '%' . trim($_GET['q'] ?? '') . '%';
         $status = $_GET['status'] ?? '';
+        $today  = (int)($_GET['today'] ?? 0);
+
         $sql    = 'SELECT b.*, v.name AS venue_name FROM bookings b LEFT JOIN venues v ON b.venue_id = v.id WHERE (b.ticket_no LIKE ? OR b.customer_name LIKE ? OR b.customer_email LIKE ?)';
         $params = [$q, $q, $q];
+        
         if ($status) { $sql .= ' AND b.status = ?'; $params[] = $status; }
+        if ($today) { $sql .= ' AND DATE(b.event_date) = CURDATE()'; }
+        
         $sql .= ' ORDER BY b.created_at DESC LIMIT 100';
         $rows = $db->prepare($sql);
         $rows->execute($params);
@@ -254,12 +259,48 @@ switch ($action) {
 
     // ── REPORTS ──────────────────────────────────────────────
     case 'reports':
-        $revenue_month = $db->query("SELECT COALESCE(SUM(total_amount),0) FROM bookings WHERE status='completed' AND MONTH(created_at)=MONTH(NOW())")->fetchColumn();
-        $by_service    = $db->query("SELECT service_type, COUNT(*) AS cnt, COALESCE(SUM(total_amount),0) AS total FROM bookings GROUP BY service_type")->fetchAll();
-        $top_dishes    = $db->query("SELECT m.name, SUM(bi.quantity) AS qty FROM booking_items bi JOIN menu_items m ON bi.menu_item_id=m.id GROUP BY m.name ORDER BY qty DESC LIMIT 5")->fetchAll();
+        // Current month revenue
+        $revenue_month = $db->query("SELECT COALESCE(SUM(total_amount),0) FROM bookings WHERE status='completed' AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())")->fetchColumn();
+        
+        // Revenue by service
+        $by_service = $db->query("SELECT service_type, COUNT(*) AS cnt, COALESCE(SUM(total_amount),0) AS total FROM bookings GROUP BY service_type")->fetchAll();
+        
+        // Top dishes
+        $top_dishes = $db->query("SELECT m.name, SUM(bi.quantity) AS qty FROM booking_items bi JOIN menu_items m ON bi.menu_item_id=m.id GROUP BY m.name ORDER BY qty DESC LIMIT 5")->fetchAll();
+        
+        // Status counts
         $status_counts = $db->query("SELECT status, COUNT(*) AS cnt FROM bookings GROUP BY status")->fetchAll();
-        $recent        = $db->query("SELECT ticket_no,customer_name,service_type,total_amount,status,created_at FROM bookings ORDER BY created_at DESC LIMIT 8")->fetchAll();
-        jsonOK(['revenue_month'=>$revenue_month,'by_service'=>$by_service,'top_dishes'=>$top_dishes,'status_counts'=>$status_counts,'recent'=>$recent]);
+        
+        // Recent bookings
+        $recent = $db->query("SELECT ticket_no,customer_name,service_type,total_amount,status,created_at FROM bookings ORDER BY created_at DESC LIMIT 8")->fetchAll();
+        
+        // Revenue Trend (Last 7 days)
+        $daily_revenue = $db->query("
+            SELECT DATE(created_at) as date, COALESCE(SUM(total_amount), 0) as total 
+            FROM bookings 
+            WHERE status='completed' AND created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+            GROUP BY DATE(created_at)
+            ORDER BY DATE(created_at) ASC
+        ")->fetchAll();
+
+        // Revenue Trend (Last 6 months)
+        $monthly_trends = $db->query("
+            SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COALESCE(SUM(total_amount), 0) as total 
+            FROM bookings 
+            WHERE status='completed' AND created_at >= DATE_SUB(CURDATE(), INTERVAL 5 MONTH)
+            GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+            ORDER BY month ASC
+        ")->fetchAll();
+
+        jsonOK([
+            'revenue_month' => (float)$revenue_month,
+            'by_service' => $by_service,
+            'top_dishes' => $top_dishes,
+            'status_counts' => $status_counts,
+            'recent' => $recent,
+            'daily_revenue' => $daily_revenue,
+            'monthly_trends' => $monthly_trends
+        ]);
 
     default:
         jsonErr('Unknown action', 404);

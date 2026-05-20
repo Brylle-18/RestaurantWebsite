@@ -35,7 +35,8 @@
       <button class="nav-item" onclick="show('menu',this)"><span class="icon">🍽</span> Menu</button>
       <button class="nav-item" onclick="show('venues',this)"><span class="icon">🏛</span> Venues</button>
       <button class="nav-item" onclick="show('staff',this)"><span class="icon">👥</span> Team</button>
-      <button class="nav-item" onclick="show('reports',this)"><span class="icon">📊</span> Reports</button>
+      <button class="nav-item" onclick="show('reports',this)"><span class="icon">📈</span> Reports</button>
+      <button class="nav-item" onclick="show('financials',this)"><span class="icon">💰</span> Financials</button>
     </nav>
 
     <div class="user-info">
@@ -65,40 +66,43 @@
       <div class="hero">
         <div class="hero-copy">
           <p class="eyebrow-white">Bamboo-inspired hospitality</p>
-          <h3>Manage dining, catering, cafe & venues in one place.</h3>
-          <p>Full operations view - bookings, menu, staff, and real-time reports.</p>
+          <h3>Welcome back, <?php echo $adminName ?>!</h3>
+          <p>Here's what's happening at Miko's Place today.</p>
         </div>
         <div class="hero-highlight">
-          <span>Featured Rate</span>
-          <strong>₱25,000</strong>
-          <p>Function Hall · 50 pax</p>
+          <span>Target Revenue</span>
+          <strong>₱100,000</strong>
+          <p>Monthly Goal</p>
         </div>
       </div>
 
       <div class="stats-grid" id="stats-grid">
-        <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Loading...</p><p class="stat-value">-</p></div></div>
-        <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Loading...</p><p class="stat-value">-</p></div></div>
-        <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Loading...</p><p class="stat-value">-</p></div></div>
-        <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Loading...</p><p class="stat-value">-</p></div></div>
+        <!-- Stats populated by JS -->
       </div>
 
       <div class="two-col">
         <div class="card">
-          <h3 style="font-family:'Playfair Display',serif;font-size:19px;margin-bottom:16px;">Core Services</h3>
-          <div class="chip-grid">
-            <span class="chip">Catering</span><span class="chip">Restaurant</span>
-            <span class="chip">Cafe &amp; Pastries</span><span class="chip">Pool w/ Pavilion</span>
-            <span class="chip">Function Hall</span><span class="chip">Banquet Hall</span>
+          <div class="section-header">
+            <h3 style="font-size:18px;">Revenue Overview</h3>
+            <span class="badge info">Last 7 Days</span>
+          </div>
+          <div id="revenue-chart" class="chart-container">
+            <!-- Chart populated by JS -->
           </div>
         </div>
         <div class="card">
-          <h3 style="font-family:'Playfair Display',serif;font-size:19px;margin-bottom:16px;">Venue Pricing</h3>
-          <div class="pricing-row"><div><strong>Pool w/ Pavilion</strong><p>50 pax outdoor</p></div><span>₱10,000</span></div>
-          <div class="pricing-row"><div><strong>Banquet Hall</strong><p>40 pax indoor</p></div><span>₱20,000</span></div>
-          <div class="pricing-row"><div><strong>Function Hall</strong><p>50 pax premium</p></div><span>₱25,000</span></div>
+          <div class="section-header">
+            <h3 style="font-size:18px;">Recent Activity</h3>
+          </div>
+          <div class="activity-list" id="recent-activity">
+            <!-- Activity populated by JS -->
+          </div>
         </div>
         <div class="card full-width">
-          <h3 style="font-family:'Playfair Display',serif;font-size:19px;margin-bottom:16px;">Recent Bookings</h3>
+          <div class="section-header">
+            <h3 style="font-size:18px;">Recent Bookings</h3>
+            <button class="btn btn-ghost btn-sm" onclick="show('bookings', document.querySelector('[onclick*=\"bookings\"]'))">View All</button>
+          </div>
           <div class="table-wrap">
             <table>
               <thead><tr><th>Ticket</th><th>Customer</th><th>Service</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
@@ -112,13 +116,21 @@
     <!--  BOOKINGS  -->
     <section class="section" id="sec-bookings">
       <div class="section-header">
-        <h3>Bookings</h3>
+        <h3>Bookings Management</h3>
         <button class="btn btn-primary btn-sm" onclick="openModal('modal-booking-add')">+ New Booking</button>
       </div>
+      
+      <div class="filter-chips">
+        <div class="filter-chip active" onclick="setBookingFilter('', this)">All Bookings</div>
+        <div class="filter-chip" onclick="setBookingFilter('pending', this)">Pending Review</div>
+        <div class="filter-chip" onclick="setBookingFilter('confirmed', this)">Confirmed</div>
+        <div class="filter-chip" onclick="setBookingFilter('today', this)">Today's Events</div>
+      </div>
+
       <div class="search-bar">
         <input class="search-input" id="booking-q" placeholder="Search by ticket, name or email..." oninput="loadBookings()">
         <select class="search-select" id="booking-status" onchange="loadBookings()">
-          <option value="">All Statuses</option>
+          <option value="">Status: All</option>
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
           <option value="in_progress">In Progress</option>
@@ -132,6 +144,33 @@
             <thead><tr><th>Ticket</th><th>Customer</th><th>Service</th><th>Event Date</th><th>Pax</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="bookings-tbody"><tr class="loading-row"><td colspan="8"><span class="spinner"></span></td></tr></tbody>
           </table>
+        </div>
+      </div>
+    </section>
+
+    <!--  FINANCIALS  -->
+    <section class="section" id="sec-financials">
+      <div class="section-header">
+        <h3>Financials & Rates</h3>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Venue Rates</h4>
+          <div id="financial-venues">
+            <!-- Venue rates populated by JS -->
+          </div>
+        </div>
+        <div class="card">
+          <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Top Menu Prices</h4>
+          <div id="financial-menu">
+            <!-- Menu prices populated by JS -->
+          </div>
+        </div>
+        <div class="card full-width">
+          <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Revenue Insights</h4>
+          <div id="monthly-trend-chart" class="chart-container" style="height:240px">
+            <!-- Monthly trend chart populated by JS -->
+          </div>
         </div>
       </div>
     </section>
@@ -263,40 +302,61 @@
 
 <div class="modal-backdrop" id="modal-booking-review">
   <div class="modal modal-wide">
-    <h3>Review Booking</h3><p class="sub">Set the final price and confirm only after reviewing the customer selections.</p>
+    <h3>Review & Finalize Booking</h3>
+    <p class="sub">Review the customer's selections below. You must set a <strong>Final Price</strong> before confirming.</p>
+    
     <div class="review-shell">
       <div class="review-summary" id="booking-review-summary"></div>
+      
       <div class="review-grid">
         <div class="card-lite">
-          <p class="mini-label">Menu Selections</p>
+          <p class="mini-label">🍽 Menu Selections</p>
           <div id="booking-review-items" class="review-list"></div>
         </div>
         <div class="card-lite">
-          <p class="mini-label">Add-ons</p>
+          <p class="mini-label">✨ Event Add-ons</p>
           <div id="booking-review-addons" class="review-list"></div>
         </div>
       </div>
-      <div class="form-grid">
-        <input id="review-booking-id" type="hidden">
-        <div class="form-row">
-          <div class="field"><label>Status</label>
-            <select id="review-status">
-              <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="in_progress">In Progress</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
+
+      <div class="card" style="background:var(--surface-soft); border: 1px dashed var(--green);">
+        <h4 style="font-size:14px; margin-bottom:12px; color:var(--green-dk)">Administrative Actions</h4>
+        <div class="form-grid">
+          <input id="review-booking-id" type="hidden">
+          <div class="form-row">
+            <div class="field">
+              <label>Booking Status</label>
+              <select id="review-status">
+                <option value="pending">⏳ Pending (Awaiting Review)</option>
+                <option value="confirmed">✅ Confirmed (Paid/Reserved)</option>
+                <option value="in_progress">🔄 In Progress (Ongoing)</option>
+                <option value="completed">🏁 Completed (Done)</option>
+                <option value="cancelled">❌ Cancelled</option>
+              </select>
+              <small style="color:var(--muted); font-size:11px; margin-top:4px; display:block;">Change status to track the booking lifecycle.</small>
+            </div>
+            <div class="field">
+              <label>Final Price (₱)</label>
+              <input id="review-amount" type="number" min="0" step="0.01" placeholder="0.00">
+              <small style="color:var(--muted); font-size:11px; margin-top:4px; display:block;">Enter total amount including all items & fees.</small>
+            </div>
           </div>
-          <div class="field"><label>Final Price (₱)</label><input id="review-amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
+          <div class="form-row">
+            <div class="field">
+              <label>Pricing Notes (Customer sees this)</label>
+              <textarea id="review-pricing-notes" placeholder="e.g. Discount applied for early booking..."></textarea>
+            </div>
+            <div class="field">
+              <label>Internal Staff Notes (Private)</label>
+              <textarea id="review-notes" placeholder="e.g. Customer prefers window seating..."></textarea>
+            </div>
+          </div>
         </div>
-        <div class="field"><label>Pricing Notes</label><textarea id="review-pricing-notes" placeholder="Explain the final quote, inclusions, or custom pricing adjustments."></textarea></div>
-        <div class="field"><label>Internal / Booking Notes</label><textarea id="review-notes" placeholder="Customer notes, coordination details, schedule reminders..."></textarea></div>
       </div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-booking-review')">Close</button>
-      <button class="btn btn-green btn-sm" onclick="saveBookingReview()">Save Booking Review</button>
+      <button class="btn btn-green btn-sm" onclick="saveBookingReview()">Save Changes</button>
     </div>
   </div>
 </div>
@@ -344,14 +404,35 @@ function show(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
-  btn.classList.add('active');
-  const titles = {dashboard:'Overview',bookings:'Bookings',menu:'Menu Items',venues:'Venue Packages',staff:'Team Coverage',reports:'Reports & Insights'};
+  if (btn) btn.classList.add('active');
+  const titles = {dashboard:'Overview',bookings:'Bookings Management',menu:'Menu Items',venues:'Venue Packages',staff:'Team Coverage',reports:'Detailed Reports',financials:'Financials & Rates'};
   document.getElementById('page-title').textContent = titles[id] || id;
+  if (id === 'dashboard') loadDashboard();
   if (id === 'bookings') loadBookings();
   if (id === 'menu') loadMenu();
   if (id === 'venues') loadVenues();
   if (id === 'staff') loadStaff();
   if (id === 'reports') loadReports();
+  if (id === 'financials') loadFinancials();
+}
+
+// Chart rendering helper
+function renderChart(containerId, data, maxVal) {
+  const container = document.getElementById(containerId);
+  if (!data || !data.length) {
+    container.innerHTML = '<p style="color:var(--muted);margin:auto">No trend data available yet.</p>';
+    return;
+  }
+  const max = maxVal || Math.max(...data.map(d => parseFloat(d.total))) || 1;
+  container.innerHTML = data.map(d => {
+    const height = (parseFloat(d.total) / max) * 100;
+    const label = d.date ? new Date(d.date).toLocaleDateString('en-PH', {weekday:'short'}) : d.month;
+    return `
+      <div class="chart-bar-wrapper">
+        <div class="chart-bar" style="height:${height}%" data-value="${fmt(d.total)}"></div>
+        <span class="chart-label">${label}</span>
+      </div>`;
+  }).join('');
 }
 
 //  API helpers 
@@ -411,6 +492,8 @@ async function loadDashboard() {
 
   const r = await api({action:'reports'});
   if (!r) return;
+  
+  // Recent Bookings Table
   const tb = document.getElementById('recent-bookings');
   tb.innerHTML = r.recent.length ? r.recent.map(b => `
     <tr>
@@ -421,30 +504,101 @@ async function loadDashboard() {
       <td>${badge(b.status)}</td>
       <td>${new Date(b.created_at).toLocaleDateString('en-PH')}</td>
     </tr>`).join('') : `<tr class="loading-row"><td colspan="6" style="color:var(--muted)">No bookings yet</td></tr>`;
+
+  // Revenue Chart
+  renderChart('revenue-chart', r.daily_revenue);
+
+  // Recent Activity Feed (Simulated based on recent bookings and staff)
+  const activity = document.getElementById('recent-activity');
+  const items = [];
+  r.recent.forEach(b => {
+    items.push({
+      icon: b.status === 'pending' ? '🔔' : '✅',
+      text: `<strong>${esc(b.customer_name)}</strong> ${b.status === 'pending' ? 'requested a new' : 'confirmed their'} ${esc(b.service_type)} booking.`,
+      time: b.created_at
+    });
+  });
+  
+  activity.innerHTML = items.length ? items.slice(0, 4).map(item => `
+    <div class="activity-item">
+      <div class="activity-icon">${item.icon}</div>
+      <div class="activity-content">
+        <p>${item.text}</p>
+        <small>${new Date(item.time).toLocaleString('en-PH', {timeStyle:'short', dateStyle:'medium'})}</small>
+      </div>
+    </div>`).join('') : '<p style="color:var(--muted);text-align:center;padding:20px;">No recent activity</p>';
 }
 
 //  BOOKINGS  
+let bookingFilter = '';
+function setBookingFilter(f, el) {
+  bookingFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  loadBookings();
+}
+
 async function loadBookings() {
   const q = document.getElementById('booking-q').value;
-  const s = document.getElementById('booking-status').value;
-  const d = await api({action:'bookings', q, status:s});
+  let s = document.getElementById('booking-status').value;
+  if (bookingFilter && bookingFilter !== 'today') s = bookingFilter;
+  
+  const params = {action:'bookings', q, status:s};
+  if (bookingFilter === 'today') params.today = 1;
+
+  const d = await api(params);
   const tb = document.getElementById('bookings-tbody');
   if (!d) { tb.innerHTML = `<tr class="loading-row"><td colspan="8">Error loading</td></tr>`; return; }
   tb.innerHTML = d.bookings.length ? d.bookings.map(b => `
     <tr>
-      <td><strong>${esc(b.ticket_no)}</strong></td>
-      <td>${esc(b.customer_name)}<br><small style="color:var(--muted)">${esc(b.customer_phone||'')}</small></td>
+      <td><span class="ticket-badge">${esc(b.ticket_no)}</span></td>
+      <td><strong>${esc(b.customer_name)}</strong><br><small style="color:var(--muted)">${esc(b.customer_phone||'')}</small></td>
       <td style="text-transform:capitalize">${esc(b.service_type)}${b.venue_name ? `<br><small style="color:var(--muted)">${esc(b.venue_name)}</small>` : ''}</td>
-      <td>${b.event_date ? new Date(b.event_date).toLocaleDateString('en-PH') : '-'}</td>
-      <td>${b.pax}</td>
-      <td>${Number(b.total_amount) > 0 ? fmt(b.total_amount) : '<em style="color:var(--muted)">Awaiting quote</em>'}</td>
+      <td>${b.event_date ? new Date(b.event_date).toLocaleDateString('en-PH', {dateStyle:'medium'}) : '-'}</td>
+      <td>${b.pax} pax</td>
+      <td>${Number(b.total_amount) > 0 ? `<span class="price-tag">${fmt(b.total_amount)}</span>` : '<em style="color:var(--muted)">Awaiting quote</em>'}</td>
       <td>${badge(b.status)}</td>
       <td>
-        <button class="btn btn-ghost btn-sm" style="border-radius:10px;font-size:12px;padding:6px 10px;margin-right:4px" onclick="openBookingReview(${b.id})">Review</button>
-        <button class="btn btn-danger btn-sm" style="border-radius:10px;font-size:12px;padding:6px 10px;" onclick="deleteBooking(${b.id})">Delete</button>
+        <div class="action-group">
+          <button class="btn btn-ghost btn-sm" onclick="openBookingReview(${b.id})">Review</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteBooking(${b.id})">×</button>
+        </div>
       </td>
     </tr>`).join('')
     : `<tr class="loading-row"><td colspan="8" style="color:var(--muted)">No bookings found</td></tr>`;
+}
+
+//  FINANCIALS  
+async function loadFinancials() {
+  const venues = await api({action:'venues'});
+  const menu = await api({action:'menu', q:''});
+  const reports = await api({action:'reports'});
+
+  if (venues) {
+    document.getElementById('financial-venues').innerHTML = venues.venues.map(v => `
+      <div class="pricing-row">
+        <div>
+          <strong>${esc(v.name)}</strong>
+          <p>${esc(v.type)} · ${v.capacity} pax</p>
+        </div>
+        <span class="price-tag">${fmt(v.rate)}</span>
+      </div>`).join('');
+  }
+
+  if (menu) {
+    document.getElementById('financial-menu').innerHTML = menu.items.slice(0, 6).map(m => `
+      <div class="pricing-row">
+        <div>
+          <strong>${esc(m.name)}</strong>
+          <p>${esc(m.category)}</p>
+        </div>
+        <span class="price-tag">${m.price > 0 ? fmt(m.price) : 'Custom'}</span>
+      </div>`).join('');
+  }
+
+  if (reports) {
+    renderChart('monthly-trend-chart', reports.monthly_trends);
+  }
 }
 
 function renderReviewList(targetId, items, type) {

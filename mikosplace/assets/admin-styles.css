@@ -842,6 +842,173 @@ tbody tr:hover {
   color: var(--red);
 }
 
+/* ─── REPORTS & CHARTS ──────────────────────────────────── */
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+}
+.report-stat {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.report-stat:last-child {
+  border-bottom: none;
+}
+.report-stat .lbl {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-weight: 700;
+}
+.report-stat .val {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--red);
+}
+
+/* Simple CSS Bar Chart */
+.chart-container {
+  margin-top: 20px;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  height: 180px;
+  padding: 10px 0;
+}
+.chart-bar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+}
+.chart-bar {
+  width: 100%;
+  background: linear-gradient(to top, var(--green), #4ade80);
+  border-radius: 6px 6px 0 0;
+  min-height: 2px;
+  transition: height 1s ease-out;
+  position: relative;
+}
+.chart-bar:hover {
+  filter: brightness(1.1);
+}
+.chart-bar::after {
+  content: attr(data-value);
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green-dk);
+  opacity: 0;
+  transition: 0.2s;
+}
+.chart-bar:hover::after {
+  opacity: 1;
+}
+.chart-label {
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ─── QUICK FILTERS ─────────────────────────────────────── */
+.filter-chips {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.filter-chip {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+.filter-chip:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+.filter-chip.active {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+
+/* ─── BOOKING LIST ENHANCEMENTS ─────────────────────────── */
+.ticket-badge {
+  font-family: monospace;
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #475569;
+  font-weight: 700;
+}
+.action-group {
+  display: flex;
+  gap: 6px;
+}
+
+/* ─── PRICE MANAGEMENT ─────────────────────────────────── */
+.price-tag {
+  font-weight: 800;
+  color: var(--red);
+}
+.editable-price {
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+.editable-price:hover {
+  background: var(--red-lt);
+}
+
+/* ─── RECENT ACTIVITY ─────────────────────────────────── */
+.activity-list {
+  display: grid;
+  gap: 14px;
+}
+.activity-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+.activity-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.activity-content p {
+  font-size: 13px;
+  line-height: 1.4;
+}
+.activity-content small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
 /* ─── LOADING SPINNER ──────────────────────────────────── */
 .spinner {
   display: inline-block;
