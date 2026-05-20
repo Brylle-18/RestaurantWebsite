@@ -912,16 +912,14 @@ nav {
 }
 
 .booking-shell {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
+  display: block;
 }
 
 .booking-container {
-  flex: 1 1 600px;
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+  gap: 24px;
+  align-items: start;
   min-width: 300px;
 }
 
@@ -959,16 +957,21 @@ nav {
 }
 
 .booking-panel {
-  flex: 1 1 280px;
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 24px 60px rgba(5, 24, 10, 0.18);
-  min-width: 280px;
-  max-height: 680px;
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: 0 40px 80px rgba(5, 24, 10, 0.20);
+  min-width: 0;
+  max-height: 760px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
+}
+
+.booking-workspace {
+  display: grid;
+  gap: 24px;
+  align-self: start;
 }
 
 .booking-panel::-webkit-scrollbar,
@@ -993,16 +996,12 @@ nav {
 }
 
 .menu-preview-panel {
-  flex: 0 1 320px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(244, 251, 233, 0.82), rgba(255, 255, 255, 0.98));
+  border-radius: 22px;
   padding: 24px;
-  box-shadow: 0 24px 60px rgba(5, 24, 10, 0.18);
+  border: 1px solid rgba(18, 98, 33, 0.10);
   display: none;
-  max-height: 680px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  overflow: hidden;
 }
 
 .menu-preview-panel.show {
@@ -1013,7 +1012,7 @@ nav {
 .menu-preview-head {
   margin-bottom: 18px;
   padding-bottom: 16px;
-  border-bottom: 2px solid var(--border);
+  border-bottom: 1px solid rgba(18, 98, 33, 0.12);
 }
 
 .service-builder-head div,
@@ -1033,13 +1032,13 @@ nav {
 .service-builder-head h3,
 .menu-preview-head h3 {
   font-family: 'Playfair Display', serif;
-  font-size: 18px;
+  font-size: 22px;
   color: var(--text);
   margin-bottom: 6px;
 }
 
 .builder-sub {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   line-height: 1.5;
 }
@@ -1047,6 +1046,74 @@ nav {
 .service-panel-content {
   display: grid;
   gap: 18px;
+}
+
+.builder-category-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 8px 4px 4px;
+  margin: -4px -4px 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(22, 138, 36, 0.35) transparent;
+}
+
+.builder-category-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 11px 14px;
+  border: 1px solid rgba(18, 98, 33, 0.10);
+  border-radius: 999px;
+  background: rgba(247, 251, 242, 0.95);
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.builder-category-tab:hover {
+  color: var(--green-dk);
+  border-color: rgba(22, 138, 36, 0.2);
+  background: #fff;
+}
+
+.builder-category-tab.active {
+  background: linear-gradient(135deg, var(--green-dk), var(--green));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 12px 24px rgba(10, 86, 22, 0.18);
+}
+
+.builder-category-tab span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: rgba(22, 138, 36, 0.12);
+  color: var(--green-dk);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.builder-category-tab.active span {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.builder-category-pane {
+  display: none;
+}
+
+.builder-category-pane.active {
+  display: block;
 }
 
 .catalog-section {
@@ -1352,16 +1419,16 @@ nav {
 
 .menu-preview-tabs {
   display: flex;
-  gap: 6px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 18px;
   flex-wrap: wrap;
 }
 
 .menu-preview-tab {
-  padding: 8px 12px;
-  background: var(--surface-soft);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  padding: 9px 12px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(18, 98, 33, 0.10);
+  border-radius: 999px;
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   font-weight: 600;
@@ -1398,8 +1465,8 @@ nav {
 }
 
 .menu-preview-item {
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(18, 98, 33, 0.10);
 }
 
 .menu-preview-item:last-child {
@@ -1415,22 +1482,22 @@ nav {
 }
 
 .preview-item-head strong {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text);
   flex: 1;
 }
 
 .preview-item-price {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--red);
   font-weight: 700;
   white-space: nowrap;
 }
 
 .preview-item-desc {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .form-grid {
@@ -1768,22 +1835,8 @@ footer {
 /* ─── RESPONSIVE ───────────────────────────────────── */
 
 @media (max-width: 1200px) {
-  .booking-shell {
-    flex-direction: column;
-  }
-
   .booking-container {
-    flex-direction: column;
-  }
-
-  .menu-preview-panel {
-    flex: 1 1 100%;
-    max-height: none;
-  }
-
-  .booking-panel {
-    flex: 1 1 100%;
-    max-height: none;
+    grid-template-columns: 1fr;
   }
 
   .menu-items-grid {
@@ -1808,16 +1861,8 @@ footer {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }
 
-  .booking-shell {
-    flex-direction: column;
-  }
-
   .booking-container {
-    flex-direction: column;
-  }
-
-  .menu-preview-panel {
-    flex: 1 1 100%;
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1901,6 +1946,11 @@ footer {
     min-width: unset;
   }
 
+  .booking-panel {
+    padding: 22px;
+    max-height: none;
+  }
+
   .catalog-card,
   .booking-option,
   .package-card-top,
@@ -1911,12 +1961,8 @@ footer {
     align-items: flex-start;
   }
 
-  .booking-panel {
-    max-height: unset;
-  }
-
-  .menu-preview-panel {
-    max-height: unset;
+  .booking-workspace {
+    gap: 18px;
   }
 }
 
@@ -1972,6 +2018,12 @@ footer {
 
   .form-card {
     padding: 20px;
+  }
+
+  .booking-panel,
+  .menu-preview-panel {
+    padding: 18px;
+    border-radius: 20px;
   }
 
   .form-grid {

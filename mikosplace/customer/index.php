@@ -267,7 +267,7 @@ $venueFoodPackages = [
         <div class="success-msg" id="inq-success"></div>
       </div>
 
-      <aside class="booking-panel" id="service-builder">
+      <aside class="booking-panel booking-workspace" id="service-builder">
         <div class="service-builder-head">
           <div>
             <p class="builder-label">Booking Selections</p>
@@ -278,37 +278,36 @@ $venueFoodPackages = [
         <div class="service-panel-content" id="service-panel-content">
           <div class="selection-empty">Loading booking options...</div>
         </div>
-      </aside>
-    </div>
-
-    <aside class="menu-preview-panel" id="menu-preview-panel">
-      <div class="menu-preview-head">
-        <p class="builder-label">Current Menu Display</p>
-        <h3>Browse menu by category</h3>
-      </div>
-      <div class="menu-preview-tabs">
-        <?php foreach ($restaurantMenuCatalog as $index => $group): ?>
-          <button class="menu-preview-tab <?= $index === 0 ? 'active' : '' ?>" data-category="<?= htmlspecialchars($group['category'], ENT_QUOTES) ?>" onclick="switchPreviewMenuTab(this)">
-            <?= htmlspecialchars(substr($group['category'], 0, 8), ENT_QUOTES) ?>
-          </button>
-        <?php endforeach; ?>
-      </div>
-      <div class="menu-preview-content">
-        <?php $firstCategory = true; foreach ($restaurantMenuCatalog as $group): ?>
-          <div class="menu-preview-pane <?= $firstCategory ? 'active' : '' ?>" data-category="<?= htmlspecialchars($group['category'], ENT_QUOTES) ?>">
-            <?php foreach ($group['items'] as $item): ?>
-              <div class="menu-preview-item">
-                <div class="preview-item-head">
-                  <strong><?= htmlspecialchars($item['name'], ENT_QUOTES) ?></strong>
-                  <span class="preview-item-price"><?= htmlspecialchars($item['price'], ENT_QUOTES) ?></span>
-                </div>
-                <p class="preview-item-desc"><?= htmlspecialchars($item['description'], ENT_QUOTES) ?></p>
-              </div>
+        <section class="menu-preview-panel" id="menu-preview-panel">
+          <div class="menu-preview-head">
+            <p class="builder-label">Menu Guide</p>
+            <h3>Browse dishes by category</h3>
+          </div>
+          <div class="menu-preview-tabs">
+            <?php foreach ($restaurantMenuCatalog as $index => $group): ?>
+              <button class="menu-preview-tab <?= $index === 0 ? 'active' : '' ?>" data-category="<?= htmlspecialchars($group['category'], ENT_QUOTES) ?>" onclick="switchPreviewMenuTab(this)">
+                <?= htmlspecialchars(substr($group['category'], 0, 8), ENT_QUOTES) ?>
+              </button>
             <?php endforeach; ?>
           </div>
-          <?php $firstCategory = false; endforeach; ?>
-      </div>
-    </aside>
+          <div class="menu-preview-content">
+            <?php $firstCategory = true; foreach ($restaurantMenuCatalog as $group): ?>
+              <div class="menu-preview-pane <?= $firstCategory ? 'active' : '' ?>" data-category="<?= htmlspecialchars($group['category'], ENT_QUOTES) ?>">
+                <?php foreach ($group['items'] as $item): ?>
+                  <div class="menu-preview-item">
+                    <div class="preview-item-head">
+                      <strong><?= htmlspecialchars($item['name'], ENT_QUOTES) ?></strong>
+                      <span class="preview-item-price"><?= htmlspecialchars($item['price'], ENT_QUOTES) ?></span>
+                    </div>
+                    <p class="preview-item-desc"><?= htmlspecialchars($item['description'], ENT_QUOTES) ?></p>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+              <?php $firstCategory = false; endforeach; ?>
+          </div>
+        </section>
+      </aside>
+    </div>
   </div>
 </section>
 
@@ -360,6 +359,7 @@ const API = 'api.php';
 let menuFilter = '';
 let allMenuItems = [];
 let availableVenues = [];
+let activeBuilderCategory = '';
 const RESTAURANT_MENU_CATALOG = <?= json_encode($restaurantMenuCatalog, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 const VENUE_FOOD_PACKAGES = <?= json_encode($venueFoodPackages, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 const bookingState = {
@@ -593,46 +593,80 @@ function renderServiceBuilder() {
     if (!groups.length) {
       panel.innerHTML = '<div class="selection-empty">Restaurant booking items are still loading. Please wait a moment.</div>';
     } else {
-      panel.innerHTML = groups.map((group) => `
-        <div class="catalog-section">
-          <div class="catalog-section-head">
-            <h4>${esc(group.category)}</h4>
-            <span>${group.items.length} item${group.items.length > 1 ? 's' : ''}</span>
-          </div>
-          <div class="menu-category-list">
-            ${group.items.map((item) => `
-              <div class="catalog-card">
-                <div class="catalog-thumb">
-                  <img src="/mikosplace/assets/dishes/${esc(item.image_path || 'default-dish.jpg')}" 
-                       alt="${esc(item.name)}"
-                       onerror="this.src='/mikosplace/assets/mikosplace.jpg'">
-                </div>
-                <div class="catalog-card-copy">
-                  <div class="catalog-card-top">
-                    <strong>${esc(item.name)}</strong>
-                    <span class="option-price">${esc(item.price)}</span>
-                  </div>
-                  <p>${esc(item.description)}</p>
-                  <div class="catalog-card-actions">
-                    <label class="qty-label" for="qty-${item.id}">Qty</label>
-                    <input
-                      id="qty-${item.id}"
-                      type="number"
-                      min="0"
-                      value="${bookingState.selectedItems.get(Number(item.id)) || 0}"
-                      class="option-qty"
-                      aria-label="Quantity for ${esc(item.name)}"
-                      onchange="updateMenuSelection(${item.id}, this.value)"
-                    >
-                  </div>
-                </div>
-              </div>`).join('')}
-          </div>
-        </div>`).join('');
+      if (!groups.some((group) => group.category === activeBuilderCategory)) {
+        activeBuilderCategory = groups[0].category;
+      }
+
+      panel.innerHTML = `
+        <div class="builder-category-tabs" role="tablist" aria-label="Restaurant menu categories">
+          ${groups.map((group) => `
+            <button
+              class="builder-category-tab ${group.category === activeBuilderCategory ? 'active' : ''}"
+              type="button"
+              role="tab"
+              aria-selected="${group.category === activeBuilderCategory ? 'true' : 'false'}"
+              data-category="${esc(group.category)}"
+              onclick="switchBuilderCategory(this)"
+            >
+              ${esc(group.category)}
+              <span>${group.items.length}</span>
+            </button>`).join('')}
+        </div>
+        ${groups.map((group) => `
+          <div class="builder-category-pane ${group.category === activeBuilderCategory ? 'active' : ''}" data-category="${esc(group.category)}">
+            <div class="catalog-section">
+              <div class="catalog-section-head">
+                <h4>${esc(group.category)}</h4>
+                <span>${group.items.length} item${group.items.length > 1 ? 's' : ''}</span>
+              </div>
+              <div class="menu-category-list">
+                ${group.items.map((item) => `
+                  <div class="catalog-card">
+                    <div class="catalog-thumb">
+                      <img src="/mikosplace/assets/dishes/${esc(item.image_path || 'default-dish.jpg')}" 
+                           alt="${esc(item.name)}"
+                           onerror="this.src='/mikosplace/assets/mikosplace.jpg'">
+                    </div>
+                    <div class="catalog-card-copy">
+                      <div class="catalog-card-top">
+                        <strong>${esc(item.name)}</strong>
+                        <span class="option-price">${esc(item.price)}</span>
+                      </div>
+                      <p>${esc(item.description)}</p>
+                      <div class="catalog-card-actions">
+                        <label class="qty-label" for="qty-${item.id}">Qty</label>
+                        <input
+                          id="qty-${item.id}"
+                          type="number"
+                          min="0"
+                          value="${bookingState.selectedItems.get(Number(item.id)) || 0}"
+                          class="option-qty"
+                          aria-label="Quantity for ${esc(item.name)}"
+                          onchange="updateMenuSelection(${item.id}, this.value)"
+                        >
+                      </div>
+                    </div>
+                  </div>`).join('')}
+              </div>
+            </div>
+          </div>`).join('')}`;
     }
   }
 
   renderPricePreview();
+}
+
+function switchBuilderCategory(tabButton) {
+  const category = tabButton.getAttribute('data-category');
+  activeBuilderCategory = category;
+  document.querySelectorAll('.builder-category-tab').forEach((btn) => {
+    const isActive = btn.getAttribute('data-category') === category;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+  document.querySelectorAll('.builder-category-pane').forEach((pane) => {
+    pane.classList.toggle('active', pane.getAttribute('data-category') === category);
+  });
 }
 
 function setMenuFilter(category, button) {

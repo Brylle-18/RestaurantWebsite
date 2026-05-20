@@ -50,14 +50,14 @@ function ensureBookingSchema(PDO $pdo): void {
         $mapping = [
             'Pancit Guisado' => 'pancit-guisado.jpg',
             'Pancit Bihon' => 'pancit-bihon.jpg',
-            'Lumpiang Shanghai' => 'lumpiang-shanghai.webp',
-            'Lumpiang Sariwa' => 'lumpian-sariwa.jpg',
             'Pork Adobo' => 'pork-adobo.jpg',
             'Crispy Pata' => 'crispy-pata.jpg',
             'Lechon Kawali' => 'lechon-kawali.webp',
             'Pork Menudo' => 'pork-menudo.jpg',
             'Kare-Kare' => 'beef-kare.webp',
             'Beef Caldereta' => 'beef-caldereta.jpg',
+            'Lumpiang Shanghai' => 'lumpiang-shanghai.jpg',
+            'Lumpiang Sariwa' => 'lumpiang-sariwa.jpg',
             'Bistek Tagalog' => 'bistek-tagalog.jpg',
             'Chicken Adobo' => 'chicken-adobo.jpg',
             'Chicken Inasal' => 'chicken-inasal.jpg',
@@ -81,7 +81,12 @@ function ensureBookingSchema(PDO $pdo): void {
         foreach ($mapping as $name => $path) {
             $migStmt->execute([$path, $name]);
         }
+
     }
+
+    $fixStmt = $pdo->prepare("UPDATE menu_items SET image_path = ? WHERE name = ?");
+    $fixStmt->execute(['lumpiang-shanghai.jpg', 'Lumpiang Shanghai']);
+    $fixStmt->execute(['lumpiang-sariwa.jpg', 'Lumpiang Sariwa']);
 
     $pdo->exec(
         'CREATE TABLE IF NOT EXISTS booking_addons (
@@ -100,8 +105,8 @@ function ensureBookingSchema(PDO $pdo): void {
     $restaurantMenuSeed = [
         ['Pancit Guisado', 'restaurant', 0.00, 'Stir-fried mixed noodles with vegetables, pork, and shrimp. Final pricing depends on selected portion size.', 'pancit-guisado.jpg'],
         ['Pancit Bihon', 'restaurant', 0.00, 'Thin rice noodles with soy sauce, garlic, vegetables, and chicken. Final pricing depends on selected portion size.', 'pancit-bihon.jpg'],
-        ['Lumpiang Shanghai', 'restaurant', 0.00, 'Crispy pork spring rolls with sweet and sour dipping sauce. Final pricing depends on selected portion size.', 'lumpiang-shanghai.webp'],
-        ['Lumpiang Sariwa', 'restaurant', 0.00, 'Fresh spring rolls with ubod and vegetables topped with peanut sauce. Final pricing depends on selected portion size.', 'lumpian-sariwa.jpg'],
+        ['Lumpiang Shanghai', 'restaurant', 0.00, 'Crispy pork spring rolls with sweet and sour dipping sauce. Final pricing depends on selected portion size.', 'lumpiang-shanghai.jpg'],
+        ['Lumpiang Sariwa', 'restaurant', 0.00, 'Fresh spring rolls with ubod and vegetables topped with peanut sauce. Final pricing depends on selected portion size.', 'lumpiang-sariwa.jpg'],
         ['Pork Adobo', 'restaurant', 0.00, 'Pork belly braised in soy sauce, vinegar, garlic, and peppercorns. Final pricing depends on selected portion size.', 'pork-adobo.jpg'],
         ['Crispy Pata', 'restaurant', 0.00, 'Deep-fried pork knuckle with crunchy skin and tender meat. Final pricing depends on selected portion size.', 'crispy-pata.jpg'],
         ['Lechon Kawali', 'restaurant', 0.00, 'Crispy deep-fried pork belly chunks served with liver sauce. Final pricing depends on selected portion size.', 'lechon-kawali.webp'],
