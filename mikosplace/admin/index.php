@@ -52,7 +52,7 @@
   <main class="main">
     <header class="header">
       <div>
-        <p class="header-tag">Franco Miguel's Place</p>
+        <p class="header-tag">Miko's Place Operations</p>
         <h2 id="page-title">Overview</h2>
       </div>
       <div class="header-actions">

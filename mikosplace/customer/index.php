@@ -66,7 +66,7 @@ $restaurantMenuCatalog = [
     ],
     [
         'category' => 'Beverages / Inumin',
-                         'items' => [
+        'items' => [
             ['name' => "Sago't Gulaman", 'description' => 'A classic iced drink sweetened with brown sugar syrup, filled with tapioca pearls and gelatin.', 'price' => '₱50 - ₱85', 'image_path' => 'sagot-gulaman.webp'],
             ['name' => 'Fresh Buko Juice', 'description' => 'Refreshing, naturally sweet coconut water served straight from the shell or in a glass with meat.', 'price' => '₱70 - ₱110', 'image_path' => 'fresh-buko.jpg'],
             ['name' => 'Calamansi Juice', 'description' => 'Sweetened citrus drink made from freshly squeezed native Philippine limes, served iced or hot.', 'price' => '₱60 - ₱95', 'image_path' => 'calamansi-juice.jpg'],
@@ -386,7 +386,6 @@ window.addEventListener('scroll', () => {
       currentSection = id;
     }
   });
-
   document.querySelectorAll('.nav-link').forEach((link) => {
     const href = link.getAttribute('href').replace('#', '');
     link.classList.toggle('active', href === currentSection);
@@ -649,7 +648,6 @@ function switchMenuTab(tabButton) {
   const category = tabButton.getAttribute('data-category');
   document.querySelectorAll('.menu-tab').forEach((btn) => btn.classList.remove('active'));
   document.querySelectorAll('.menu-tab-pane').forEach((pane) => pane.classList.remove('active'));
-  
   tabButton.classList.add('active');
   document.querySelector(`.menu-tab-pane[data-category="${CSS.escape(category)}"]`).classList.add('active');
 }
@@ -658,11 +656,11 @@ function switchPreviewMenuTab(tabButton) {
   const category = tabButton.getAttribute('data-category');
   document.querySelectorAll('.menu-preview-tab').forEach((btn) => btn.classList.remove('active'));
   document.querySelectorAll('.menu-preview-pane').forEach((pane) => pane.classList.remove('active'));
-  
   tabButton.classList.add('active');
   document.querySelector(`.menu-preview-pane[data-category="${CSS.escape(category)}"]`).classList.add('active');
 }
 
+// FIX 1: Removed stray `=` after `return;`, removed duplicate body below the function
 async function loadMenu() {
   const grid = document.getElementById('menu-grid');
   const search = document.getElementById('menu-search');
@@ -671,13 +669,11 @@ async function loadMenu() {
   }
   const query = search.value;
   grid.innerHTML = '<div class="loading-state"><span class="spinner"></span> Loading...</div>';
-
   const data = await api({ action: 'menu', q: query, category: menuFilter });
   if (!data || !data.ok) {
     grid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px">Could not load menu.</p>';
     return;
   }
-
   grid.innerHTML = data.items.length
     ? data.items.map((item) => `
       <div class="dish-card">
@@ -689,18 +685,12 @@ async function loadMenu() {
         </div>
         <p class="dish-cat">${esc(item.category)}</p>
         <h3 class="dish-name">${esc(item.name)}</h3>
+      </div>`).join('')
     : '<p style="color:var(--muted);text-align:center;grid-column:1/-1;padding:40px">No items found for this category.</p>';
 }
 
-function setMenuFilter(category, button) {
-  menuFilter = category;
-  document.querySelectorAll('.filter-btn').forEach((item) => item.classList.remove('active'));
-  if (button) {
-    button.classList.add('active');
-  }
-  loadMenu();
-}
-
+// FIX 2: loadVenues now has its closing `}` in the right place,
+//         so prefillVenueBooking is no longer trapped inside it
 async function loadVenues() {
   const grid = document.getElementById('venues-grid');
   const data = await api({ action: 'venues' });
@@ -711,23 +701,35 @@ async function loadVenues() {
 
   availableVenues = data.venues;
 
-  grid.innerHTML = data.venues.map((venue) => `
-    <div class="venue-card">
-      <div class="venue-header">
-        <h3>${esc(venue.name)}</h3>
-        <p class="venue-type-tag">${esc(venue.type)} venue</p>
-      </div>
-      <div class="venue-body">
-        <p class="venue-rate">&#8369;${parseFloat(venue.rate).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</p>
-        <div class="venue-detail"><strong>Capacity</strong><span>${venue.capacity} pax</span></div>
-        <div class="venue-detail"><strong>Type</strong><span style="text-transform:capitalize">${esc(venue.type)}</span></div>
-        <div class="venue-detail"><strong>Description</strong><span>${esc(venue.description || 'Perfect for your occasion')}</span></div>
-        <span class="venue-avail ${venue.is_available ? 'yes' : 'no'}">${venue.is_available ? '&#10003; Available' : '&#10005; Booked'}</span>
-        <button class="btn-book" type="button" onclick='prefillVenueBooking(${venue.id})' ${venue.is_available ? '' : 'disabled'}>
-          ${venue.is_available ? 'Book This Venue' : 'Currently Unavailable'}
-        </button>
-      </div>
-    </div>`).join('');
+  grid.innerHTML = data.venues.map((venue) => {
+    const availClass = venue.is_available ? 'yes' : 'no';
+    const availText = venue.is_available ? '&#10003; Available' : '&#10005; Booked';
+    const bookText = venue.is_available ? 'Book This Venue' : 'Currently Unavailable';
+    const disabledAttr = venue.is_available ? '' : 'disabled';
+
+    return `
+      <div class="venue-card">
+        <div class="venue-header">
+          <h3>${esc(venue.name)}</h3>
+          <p class="venue-type-tag">${esc(venue.type)} venue</p>
+        </div>
+        <div class="venue-body">
+          <p class="venue-rate">&#8369;${parseFloat(venue.rate).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</p>
+          <div class="venue-detail"><strong>Capacity</strong><span>${venue.capacity} pax</span></div>
+          <div class="venue-detail"><strong>Type</strong><span style="text-transform:capitalize">${esc(venue.type)}</span></div>
+          <div class="venue-detail"><strong>Description</strong><span>${esc(venue.description || 'Perfect for your occasion')}</span></div>
+          <span class="venue-avail ${availClass}">${availText}</span>
+          <button class="btn-book" type="button" data-venue-id="${venue.id}" ${disabledAttr}>
+            ${bookText}
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Attach click listeners after innerHTML is set — avoids inline onclick quote conflicts
+  document.querySelectorAll('.btn-book[data-venue-id]').forEach((btn) => {
+    btn.addEventListener('click', () => prefillVenueBooking(btn.dataset.venueId));
+  });
 
   const select = document.getElementById('inq-venue-id');
   select.innerHTML = `<option value="">Choose a venue</option>${data.venues.map((venue) => `<option value="${venue.id}">${esc(venue.name)} (&#8369;${parseFloat(venue.rate).toLocaleString('en-PH')})</option>`).join('')}`;
@@ -859,21 +861,14 @@ loadBookingCatalog();
 loadVenues();
 onServiceChange();
 
-// Show menu preview panel for restaurant on initial load
 document.getElementById('menu-preview-panel').style.display = 'block';
-const scrollObserver = new IntersectionObserver((entries) => {
-  // Use a simple check: if any of the observed entries are intersecting, we might want the overlay
-  // But we need to keep track of all visible elements
-  const visibleGreenElements = document.querySelectorAll('.observe-green[data-visible="true"]');
-  document.body.classList.toggle('scroll-overlay', visibleGreenElements.length > 0);
-}, { threshold: 0.1 });
 
 function initScrollObserver() {
   const selectors = '#services, #inquiry, .btn-hero-primary, .btn-submit, .btn-track, .btn-book';
-  document.querySelectorAll(selectors).forEach(el => {
+  document.querySelectorAll(selectors).forEach((el) => {
     el.classList.add('observe-green');
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
+      entries.forEach((entry) => {
         entry.target.setAttribute('data-visible', entry.isIntersecting ? 'true' : 'false');
         const anyVisible = document.querySelectorAll('.observe-green[data-visible="true"]').length > 0;
         document.body.classList.toggle('scroll-overlay', anyVisible);

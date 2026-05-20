@@ -145,11 +145,13 @@ switch ($action) {
         $stmt = $db->prepare($sql);
         $stmt->execute($p);
         jsonOK(['items' => $stmt->fetchAll()]);
+        break;
 
     // ── PUBLIC VENUES ────────────────────────────────────────
     case 'venues':
-        $rows = $db->query('SELECT id,name,type,capacity,rate,description,is_available FROM venues WHERE is_available=1 ORDER BY rate')->fetchAll();
+        $rows = $db->query('SELECT id,name,type,capacity,rate,description,is_available FROM venues ORDER BY is_available DESC, rate')->fetchAll();
         jsonOK(['venues' => $rows]);
+        break;
 
     // ── CHECK BOOKING STATUS ─────────────────────────────────
     case 'track':
@@ -168,6 +170,7 @@ switch ($action) {
             'items' => $itemStmt->fetchAll(),
             'addons' => $addonStmt->fetchAll(),
         ]);
+        break;
 
     // ── SUBMIT BOOKING INQUIRY ───────────────────────────────
     case 'inquire':
@@ -203,10 +206,14 @@ switch ($action) {
         if (!$date) {
             jsonErr('Please select your preferred date');
         } else {
-            $bookingDate = new DateTime($date);
-            $today = new DateTime('today');
-            if ($bookingDate < $today) {
-                jsonErr('The booking date cannot be in the past');
+            try {
+                $bookingDate = new DateTime($date);
+                $today = new DateTime('today');
+                if ($bookingDate < $today) {
+                    jsonErr('The booking date cannot be in the past');
+                }
+            } catch (Exception $e) {
+                jsonErr('Please enter a valid date');
             }
         }
 
@@ -261,8 +268,9 @@ switch ($action) {
 
         $db->beginTransaction();
         try {
+            $tempTicket = 'TEMP-' . bin2hex(random_bytes(4));
             $db->prepare('INSERT INTO bookings (ticket_no,customer_name,customer_email,customer_phone,service_type,venue_id,details,pax,event_date,total_amount,notes,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
-               ->execute(['TEMP', $name,$email,$phone,$service,$venue_id,$details,$pax,$date,$amount,$notes,'pending']);
+               ->execute([$tempTicket, $name,$email,$phone,$service,$venue_id,$details,$pax,$date,$amount,$notes,'pending']);
             
             $bookingId = (int)$db->lastInsertId();
             $ticket = '#MP-' . str_pad($bookingId + 299, 3, '0', STR_PAD_LEFT);
