@@ -48,6 +48,8 @@ CREATE TABLE IF NOT EXISTS bookings (
     event_date      DATE,
     pax             INT          DEFAULT 1,
     total_amount    DECIMAL(10,2) DEFAULT 0.00,
+    discount_percent DECIMAL(5,2) DEFAULT 0.00,
+    final_amount    DECIMAL(10,2) DEFAULT 0.00,
     status          ENUM('pending','confirmed','in_progress','completed','cancelled') DEFAULT 'pending',
     notes           TEXT,
     pricing_notes   TEXT,

@@ -124,11 +124,17 @@ switch ($action) {
         $id = (int)($_POST['id'] ?? 0);
         $status = $_POST['status'] ?? 'pending';
         $amount = (float)($_POST['total_amount'] ?? 0);
+        $discountPercent = (float)($_POST['discount_percent'] ?? 0);
         $pricingNotes = sanitize($_POST['pricing_notes'] ?? '');
         $notes = sanitize($_POST['notes'] ?? '');
         $allowed = ['pending','confirmed','in_progress','completed','cancelled'];
         if (!in_array($status, $allowed, true)) {
             jsonErr('Invalid status');
+        }
+        
+        // Validate discount percentage
+        if ($discountPercent < 0 || $discountPercent > 100) {
+            jsonErr('Discount percentage must be between 0 and 100');
         }
         
         $row = $db->prepare('SELECT service_type, venue_id, event_date FROM bookings WHERE id=?');
@@ -149,9 +155,12 @@ switch ($action) {
             }
         }
 
-        $db->prepare('UPDATE bookings SET total_amount=?, pricing_notes=?, notes=?, status=? WHERE id=?')
-           ->execute([$amount, $pricingNotes ?: null, $notes, $status, $id]);
-        jsonOK(['message' => 'Booking updated']);
+        // Calculate final amount with discount
+        $finalAmount = $amount * (1 - ($discountPercent / 100));
+
+        $db->prepare('UPDATE bookings SET total_amount=?, discount_percent=?, final_amount=?, pricing_notes=?, notes=?, status=? WHERE id=?')
+           ->execute([$amount, $discountPercent, $finalAmount, $pricingNotes ?: null, $notes, $status, $id]);
+        jsonOK(['message' => 'Booking updated', 'final_amount' => $finalAmount, 'discount_percent' => $discountPercent]);
 
     // ── DELETE BOOKING ───────────────────────────────────────
     case 'booking_delete':
@@ -300,6 +309,55 @@ switch ($action) {
             'recent' => $recent,
             'daily_revenue' => $daily_revenue,
             'monthly_trends' => $monthly_trends
+        ]);
+
+    // ── SALES REPORT (with discounts) ──────────────────────
+    case 'sales_report':
+        $startDate = $_GET['start_date'] ?? date('Y-m-01');
+        $endDate = $_GET['end_date'] ?? date('Y-m-d');
+        
+        $sql = "SELECT 
+                    b.id, 
+                    b.ticket_no, 
+                    b.customer_name, 
+                    b.event_date, 
+                    b.total_amount,
+                    b.discount_percent,
+                    b.final_amount,
+                    b.status,
+                    b.created_at,
+                    COUNT(bi.id) as item_count
+                FROM bookings b
+                LEFT JOIN booking_items bi ON b.id = bi.booking_id
+                WHERE b.status = 'completed' AND DATE(b.created_at) BETWEEN ? AND ?
+                GROUP BY b.id
+                ORDER BY b.created_at DESC";
+        
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$startDate, $endDate]);
+        $bookings = $stmt->fetchAll();
+        
+        // Calculate summary
+        $totalRevenue = 0;
+        $totalDiscount = 0;
+        $finalRevenue = 0;
+        
+        foreach ($bookings as $booking) {
+            $totalRevenue += (float)$booking['total_amount'];
+            $discount = (float)$booking['total_amount'] * ((float)$booking['discount_percent'] / 100);
+            $totalDiscount += $discount;
+            $finalRevenue += (float)$booking['final_amount'];
+        }
+        
+        jsonOK([
+            'bookings' => $bookings,
+            'summary' => [
+                'total_bookings' => count($bookings),
+                'total_revenue' => $totalRevenue,
+                'total_discount' => $totalDiscount,
+                'final_revenue' => $finalRevenue,
+                'average_discount_percent' => count($bookings) > 0 ? array_sum(array_map(fn($b) => $b['discount_percent'], $bookings)) / count($bookings) : 0
+            ]
         ]);
 
     default:

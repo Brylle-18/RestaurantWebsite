@@ -231,6 +231,12 @@
     <!--  REPORTS  -->
     <section class="section" id="sec-reports">
       <div class="section-header"><h3>Reports &amp; Insights</h3></div>
+      
+      <div class="filter-chips">
+        <div class="filter-chip active" onclick="loadReports()">Overview</div>
+        <div class="filter-chip" onclick="loadSalesReport()">Sales Report with Discounts</div>
+      </div>
+
       <div class="reports-grid" id="reports-grid">
         <div class="card"><p style="color:var(--muted)"><span class="spinner"></span> Loading...</p></div>
       </div>
@@ -337,8 +343,18 @@
             </div>
             <div class="field">
               <label>Final Price (₱)</label>
-              <input id="review-amount" type="number" min="0" step="0.01" placeholder="0.00">
+              <input id="review-amount" type="number" min="0" step="0.01" placeholder="0.00" onchange="calculateDiscountedPrice()">
               <small style="color:var(--muted); font-size:11px; margin-top:4px; display:block;">Enter total amount including all items & fees.</small>
+            </div>
+            <div class="field">
+              <label>Discount (%)</label>
+              <input id="review-discount" type="number" min="0" max="100" step="0.01" placeholder="0.00" value="0" onchange="calculateDiscountedPrice()">
+              <small style="color:var(--muted); font-size:11px; margin-top:4px; display:block;">Enter discount percentage (10%, 20%, etc.)</small>
+            </div>
+            <div class="field">
+              <label>Calculated Final Amount (₱)</label>
+              <input id="review-final-amount" type="number" min="0" step="0.01" readonly style="background:var(--bg);">
+              <small style="color:var(--green); font-size:11px; margin-top:4px; display:block; font-weight:600;">Auto-calculated after discount</small>
             </div>
           </div>
           <div class="form-row">
@@ -642,8 +658,10 @@ async function openBookingReview(id) {
   document.getElementById('review-booking-id').value = booking.id;
   document.getElementById('review-status').value = booking.status;
   document.getElementById('review-amount').value = Number(booking.total_amount || 0) > 0 ? booking.total_amount : '';
+  document.getElementById('review-discount').value = Number(booking.discount_percent || 0);
   document.getElementById('review-pricing-notes').value = booking.pricing_notes || '';
   document.getElementById('review-notes').value = booking.notes || '';
+  calculateDiscountedPrice();
   document.getElementById('booking-review-summary').innerHTML = `
     <div class="review-summary-grid">
       <div class="review-stat"><span>Ticket</span><strong>${esc(booking.ticket_no)}</strong></div>
@@ -658,12 +676,20 @@ async function openBookingReview(id) {
   openModal('modal-booking-review');
 }
 
+function calculateDiscountedPrice() {
+  const amount = parseFloat(document.getElementById('review-amount').value) || 0;
+  const discount = parseFloat(document.getElementById('review-discount').value) || 0;
+  const finalAmount = amount * (1 - (discount / 100));
+  document.getElementById('review-final-amount').value = finalAmount.toFixed(2);
+}
+
 async function saveBookingReview() {
   const payload = {
     action: 'booking_update',
     id: document.getElementById('review-booking-id').value,
     status: document.getElementById('review-status').value,
     total_amount: document.getElementById('review-amount').value,
+    discount_percent: document.getElementById('review-discount').value,
     pricing_notes: document.getElementById('review-pricing-notes').value,
     notes: document.getElementById('review-notes').value,
   };
@@ -848,6 +874,83 @@ async function loadReports() {
       <div style="margin-top:16px;padding:14px;background:var(--surface-soft);border-radius:14px;border:1px solid var(--border)">
         <p style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">This Month Revenue</p>
         <p style="font-size:26px;font-weight:800;color:var(--red)">${fmt(d.revenue_month)}</p>
+      </div>
+    </div>`;
+}
+
+async function loadSalesReport() {
+  const startDate = new Date();
+  startDate.setDate(1);
+  const endDate = new Date();
+  
+  const d = await api({
+    action: 'sales_report',
+    start_date: startDate.toISOString().split('T')[0],
+    end_date: endDate.toISOString().split('T')[0]
+  });
+  
+  if (!d) {
+    toast('Failed to load sales report', true);
+    return;
+  }
+
+  const g = document.getElementById('reports-grid');
+  const summary = d.summary || {};
+  
+  const bookingsTable = d.bookings.length
+    ? `<table style="width:100%;font-size:13px">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border)">
+            <th style="padding:8px;text-align:left">Ticket</th>
+            <th style="padding:8px;text-align:left">Customer</th>
+            <th style="padding:8px;text-align:right">Original Price</th>
+            <th style="padding:8px;text-align:center">Discount</th>
+            <th style="padding:8px;text-align:right">Final Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${d.bookings.map(b => {
+            const discountAmount = (parseFloat(b.total_amount) * parseFloat(b.discount_percent) / 100).toFixed(2);
+            return `
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px"><strong>${esc(b.ticket_no)}</strong></td>
+              <td style="padding:8px">${esc(b.customer_name)}</td>
+              <td style="padding:8px;text-align:right">${fmt(b.total_amount)}</td>
+              <td style="padding:8px;text-align:center">${parseFloat(b.discount_percent).toFixed(1)}% <small style="color:var(--muted)">(${fmt(discountAmount)})</small></td>
+              <td style="padding:8px;text-align:right;color:var(--green);font-weight:600">${fmt(b.final_amount)}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`
+    : '<p style="color:var(--muted);font-size:13px">No completed bookings found for this period</p>';
+
+  g.innerHTML = `
+    <div class="card full-width">
+      <h4 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:16px">Sales Report Summary (${startDate.toLocaleDateString('en-PH')} - ${endDate.toLocaleDateString('en-PH')})</h4>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
+        <div style="padding:16px;background:var(--surface-soft);border-radius:10px;border-left:4px solid var(--green)">
+          <p style="font-size:12px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Total Bookings</p>
+          <p style="font-size:24px;font-weight:800">${summary.total_bookings || 0}</p>
+        </div>
+        <div style="padding:16px;background:var(--surface-soft);border-radius:10px;border-left:4px solid var(--blue);border-left-color:#168a24">
+          <p style="font-size:12px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Total Revenue (Before Discount)</p>
+          <p style="font-size:24px;font-weight:800">${fmt(summary.total_revenue || 0)}</p>
+        </div>
+        <div style="padding:16px;background:var(--surface-soft);border-radius:10px;border-left:4px solid var(--red)">
+          <p style="font-size:12px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Total Discounts Given</p>
+          <p style="font-size:24px;font-weight:800">${fmt(summary.total_discount || 0)}</p>
+          <p style="font-size:11px;color:var(--muted);margin-top:4px">Avg: ${parseFloat(summary.average_discount_percent || 0).toFixed(1)}%</p>
+        </div>
+        <div style="padding:16px;background:var(--surface-soft);border-radius:10px;border-left:4px solid var(--green);background:linear-gradient(135deg,rgba(22,138,36,0.1),rgba(22,138,36,0.05))">
+          <p style="font-size:12px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Final Revenue (After Discount)</p>
+          <p style="font-size:24px;font-weight:800;color:var(--green)">${fmt(summary.final_revenue || 0)}</p>
+        </div>
+      </div>
+    </div>
+    <div class="card full-width">
+      <h4 style="font-family:'Playfair Display',serif;font-size:16px;margin-bottom:12px">Booking Details</h4>
+      <div style="overflow-x:auto">
+        ${bookingsTable}
       </div>
     </div>`;
 }
