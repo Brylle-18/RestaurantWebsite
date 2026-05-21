@@ -40,6 +40,14 @@ function ensureBookingSchema(PDO $pdo): void {
         $pdo->exec('ALTER TABLE bookings ADD COLUMN pricing_notes TEXT NULL AFTER notes');
     }
 
+    if (!$columnExists('bookings', 'discount_percent')) {
+        $pdo->exec('ALTER TABLE bookings ADD COLUMN discount_percent DECIMAL(5,2) DEFAULT 0.00 AFTER total_amount');
+    }
+
+    if (!$columnExists('bookings', 'final_amount')) {
+        $pdo->exec('ALTER TABLE bookings ADD COLUMN final_amount DECIMAL(10,2) DEFAULT 0.00 AFTER discount_percent');
+    }
+
     if (!$columnExists('menu_items', 'image_path')) {
         $pdo->exec('ALTER TABLE menu_items ADD COLUMN image_path VARCHAR(255) DEFAULT "default-dish.jpg" AFTER description');
     }
