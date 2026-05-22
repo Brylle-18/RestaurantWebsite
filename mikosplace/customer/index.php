@@ -261,7 +261,7 @@ $venueFoodPackages = [
         </div>
         <div class="form-row">
           <div class="field"><label>Preferred Date *</label><input id="inq-date" type="date"></div>
-          <div class="field"><label>Preferred Time *</label><input id="inq-time" type="time"></div>
+          <div class="field"><label>Preferred Time *</label><input id="inq-time" type="time" min="06:00" max="21:00" step="1800"></div>
         </div>
         <div class="field"><label>Special Requests / Notes</label><textarea id="inq-notes" placeholder="Menu preferences, dietary restrictions, occasion details..."></textarea></div>
         <div class="price-preview" id="price-preview"></div>
@@ -851,6 +851,13 @@ async function submitInquiry() {
 
   if (!document.getElementById('inq-date').value || !document.getElementById('inq-time').value) {
     errorElement.textContent = 'Please select both your preferred date and time.';
+    errorElement.style.display = 'block';
+    return;
+  }
+
+  const selectedTime = document.getElementById('inq-time').value;
+  if (selectedTime < '06:00' || selectedTime > '21:00') {
+    errorElement.textContent = 'Bookings are only available between 6:00 AM and 9:00 PM.';
     errorElement.style.display = 'block';
     return;
   }

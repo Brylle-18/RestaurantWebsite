@@ -236,6 +236,10 @@ switch ($action) {
             jsonErr('Please select a valid booking time');
         }
 
+        if (!isWithinOperatingHours($time)) {
+            jsonErr('Bookings are only available between 6:00 AM and 9:00 PM.');
+        }
+
         $allowedCategories = bookingConfig()[$service];
         $menuCatalog = fetchMenuCatalog($db, $allowedCategories);
 

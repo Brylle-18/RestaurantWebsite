@@ -222,6 +222,7 @@ switch ($action) {
         $notes   = plainText($_POST['notes'] ?? '');
         if (!$name) jsonErr('Customer name required');
         if ($date && $time === null) jsonErr('Please select a valid booking time');
+        if ($date && !isWithinOperatingHours($time)) jsonErr('Bookings are only available between 6:00 AM and 9:00 PM.');
         
         $db->beginTransaction();
         try {

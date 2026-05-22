@@ -176,6 +176,19 @@ function normalizeBookingTime(?string $time): ?string {
     return $dateTime->format('H:i:s');
 }
 
+function isWithinOperatingHours(?string $time): bool {
+    if ($time === null) {
+        return false;
+    }
+
+    $normalized = normalizeBookingTime($time);
+    if ($normalized === null) {
+        return false;
+    }
+
+    return $normalized >= '06:00:00' && $normalized <= '21:00:00';
+}
+
 function findVenueBookingConflict(PDO $pdo, int $venueId, string $eventDate, ?string $eventTime, ?int $excludeBookingId = null): ?array {
     $params = [$venueId, $eventDate];
     $sql = "SELECT id, ticket_no, event_date, event_time

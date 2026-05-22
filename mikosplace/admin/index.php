@@ -287,7 +287,7 @@
       </div>
       <div class="form-row">
         <div class="field"><label>Event Date</label><input id="b-date" type="date"></div>
-        <div class="field"><label>Event Time</label><input id="b-time" type="time"></div>
+        <div class="field"><label>Event Time</label><input id="b-time" type="time" min="06:00" max="21:00" step="1800"></div>
         <div class="field"><label>Amount (₱)</label><input id="b-amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
       </div>
       <div class="field"><label>Notes / Details</label><textarea id="b-notes" placeholder="Special requests, menu preferences..."></textarea></div>
