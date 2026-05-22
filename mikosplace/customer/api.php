@@ -12,6 +12,15 @@ function jsonErr(string $msg, int $code = 400): void {
     echo json_encode(['ok' => false, 'error' => $msg]); exit;
 }
 function sanitize(string $s): string { return htmlspecialchars(trim($s), ENT_QUOTES); }
+function plainText(string $s): string { return trim($s); }
+function decodeEntityFields(array $row, array $fields): array {
+    foreach ($fields as $field) {
+        if (array_key_exists($field, $row) && $row[$field] !== null) {
+            $row[$field] = html_entity_decode((string)$row[$field], ENT_QUOTES, 'UTF-8');
+        }
+    }
+    return $row;
+}
 function parseJsonArray(string $raw): array {
     if ($raw === '') {
         return [];
@@ -41,9 +50,9 @@ function normalizeMenuSelections(array $items): array {
 function normalizeAddonSelections(array $addons): array {
     $normalized = [];
     foreach ($addons as $addon) {
-        $name = sanitize((string)($addon['name'] ?? ''));
-        $type = sanitize((string)($addon['type'] ?? 'addon'));
-        $code = sanitize((string)($addon['code'] ?? ''));
+        $name = plainText((string)($addon['name'] ?? ''));
+        $type = plainText((string)($addon['type'] ?? 'addon'));
+        $code = plainText((string)($addon['code'] ?? ''));
         $qty = (int)($addon['quantity'] ?? 0);
         $price = (float)($addon['unit_price'] ?? 0);
         if ($name !== '' && $qty > 0) {
@@ -161,14 +170,19 @@ switch ($action) {
         $stmt->execute([$ticket]);
         $booking = $stmt->fetch();
         if (!$booking) jsonErr('Booking not found', 404);
+        $booking = decodeEntityFields($booking, ['customer_name', 'notes', 'pricing_notes']);
         $itemStmt = $db->prepare('SELECT bi.quantity, bi.unit_price, m.name FROM booking_items bi JOIN menu_items m ON m.id = bi.menu_item_id WHERE bi.booking_id = (SELECT id FROM bookings WHERE ticket_no = ? LIMIT 1)');
         $itemStmt->execute([$ticket]);
         $addonStmt = $db->prepare('SELECT addon_name, addon_type, quantity, unit_price FROM booking_addons WHERE booking_id = (SELECT id FROM bookings WHERE ticket_no = ? LIMIT 1)');
         $addonStmt->execute([$ticket]);
+        $addons = array_map(
+            static fn(array $addon): array => decodeEntityFields($addon, ['addon_name', 'addon_type']),
+            $addonStmt->fetchAll()
+        );
         jsonOK([
             'booking' => $booking,
             'items' => $itemStmt->fetchAll(),
-            'addons' => $addonStmt->fetchAll(),
+            'addons' => $addons,
         ]);
         break;
 
@@ -179,14 +193,14 @@ switch ($action) {
             jsonErr('Spam detected');
         }
 
-        $name    = sanitize($_POST['customer_name'] ?? '');
+        $name    = plainText($_POST['customer_name'] ?? '');
         $email   = filter_var(trim($_POST['customer_email'] ?? ''), FILTER_VALIDATE_EMAIL);
         $phone   = trim($_POST['customer_phone'] ?? '');
         $service = $_POST['service_type'] ?? 'restaurant';
         $pax     = (int)($_POST['pax'] ?? 1);
         $date    = $_POST['event_date'] ?: null;
         $time    = normalizeBookingTime($_POST['event_time'] ?? null);
-        $notes   = sanitize($_POST['notes'] ?? '');
+        $notes   = plainText($_POST['notes'] ?? '');
         $menuSelections = normalizeMenuSelections(parseJsonArray($_POST['selected_items'] ?? ''));
         $addonSelections = normalizeAddonSelections(parseJsonArray($_POST['selected_addons'] ?? ''));
 

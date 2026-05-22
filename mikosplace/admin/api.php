@@ -20,6 +20,15 @@ function jsonErr(string $msg, int $code = 400): void {
     echo json_encode(['ok' => false, 'error' => $msg]); exit;
 }
 function sanitize(string $s): string { return htmlspecialchars(trim($s), ENT_QUOTES); }
+function plainText(string $s): string { return trim($s); }
+function decodeEntityFields(array $row, array $fields): array {
+    foreach ($fields as $field) {
+        if (array_key_exists($field, $row) && $row[$field] !== null) {
+            $row[$field] = html_entity_decode((string)$row[$field], ENT_QUOTES, 'UTF-8');
+        }
+    }
+    return $row;
+}
 function bookingStatusNeedsPrice(string $status): bool {
     return in_array($status, ['confirmed', 'in_progress', 'completed'], true);
 }
@@ -65,7 +74,11 @@ switch ($action) {
         $rows = $db->prepare($sql);
         $rows->execute($params);
         $totalPages = ceil($totalCount / $limit);
-        jsonOK(['bookings' => $rows->fetchAll(), 'page' => $page, 'total_pages' => $totalPages, 'total_count' => $totalCount]);
+        $bookings = array_map(
+            static fn(array $booking): array => decodeEntityFields($booking, ['customer_name', 'customer_email', 'customer_phone', 'notes', 'pricing_notes', 'venue_name']),
+            $rows->fetchAll()
+        );
+        jsonOK(['bookings' => $bookings, 'page' => $page, 'total_pages' => $totalPages, 'total_count' => $totalCount]);
 
     // ── SINGLE BOOKING ───────────────────────────────────────
     case 'booking_get':
@@ -74,23 +87,28 @@ switch ($action) {
         $row->execute([$id]);
         $booking = $row->fetch();
         if (!$booking) jsonErr('Not found', 404);
+        $booking = decodeEntityFields($booking, ['customer_name', 'customer_email', 'customer_phone', 'notes', 'pricing_notes', 'venue_name']);
         $items = $db->prepare('SELECT bi.*, m.name AS dish FROM booking_items bi JOIN menu_items m ON bi.menu_item_id=m.id WHERE bi.booking_id=?');
         $items->execute([$id]);
         $addons = $db->prepare('SELECT * FROM booking_addons WHERE booking_id=? ORDER BY addon_type, addon_name');
         $addons->execute([$id]);
-        jsonOK(['booking' => $booking, 'items' => $items->fetchAll(), 'addons' => $addons->fetchAll()]);
+        $addonRows = array_map(
+            static fn(array $addon): array => decodeEntityFields($addon, ['addon_code', 'addon_name', 'addon_type', 'notes']),
+            $addons->fetchAll()
+        );
+        jsonOK(['booking' => $booking, 'items' => $items->fetchAll(), 'addons' => $addonRows]);
 
     // ── ADD BOOKING ──────────────────────────────────────────
     case 'booking_add':
-        $name    = sanitize($_POST['customer_name'] ?? '');
-        $email   = sanitize($_POST['customer_email'] ?? '');
-        $phone   = sanitize($_POST['customer_phone'] ?? '');
+        $name    = plainText($_POST['customer_name'] ?? '');
+        $email   = plainText($_POST['customer_email'] ?? '');
+        $phone   = plainText($_POST['customer_phone'] ?? '');
         $service = $_POST['service_type'] ?? 'restaurant';
         $pax     = (int)($_POST['pax'] ?? 1);
         $date    = $_POST['event_date'] ?: null;
         $time    = normalizeBookingTime($_POST['event_time'] ?? null);
         $amount  = (float)($_POST['total_amount'] ?? 0);
-        $notes   = sanitize($_POST['notes'] ?? '');
+        $notes   = plainText($_POST['notes'] ?? '');
         if (!$name) jsonErr('Customer name required');
         if ($date && $time === null) jsonErr('Please select a valid booking time');
         
@@ -141,8 +159,8 @@ switch ($action) {
         $status = $_POST['status'] ?? 'pending';
         $amount = (float)($_POST['total_amount'] ?? 0);
         $discountPercent = (float)($_POST['discount_percent'] ?? 0);
-        $pricingNotes = sanitize($_POST['pricing_notes'] ?? '');
-        $notes = sanitize($_POST['notes'] ?? '');
+        $pricingNotes = plainText($_POST['pricing_notes'] ?? '');
+        $notes = plainText($_POST['notes'] ?? '');
         $allowed = ['pending','confirmed','in_progress','completed','cancelled'];
         if (!in_array($status, $allowed, true)) {
             jsonErr('Invalid status');
@@ -296,7 +314,10 @@ switch ($action) {
         $status_counts = $db->query("SELECT status, COUNT(*) AS cnt FROM bookings GROUP BY status")->fetchAll();
         
         // Recent bookings
-        $recent = $db->query("SELECT ticket_no,customer_name,service_type,total_amount,status,created_at FROM bookings ORDER BY created_at DESC LIMIT 8")->fetchAll();
+        $recent = array_map(
+            static fn(array $booking): array => decodeEntityFields($booking, ['customer_name']),
+            $db->query("SELECT ticket_no,customer_name,service_type,total_amount,status,created_at FROM bookings ORDER BY created_at DESC LIMIT 8")->fetchAll()
+        );
         
         // Revenue Trend (Last 7 days)
         $daily_revenue = $db->query("
@@ -350,7 +371,10 @@ switch ($action) {
         
         $stmt = $db->prepare($sql);
         $stmt->execute([$startDate, $endDate]);
-        $bookings = $stmt->fetchAll();
+        $bookings = array_map(
+            static fn(array $booking): array => decodeEntityFields($booking, ['customer_name']),
+            $stmt->fetchAll()
+        );
         
         // Calculate summary
         $totalRevenue = 0;
