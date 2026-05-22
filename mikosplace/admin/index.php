@@ -773,7 +773,7 @@ async function loadFinancials() {
                 <strong>${fmt(staff.estimated_period_cost)}</strong>
               </div>
             </div>`).join('')}
-          <p style="font-size:12px;color:var(--muted)">Daily staff-cost estimate: ${fmt(summary.avg_daily_staff_cost || 0)}. Calculated from role-based daily rates, current shift hours, and active staff status.</p>
+          <p style="font-size:12px;color:var(--muted)">Daily labor cost: ${fmt(summary.avg_daily_staff_cost || 0)} for 4 workers. This period uses ${summary.working_days || 0} workday(s) based on a 6-day work week.</p>
         </div>`
       : '<p style="color:var(--muted);font-size:13px">No staff records available.</p>';
 

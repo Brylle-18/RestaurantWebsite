@@ -38,69 +38,38 @@ function bookingRevenueExpression(): string {
 function toFloat(mixed $value): float {
     return round((float)$value, 2);
 }
-function estimatedStaffDailyRate(string $role): float {
-    $role = strtolower($role);
-
-    if (str_contains($role, 'head chef') || str_contains($role, 'chef')) return 1800.00;
-    if (str_contains($role, 'coordinator')) return 1450.00;
-    if (str_contains($role, 'supervisor')) return 1350.00;
-    if (str_contains($role, 'pastry')) return 1250.00;
-    if (str_contains($role, 'manager')) return 2000.00;
-    if (str_contains($role, 'server') || str_contains($role, 'staff')) return 900.00;
-
-    return 1000.00;
-}
-function statusLaborMultiplier(string $status): float {
-    return match ($status) {
-        'on_duty' => 1.0,
-        'prepping' => 0.85,
-        default => 0.0,
-    };
-}
-function shiftHours(?string $start, ?string $end): float {
-    if (!$start || !$end) {
-        return 8.0;
-    }
-
-    $startSeconds = strtotime($start);
-    $endSeconds = strtotime($end);
-    if ($startSeconds === false || $endSeconds === false) {
-        return 8.0;
-    }
-
-    if ($endSeconds <= $startSeconds) {
-        $endSeconds += 86400;
-    }
-
-    return max(1.0, ($endSeconds - $startSeconds) / 3600);
+function laborerCount(): int { return 4; }
+function laborerDailyWage(): float { return 500.00; }
+function laborWorkDaysPerWeek(): int { return 6; }
+function workingDaysForPeriod(int $periodDays): int {
+    $fullWeeks = intdiv(max(0, $periodDays), 7);
+    $remainingDays = max(0, $periodDays % 7);
+    return ($fullWeeks * laborWorkDaysPerWeek()) + min($remainingDays, laborWorkDaysPerWeek());
 }
 function staffCostBreakdown(PDO $db, int $periodDays): array {
-    $rows = $db->query('SELECT name, role, shift_start, shift_end, status FROM staff')->fetchAll();
+    $rows = array_slice($db->query('SELECT name, role FROM staff ORDER BY id ASC')->fetchAll(), 0, laborerCount());
     $staff = [];
-    $dailyTotal = 0.0;
+    $dailyCostPerLaborer = laborerDailyWage();
+    $workingDays = workingDaysForPeriod($periodDays);
 
-    foreach ($rows as $row) {
-        $baseRate = estimatedStaffDailyRate((string)$row['role']);
-        $hoursFactor = shiftHours($row['shift_start'] ?? null, $row['shift_end'] ?? null) / 8;
-        $statusFactor = statusLaborMultiplier((string)$row['status']);
-        $dailyCost = $baseRate * $hoursFactor * $statusFactor;
-        $periodCost = $dailyCost * max(1, $periodDays);
-
+    for ($index = 0; $index < laborerCount(); $index++) {
+        $row = $rows[$index] ?? null;
         $staff[] = [
-            'name' => html_entity_decode((string)$row['name'], ENT_QUOTES, 'UTF-8'),
-            'role' => html_entity_decode((string)$row['role'], ENT_QUOTES, 'UTF-8'),
-            'status' => $row['status'],
-            'daily_rate' => toFloat($baseRate),
-            'estimated_daily_cost' => toFloat($dailyCost),
-            'estimated_period_cost' => toFloat($periodCost),
+            'name' => $row ? html_entity_decode((string)$row['name'], ENT_QUOTES, 'UTF-8') : 'Laborer ' . ($index + 1),
+            'role' => $row ? html_entity_decode((string)$row['role'], ENT_QUOTES, 'UTF-8') : 'Operations Staff',
+            'status' => 'scheduled',
+            'daily_rate' => toFloat($dailyCostPerLaborer),
+            'estimated_daily_cost' => toFloat($dailyCostPerLaborer),
+            'estimated_period_cost' => toFloat($dailyCostPerLaborer * $workingDays),
         ];
-
-        $dailyTotal += $dailyCost;
     }
+
+    $dailyTotal = laborerCount() * $dailyCostPerLaborer;
 
     return [
         'daily_total' => toFloat($dailyTotal),
-        'period_total' => toFloat($dailyTotal * max(1, $periodDays)),
+        'period_total' => toFloat($dailyTotal * $workingDays),
+        'working_days' => $workingDays,
         'staff' => $staff,
     ];
 }
@@ -549,8 +518,9 @@ switch ($action) {
                 'profit_margin_percent' => (float)$revenue_month > 0 ? toFloat(($netProfit / (float)$revenue_month) * 100) : 0.0,
                 'avg_daily_staff_cost' => $staffCosts['daily_total'],
                 'period_days' => $periodDays,
+                'working_days' => $staffCosts['working_days'],
                 'cost_model' => [
-                    'labor' => 'Estimated from current staff role-based daily rates, shift hours, and active status.',
+                    'labor' => 'Labor uses 4 workers at P500 each per day, scheduled 6 days per week.',
                     'food' => 'Estimated from booked menu/add-on values when available, with service-based fallback recipe cost ratios.',
                 ],
             ],
@@ -642,7 +612,7 @@ switch ($action) {
                 ]),
             ],
             'assumptions' => [
-                'labor' => 'Daily labor cost is estimated from each staff member role, shift length, and current status.',
+                'labor' => 'Labor uses 4 workers at P500 each per day, scheduled 6 days per week.',
                 'food' => 'Recipe cost is estimated from menu/add-on totals when priced, otherwise by service-type food cost ratio.',
             ],
         ]);
