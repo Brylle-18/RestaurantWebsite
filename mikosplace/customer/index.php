@@ -259,7 +259,10 @@ $venueFoodPackages = [
             <option value="">Loading venues...</option>
           </select>
         </div>
-        <div class="field"><label>Preferred Date *</label><input id="inq-date" type="date"></div>
+        <div class="form-row">
+          <div class="field"><label>Preferred Date *</label><input id="inq-date" type="date"></div>
+          <div class="field"><label>Preferred Time *</label><input id="inq-time" type="time"></div>
+        </div>
         <div class="field"><label>Special Requests / Notes</label><textarea id="inq-notes" placeholder="Menu preferences, dietary restrictions, occasion details..."></textarea></div>
         <div class="price-preview" id="price-preview"></div>
         </div>
@@ -410,6 +413,35 @@ function formatCurrency(amount) {
 function esc(s) {
   if (s === null || s === undefined) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+function formatBookingSchedule(dateValue, timeValue, dateStyle = 'long') {
+  if (!dateValue && !timeValue) {
+    return 'Not set';
+  }
+
+  const parts = [];
+
+  if (dateValue) {
+    const [year, month, day] = String(dateValue).split('-').map(Number);
+    if (year && month && day) {
+      const localDate = new Date(year, month - 1, day);
+      parts.push(localDate.toLocaleDateString('en-PH', { dateStyle }));
+    } else {
+      parts.push(String(dateValue));
+    }
+  }
+
+  if (timeValue) {
+    const localTime = new Date(`2000-01-01T${String(timeValue).slice(0, 8)}`);
+    if (!Number.isNaN(localTime.getTime())) {
+      parts.push(localTime.toLocaleTimeString('en-PH', { timeStyle: 'short' }));
+    } else {
+      parts.push(String(timeValue));
+    }
+  }
+
+  return parts.join(' at ');
 }
 
 function getCurrentServiceConfig() {
@@ -801,6 +833,12 @@ async function submitInquiry() {
     return;
   }
 
+  if (!document.getElementById('inq-date').value || !document.getElementById('inq-time').value) {
+    errorElement.textContent = 'Please select both your preferred date and time.';
+    errorElement.style.display = 'block';
+    return;
+  }
+
   const service = document.getElementById('inq-service').value;
   const selectedItems = Array.from(bookingState.selectedItems.entries()).map(([menu_item_id, quantity]) => ({ menu_item_id, quantity }));
   const selectedAddons = Array.from(bookingState.selectedAddons.values()).map((addon) => ({
@@ -830,6 +868,7 @@ async function submitInquiry() {
     service_type: service,
     pax: document.getElementById('inq-pax').value,
     event_date: document.getElementById('inq-date').value,
+    event_time: document.getElementById('inq-time').value,
     venue_id: service === 'venue' ? document.getElementById('inq-venue-id').value : '',
     notes: document.getElementById('inq-notes').value,
     selected_items: JSON.stringify(selectedItems),
@@ -845,6 +884,7 @@ async function submitInquiry() {
     document.getElementById('inq-email').value = '';
     document.getElementById('inq-pax').value = '2';
     document.getElementById('inq-date').value = '';
+    document.getElementById('inq-time').value = '';
     document.getElementById('inq-notes').value = '';
     document.getElementById('inq-service').value = 'restaurant';
     document.getElementById('inq-venue-id').value = '';
@@ -879,7 +919,7 @@ async function trackBooking() {
     <div class="result-row"><span class="lbl">Ticket</span><strong>${esc(booking.ticket_no)}</strong></div>
     <div class="result-row"><span class="lbl">Name</span><span>${esc(booking.customer_name)}</span></div>
     <div class="result-row"><span class="lbl">Service</span><span style="text-transform:capitalize">${esc(booking.service_type)}</span></div>
-    <div class="result-row"><span class="lbl">Event Date</span><span>${booking.event_date ? new Date(booking.event_date).toLocaleDateString('en-PH', { dateStyle: 'long' }) : 'Not set'}</span></div>
+    <div class="result-row"><span class="lbl">Event Schedule</span><span>${formatBookingSchedule(booking.event_date, booking.event_time, 'long')}</span></div>
     <div class="result-row"><span class="lbl">Guests</span><span>${booking.pax} pax</span></div>
     <div class="result-row"><span class="lbl">Amount</span><span>${Number(booking.total_amount) > 0 ? formatCurrency(booking.total_amount) : 'To be quoted'}</span></div>
     <div class="result-row"><span class="lbl">Status</span><span class="badge ${esc(booking.status)}">${esc(booking.status.replace('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase()))}</span></div>

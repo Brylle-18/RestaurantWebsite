@@ -157,7 +157,7 @@ switch ($action) {
     case 'track':
         $ticket = trim($_GET['ticket'] ?? '');
         if (!$ticket) jsonErr('Ticket number required');
-        $stmt = $db->prepare('SELECT ticket_no,customer_name,service_type,event_date,pax,total_amount,status,notes,pricing_notes,created_at FROM bookings WHERE ticket_no = ? LIMIT 1');
+        $stmt = $db->prepare('SELECT ticket_no,customer_name,service_type,event_date,event_time,pax,total_amount,status,notes,pricing_notes,created_at FROM bookings WHERE ticket_no = ? LIMIT 1');
         $stmt->execute([$ticket]);
         $booking = $stmt->fetch();
         if (!$booking) jsonErr('Booking not found', 404);
@@ -185,6 +185,7 @@ switch ($action) {
         $service = $_POST['service_type'] ?? 'restaurant';
         $pax     = (int)($_POST['pax'] ?? 1);
         $date    = $_POST['event_date'] ?: null;
+        $time    = normalizeBookingTime($_POST['event_time'] ?? null);
         $notes   = sanitize($_POST['notes'] ?? '');
         $menuSelections = normalizeMenuSelections(parseJsonArray($_POST['selected_items'] ?? ''));
         $addonSelections = normalizeAddonSelections(parseJsonArray($_POST['selected_addons'] ?? ''));
@@ -217,6 +218,10 @@ switch ($action) {
             }
         }
 
+        if ($time === null) {
+            jsonErr('Please select a valid booking time');
+        }
+
         $allowedCategories = bookingConfig()[$service];
         $menuCatalog = fetchMenuCatalog($db, $allowedCategories);
 
@@ -241,11 +246,9 @@ switch ($action) {
                 }
                 $amount = (float)$vr['rate'];
 
-                // CONCURRENCY CHECK: Is venue already booked for this date?
-                $check = $db->prepare("SELECT COUNT(*) FROM bookings WHERE venue_id = ? AND event_date = ? AND status IN ('confirmed', 'in_progress', 'completed')");
-                $check->execute([$venue_id, $date]);
-                if ((int)$check->fetchColumn() > 0) {
-                    jsonErr('This venue is already fully booked for the selected date. Please try another date or venue.');
+                $conflict = findVenueBookingConflict($db, $venue_id, $date, $time);
+                if ($conflict) {
+                    jsonErr(buildVenueConflictMessage($conflict, $date, $time), 409);
                 }
             }
         }
@@ -269,8 +272,8 @@ switch ($action) {
         $db->beginTransaction();
         try {
             $tempTicket = 'TEMP-' . bin2hex(random_bytes(4));
-            $db->prepare('INSERT INTO bookings (ticket_no,customer_name,customer_email,customer_phone,service_type,venue_id,details,pax,event_date,total_amount,notes,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
-               ->execute([$tempTicket, $name,$email,$phone,$service,$venue_id,$details,$pax,$date,$amount,$notes,'pending']);
+            $db->prepare('INSERT INTO bookings (ticket_no,customer_name,customer_email,customer_phone,service_type,venue_id,details,pax,event_date,event_time,total_amount,notes,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)')
+               ->execute([$tempTicket, $name,$email,$phone,$service,$venue_id,$details,$pax,$date,$time,$amount,$notes,'pending']);
             
             $bookingId = (int)$db->lastInsertId();
             $ticket = '#MP-' . str_pad($bookingId + 299, 3, '0', STR_PAD_LEFT);

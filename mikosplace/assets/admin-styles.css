@@ -1031,6 +1031,29 @@ tbody tr:hover {
   color: var(--muted);
 }
 
+/* ─── PAGINATION ───────────────────────────────────────── */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border-top: 1px solid var(--border);
+}
+.pagination-controls #page-info {
+  min-width: 120px;
+  font-weight: 500;
+  color: var(--text);
+}
+.pagination-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.pagination-controls button:disabled:hover {
+  border-color: var(--border);
+  color: var(--text);
+}
+
 /* ─── RESPONSIVE ───────────────────────────────────────── */
 @media (max-width: 1160px) {
   .stats-grid {

@@ -8,6 +8,7 @@ USE mikosplace;
 -- Add discount fields to existing bookings table
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS discount_percent DECIMAL(5,2) DEFAULT 0.00 AFTER total_amount;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS final_amount DECIMAL(10,2) DEFAULT 0.00 AFTER discount_percent;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS event_time TIME NULL AFTER event_date;
 
 -- Update existing bookings to have final_amount equal to total_amount if not already set
 UPDATE bookings SET final_amount = total_amount WHERE final_amount = 0.00 OR final_amount IS NULL;

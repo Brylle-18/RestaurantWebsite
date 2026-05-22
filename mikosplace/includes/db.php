@@ -48,6 +48,10 @@ function ensureBookingSchema(PDO $pdo): void {
         $pdo->exec('ALTER TABLE bookings ADD COLUMN final_amount DECIMAL(10,2) DEFAULT 0.00 AFTER discount_percent');
     }
 
+    if (!$columnExists('bookings', 'event_time')) {
+        $pdo->exec('ALTER TABLE bookings ADD COLUMN event_time TIME NULL AFTER event_date');
+    }
+
     if (!$columnExists('menu_items', 'image_path')) {
         $pdo->exec('ALTER TABLE menu_items ADD COLUMN image_path VARCHAR(255) DEFAULT "default-dish.jpg" AFTER description');
     }
@@ -151,6 +155,66 @@ function ensureBookingSchema(PDO $pdo): void {
     }
 
     $ensured = true;
+}
+
+function normalizeBookingTime(?string $time): ?string {
+    $time = trim((string)$time);
+    if ($time === '') {
+        return null;
+    }
+
+    $dateTime = DateTime::createFromFormat('H:i', $time) ?: DateTime::createFromFormat('H:i:s', $time);
+    if (!$dateTime) {
+        return null;
+    }
+
+    return $dateTime->format('H:i:s');
+}
+
+function findVenueBookingConflict(PDO $pdo, int $venueId, string $eventDate, ?string $eventTime, ?int $excludeBookingId = null): ?array {
+    $params = [$venueId, $eventDate];
+    $sql = "SELECT id, ticket_no, event_date, event_time
+            FROM bookings
+            WHERE venue_id = ?
+              AND event_date = ?
+              AND status IN ('confirmed', 'in_progress', 'completed')";
+
+    if ($excludeBookingId !== null) {
+        $sql .= ' AND id != ?';
+        $params[] = $excludeBookingId;
+    }
+
+    if ($eventTime !== null) {
+        $sql .= ' AND (event_time = ? OR event_time IS NULL)';
+        $params[] = $eventTime;
+    } else {
+        $sql .= ' AND 1 = 1';
+    }
+
+    $sql .= ' ORDER BY id ASC LIMIT 1';
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $conflict = $stmt->fetch();
+
+    return $conflict ?: null;
+}
+
+function buildVenueConflictMessage(?array $conflict, ?string $fallbackDate = null, ?string $fallbackTime = null): string {
+    $eventDate = $conflict['event_date'] ?? $fallbackDate;
+    $eventTime = $conflict['event_time'] ?? $fallbackTime;
+
+    $parts = [];
+    if ($eventDate) {
+        $parts[] = date('F j, Y', strtotime((string)$eventDate));
+    }
+    if ($eventTime) {
+        $parts[] = date('g:i A', strtotime((string)$eventTime));
+    }
+
+    $schedule = $parts ? implode(' at ', $parts) : 'the selected schedule';
+
+    return "This venue already has a confirmed booking for {$schedule}. Please choose a different time or venue.";
 }
 
 function getDB(): PDO {

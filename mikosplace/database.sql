@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     venue_id        INT,
     details         TEXT,
     event_date      DATE,
+    event_time      TIME,
     pax             INT          DEFAULT 1,
     total_amount    DECIMAL(10,2) DEFAULT 0.00,
     discount_percent DECIMAL(5,2) DEFAULT 0.00,

@@ -128,8 +128,8 @@
       </div>
 
       <div class="search-bar">
-        <input class="search-input" id="booking-q" placeholder="Search by ticket, name or email..." oninput="loadBookings()">
-        <select class="search-select" id="booking-status" onchange="loadBookings()">
+        <input class="search-input" id="booking-q" placeholder="Search by ticket, name or email..." oninput="currentBookingPage=1; loadBookings()">
+        <select class="search-select" id="booking-status" onchange="currentBookingPage=1; loadBookings()">
           <option value="">Status: All</option>
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
@@ -141,9 +141,14 @@
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Ticket</th><th>Customer</th><th>Service</th><th>Event Date</th><th>Pax</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Ticket</th><th>Customer</th><th>Service</th><th>Event Schedule</th><th>Pax</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="bookings-tbody"><tr class="loading-row"><td colspan="8"><span class="spinner"></span></td></tr></tbody>
           </table>
+        </div>
+        <div class="pagination-controls" id="pagination-controls" style="display:none; text-align:center; padding:20px; gap:10px; justify-content:center; align-items:center;">
+          <button class="btn btn-ghost btn-sm" id="prev-btn" onclick="prevPage()">← Previous</button>
+          <span id="page-info" style="min-width:100px; font-weight:500;"></span>
+          <button class="btn btn-ghost btn-sm" id="next-btn" onclick="nextPage()">Next →</button>
         </div>
       </div>
     </section>
@@ -268,6 +273,7 @@
       </div>
       <div class="form-row">
         <div class="field"><label>Event Date</label><input id="b-date" type="date"></div>
+        <div class="field"><label>Event Time</label><input id="b-time" type="time"></div>
         <div class="field"><label>Amount (₱)</label><input id="b-amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
       </div>
       <div class="field"><label>Notes / Details</label><textarea id="b-notes" placeholder="Special requests, menu preferences..."></textarea></div>
@@ -495,6 +501,35 @@ function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 }
 
+function formatBookingSchedule(dateValue, timeValue, dateStyle = 'medium') {
+  if (!dateValue && !timeValue) {
+    return '-';
+  }
+
+  const parts = [];
+
+  if (dateValue) {
+    const [year, month, day] = String(dateValue).split('-').map(Number);
+    if (year && month && day) {
+      const localDate = new Date(year, month - 1, day);
+      parts.push(localDate.toLocaleDateString('en-PH', { dateStyle }));
+    } else {
+      parts.push(String(dateValue));
+    }
+  }
+
+  if (timeValue) {
+    const localTime = new Date(`2000-01-01T${String(timeValue).slice(0, 8)}`);
+    if (!Number.isNaN(localTime.getTime())) {
+      parts.push(localTime.toLocaleTimeString('en-PH', { timeStyle: 'short' }));
+    } else {
+      parts.push(String(timeValue));
+    }
+  }
+
+  return parts.join(' at ');
+}
+
 //  DASHBOARD 
 async function loadDashboard() {
   const d = await api({action:'stats'});
@@ -547,8 +582,10 @@ async function loadDashboard() {
 
 //  BOOKINGS  
 let bookingFilter = '';
+let currentBookingPage = 1;
 function setBookingFilter(f, el) {
   bookingFilter = f;
+  currentBookingPage = 1;
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   loadBookings();
@@ -559,18 +596,19 @@ async function loadBookings() {
   let s = document.getElementById('booking-status').value;
   if (bookingFilter && bookingFilter !== 'today') s = bookingFilter;
   
-  const params = {action:'bookings', q, status:s};
+  const params = {action:'bookings', q, status:s, page: currentBookingPage};
   if (bookingFilter === 'today') params.today = 1;
 
   const d = await api(params);
   const tb = document.getElementById('bookings-tbody');
   if (!d) { tb.innerHTML = `<tr class="loading-row"><td colspan="8">Error loading</td></tr>`; return; }
+  
   tb.innerHTML = d.bookings.length ? d.bookings.map(b => `
     <tr>
       <td><span class="ticket-badge">${esc(b.ticket_no)}</span></td>
       <td><strong>${esc(b.customer_name)}</strong><br><small style="color:var(--muted)">${esc(b.customer_phone||'')}</small></td>
       <td style="text-transform:capitalize">${esc(b.service_type)}${b.venue_name ? `<br><small style="color:var(--muted)">${esc(b.venue_name)}</small>` : ''}</td>
-      <td>${b.event_date ? new Date(b.event_date).toLocaleDateString('en-PH', {dateStyle:'medium'}) : '-'}</td>
+      <td>${formatBookingSchedule(b.event_date, b.event_time, 'medium')}</td>
       <td>${b.pax} pax</td>
       <td>${Number(b.total_amount) > 0 ? `<span class="price-tag">${fmt(b.total_amount)}</span>` : '<em style="color:var(--muted)">Awaiting quote</em>'}</td>
       <td>${badge(b.status)}</td>
@@ -582,6 +620,29 @@ async function loadBookings() {
       </td>
     </tr>`).join('')
     : `<tr class="loading-row"><td colspan="8" style="color:var(--muted)">No bookings found</td></tr>`;
+  
+  // Update pagination controls
+  const paginationDiv = document.getElementById('pagination-controls');
+  if (d.total_pages > 1) {
+    paginationDiv.style.display = 'flex';
+    document.getElementById('page-info').textContent = `Page ${d.page} of ${d.total_pages}`;
+    document.getElementById('prev-btn').disabled = d.page === 1;
+    document.getElementById('next-btn').disabled = d.page === d.total_pages;
+  } else {
+    paginationDiv.style.display = 'none';
+  }
+}
+
+function prevPage() {
+  if (currentBookingPage > 1) {
+    currentBookingPage--;
+    loadBookings();
+  }
+}
+
+function nextPage() {
+  currentBookingPage++;
+  loadBookings();
 }
 
 //  FINANCIALS  
@@ -667,7 +728,7 @@ async function openBookingReview(id) {
       <div class="review-stat"><span>Ticket</span><strong>${esc(booking.ticket_no)}</strong></div>
       <div class="review-stat"><span>Customer</span><strong>${esc(booking.customer_name)}</strong><small>${esc(booking.customer_phone || 'No phone provided')}</small></div>
       <div class="review-stat"><span>Service</span><strong style="text-transform:capitalize">${esc(booking.service_type)}</strong><small>${esc(booking.venue_name || 'Standard booking flow')}</small></div>
-      <div class="review-stat"><span>Event Date</span><strong>${booking.event_date ? new Date(booking.event_date).toLocaleDateString('en-PH', { dateStyle: 'long' }) : 'Not set'}</strong><small>${booking.pax} pax</small></div>
+      <div class="review-stat"><span>Event Schedule</span><strong>${formatBookingSchedule(booking.event_date, booking.event_time, 'long')}</strong><small>${booking.pax} pax</small></div>
     </div>
     ${detailSummary ? `<div class="review-note">${esc(detailSummary)}</div>` : ''}
   `;
@@ -717,11 +778,25 @@ async function addBooking() {
     service_type: document.getElementById('b-service').value,
     pax: document.getElementById('b-pax').value,
     event_date: document.getElementById('b-date').value,
+    event_time: document.getElementById('b-time').value,
     total_amount: document.getElementById('b-amount').value,
     notes: document.getElementById('b-notes').value,
   };
   const d = await api(payload, 'POST');
-  if (d?.ok) { toast('Booking created ✓'); closeModal('modal-booking-add'); loadBookings(); }
+  if (d?.ok) {
+    toast('Booking created ✓');
+    document.getElementById('b-name').value = '';
+    document.getElementById('b-phone').value = '';
+    document.getElementById('b-email').value = '';
+    document.getElementById('b-service').value = 'restaurant';
+    document.getElementById('b-pax').value = '2';
+    document.getElementById('b-date').value = '';
+    document.getElementById('b-time').value = '';
+    document.getElementById('b-amount').value = '';
+    document.getElementById('b-notes').value = '';
+    closeModal('modal-booking-add');
+    loadBookings();
+  }
   else toast(d?.error || 'Failed', true);
 }
 

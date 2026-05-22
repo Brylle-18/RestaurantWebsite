@@ -40,6 +40,9 @@ switch ($action) {
         $q      = '%' . trim($_GET['q'] ?? '') . '%';
         $status = $_GET['status'] ?? '';
         $today  = (int)($_GET['today'] ?? 0);
+        $page   = max(1, (int)($_GET['page'] ?? 1));
+        $limit  = 5;
+        $offset = ($page - 1) * $limit;
 
         $sql    = 'SELECT b.*, v.name AS venue_name FROM bookings b LEFT JOIN venues v ON b.venue_id = v.id WHERE (b.ticket_no LIKE ? OR b.customer_name LIKE ? OR b.customer_email LIKE ?)';
         $params = [$q, $q, $q];
@@ -47,10 +50,22 @@ switch ($action) {
         if ($status) { $sql .= ' AND b.status = ?'; $params[] = $status; }
         if ($today) { $sql .= ' AND DATE(b.event_date) = CURDATE()'; }
         
-        $sql .= ' ORDER BY b.created_at DESC LIMIT 100';
+        // Get total count
+        $countSql = 'SELECT COUNT(*) FROM bookings b WHERE (b.ticket_no LIKE ? OR b.customer_name LIKE ? OR b.customer_email LIKE ?)';
+        $countParams = [$q, $q, $q];
+        if ($status) { $countSql .= ' AND b.status = ?'; $countParams[] = $status; }
+        if ($today) { $countSql .= ' AND DATE(b.event_date) = CURDATE()'; }
+        $countStmt = $db->prepare($countSql);
+        $countStmt->execute($countParams);
+        $totalCount = (int)$countStmt->fetchColumn();
+        
+        $sql .= ' ORDER BY b.created_at DESC LIMIT ? OFFSET ?';
+        $params[] = $limit;
+        $params[] = $offset;
         $rows = $db->prepare($sql);
         $rows->execute($params);
-        jsonOK(['bookings' => $rows->fetchAll()]);
+        $totalPages = ceil($totalCount / $limit);
+        jsonOK(['bookings' => $rows->fetchAll(), 'page' => $page, 'total_pages' => $totalPages, 'total_count' => $totalCount]);
 
     // ── SINGLE BOOKING ───────────────────────────────────────
     case 'booking_get':
@@ -73,14 +88,16 @@ switch ($action) {
         $service = $_POST['service_type'] ?? 'restaurant';
         $pax     = (int)($_POST['pax'] ?? 1);
         $date    = $_POST['event_date'] ?: null;
+        $time    = normalizeBookingTime($_POST['event_time'] ?? null);
         $amount  = (float)($_POST['total_amount'] ?? 0);
         $notes   = sanitize($_POST['notes'] ?? '');
         if (!$name) jsonErr('Customer name required');
+        if ($date && $time === null) jsonErr('Please select a valid booking time');
         
         $db->beginTransaction();
         try {
-            $db->prepare('INSERT INTO bookings (ticket_no,customer_name,customer_email,customer_phone,service_type,pax,event_date,total_amount,notes) VALUES (?,?,?,?,?,?,?,?,?)')
-               ->execute(['TEMP',$name,$email,$phone,$service,$pax,$date,$amount,$notes]);
+            $db->prepare('INSERT INTO bookings (ticket_no,customer_name,customer_email,customer_phone,service_type,pax,event_date,event_time,total_amount,notes) VALUES (?,?,?,?,?,?,?,?,?,?)')
+               ->execute(['TEMP',$name,$email,$phone,$service,$pax,$date,$time,$amount,$notes]);
             $id = $db->lastInsertId();
             $ticket = '#MP-' . str_pad($id + 299, 3, '0', STR_PAD_LEFT);
             $db->prepare('UPDATE bookings SET ticket_no=? WHERE id=?')->execute([$ticket, $id]);
@@ -98,7 +115,7 @@ switch ($action) {
         $allowed = ['pending','confirmed','in_progress','completed','cancelled'];
         if (!in_array($status, $allowed)) jsonErr('Invalid status');
         
-        $row = $db->prepare('SELECT service_type, venue_id, event_date, total_amount FROM bookings WHERE id=?');
+        $row = $db->prepare('SELECT service_type, venue_id, event_date, event_time, total_amount FROM bookings WHERE id=?');
         $row->execute([$id]);
         $booking = $row->fetch();
         if (!$booking) jsonErr('Booking not found');
@@ -109,10 +126,9 @@ switch ($action) {
 
         // Availability check when confirming a venue booking
         if ($booking['service_type'] === 'venue' && $booking['venue_id'] && $booking['event_date'] && in_array($status, ['confirmed', 'in_progress', 'completed'])) {
-            $check = $db->prepare("SELECT COUNT(*) FROM bookings WHERE venue_id = ? AND event_date = ? AND status IN ('confirmed', 'in_progress', 'completed') AND id != ?");
-            $check->execute([$booking['venue_id'], $booking['event_date'], $id]);
-            if ((int)$check->fetchColumn() > 0) {
-                jsonErr('Cannot confirm: This venue is already booked for that date.');
+            $conflict = findVenueBookingConflict($db, (int)$booking['venue_id'], $booking['event_date'], normalizeBookingTime($booking['event_time'] ?? null), $id);
+            if ($conflict) {
+                jsonErr(buildVenueConflictMessage($conflict, $booking['event_date'], $booking['event_time'] ?? null), 409);
             }
         }
 
@@ -137,7 +153,7 @@ switch ($action) {
             jsonErr('Discount percentage must be between 0 and 100');
         }
         
-        $row = $db->prepare('SELECT service_type, venue_id, event_date FROM bookings WHERE id=?');
+        $row = $db->prepare('SELECT service_type, venue_id, event_date, event_time FROM bookings WHERE id=?');
         $row->execute([$id]);
         $booking = $row->fetch();
         if (!$booking) jsonErr('Booking not found');
@@ -148,10 +164,9 @@ switch ($action) {
 
         // Availability check when confirming a venue booking
         if ($booking['service_type'] === 'venue' && $booking['venue_id'] && $booking['event_date'] && in_array($status, ['confirmed', 'in_progress', 'completed'])) {
-            $check = $db->prepare("SELECT COUNT(*) FROM bookings WHERE venue_id = ? AND event_date = ? AND status IN ('confirmed', 'in_progress', 'completed') AND id != ?");
-            $check->execute([$booking['venue_id'], $booking['event_date'], $id]);
-            if ((int)$check->fetchColumn() > 0) {
-                jsonErr('Cannot confirm: This venue is already booked for that date.');
+            $conflict = findVenueBookingConflict($db, (int)$booking['venue_id'], $booking['event_date'], normalizeBookingTime($booking['event_time'] ?? null), $id);
+            if ($conflict) {
+                jsonErr(buildVenueConflictMessage($conflict, $booking['event_date'], $booking['event_time'] ?? null), 409);
             }
         }
 
