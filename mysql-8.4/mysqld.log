@@ -767,3 +767,59 @@
 2026-05-22T07:22:45.783152Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
 2026-05-22T07:22:45.881085Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060
 2026-05-22T07:22:45.881176Z 0 [System] [MY-010931] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld: ready for connections. Version: '8.4.3'  socket: ''  port: 3306  MySQL Community Server - GPL.
+2026-05-22T08:08:49.625111Z 97 [System] [MY-013172] [Server] Received SHUTDOWN from user root. Shutting down mysqld (Version: 8.4.3).
+2026-05-22T08:08:49.638236Z 0 [System] [MY-013105] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld: Normal shutdown.
+2026-05-22T08:08:50.731641Z 0 [System] [MY-010910] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld: Shutdown complete (mysqld 8.4.3)  MySQL Community Server - GPL.
+2026-05-22T08:08:50.748625Z 0 [System] [MY-015016] [Server] MySQL Server - end.
+2026-05-22T08:09:08.131112Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+2026-05-22T08:09:08.337707Z 0 [Warning] [MY-010097] [Server] Insecure configuration for --secure-file-priv: Current value does not restrict location of generated files. Consider setting it to a valid, non-empty path.
+2026-05-22T08:09:08.337774Z 0 [System] [MY-010116] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld (mysqld 8.4.3) starting as process 31368
+2026-05-22T08:09:08.475278Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2026-05-22T08:09:09.098572Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2026-05-22T08:09:09.764959Z 0 [Warning] [MY-013829] [Server] Missing data directory for ICU regular expressions: C:\laragon\bin\mysql\mysql-8.4.3-winx64\lib\private\.
+2026-05-22T08:09:09.815392Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+2026-05-22T08:09:09.816191Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+2026-05-22T08:09:09.892842Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060
+2026-05-22T08:09:09.892999Z 0 [System] [MY-010931] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld: ready for connections. Version: '8.4.3'  socket: ''  port: 3306  MySQL Community Server - GPL.
+2026-05-22T08:20:33.171718Z 12 [System] [MY-013172] [Server] Received SHUTDOWN from user root. Shutting down mysqld (Version: 8.4.3).
+2026-05-22T08:20:33.183695Z 0 [System] [MY-013105] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld: Normal shutdown.
+2026-05-22T08:20:34.010370Z 0 [System] [MY-010910] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld: Shutdown complete (mysqld 8.4.3)  MySQL Community Server - GPL.
+2026-05-22T08:20:34.025542Z 0 [System] [MY-015016] [Server] MySQL Server - end.
+2026-05-22T08:20:52.340122Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+2026-05-22T08:20:52.481213Z 0 [Warning] [MY-010097] [Server] Insecure configuration for --secure-file-priv: Current value does not restrict location of generated files. Consider setting it to a valid, non-empty path.
+2026-05-22T08:20:52.481279Z 0 [System] [MY-010116] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld (mysqld 8.4.3) starting as process 25048
+2026-05-22T08:20:52.597449Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2026-05-22T08:20:53.077133Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2026-05-22T08:20:53.824061Z 0 [Warning] [MY-013829] [Server] Missing data directory for ICU regular expressions: C:\laragon\bin\mysql\mysql-8.4.3-winx64\lib\private\.
+2026-05-22T08:20:53.855574Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+2026-05-22T08:20:53.865777Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+2026-05-22T08:20:53.938385Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060
+2026-05-22T08:20:53.938501Z 0 [System] [MY-010931] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld: ready for connections. Version: '8.4.3'  socket: ''  port: 3306  MySQL Community Server - GPL.
+2026-05-22T08:46:05.985730Z 36 [System] [MY-013172] [Server] Received SHUTDOWN from user root. Shutting down mysqld (Version: 8.4.3).
+2026-05-22T08:46:06.016222Z 0 [System] [MY-013105] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld: Normal shutdown.
+2026-05-22T08:46:07.002997Z 0 [System] [MY-010910] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld: Shutdown complete (mysqld 8.4.3)  MySQL Community Server - GPL.
+2026-05-22T08:46:07.021176Z 0 [System] [MY-015016] [Server] MySQL Server - end.
+2026-05-22T08:46:27.291760Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+2026-05-22T08:46:27.479818Z 0 [Warning] [MY-010097] [Server] Insecure configuration for --secure-file-priv: Current value does not restrict location of generated files. Consider setting it to a valid, non-empty path.
+2026-05-22T08:46:27.479891Z 0 [System] [MY-010116] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld (mysqld 8.4.3) starting as process 24064
+2026-05-22T08:46:27.615465Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2026-05-22T08:46:28.145665Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2026-05-22T08:46:29.101763Z 0 [Warning] [MY-013829] [Server] Missing data directory for ICU regular expressions: C:\laragon\bin\mysql\mysql-8.4.3-winx64\lib\private\.
+2026-05-22T08:46:29.133343Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+2026-05-22T08:46:29.134398Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+2026-05-22T08:46:29.190551Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060
+2026-05-22T08:46:29.190696Z 0 [System] [MY-010931] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld: ready for connections. Version: '8.4.3'  socket: ''  port: 3306  MySQL Community Server - GPL.
+2026-05-22T09:30:11.136334Z 49 [System] [MY-013172] [Server] Received SHUTDOWN from user root. Shutting down mysqld (Version: 8.4.3).
+2026-05-22T09:30:11.159897Z 0 [System] [MY-013105] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld: Normal shutdown.
+2026-05-22T09:30:11.844995Z 0 [System] [MY-010910] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld: Shutdown complete (mysqld 8.4.3)  MySQL Community Server - GPL.
+2026-05-22T09:30:11.862529Z 0 [System] [MY-015016] [Server] MySQL Server - end.
+2026-05-22T11:32:35.458763Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+2026-05-22T11:32:35.606528Z 0 [Warning] [MY-010097] [Server] Insecure configuration for --secure-file-priv: Current value does not restrict location of generated files. Consider setting it to a valid, non-empty path.
+2026-05-22T11:32:35.606614Z 0 [System] [MY-010116] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld (mysqld 8.4.3) starting as process 14572
+2026-05-22T11:32:35.712317Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2026-05-22T11:32:36.301661Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2026-05-22T11:32:37.011974Z 0 [Warning] [MY-013829] [Server] Missing data directory for ICU regular expressions: C:\laragon\bin\mysql\mysql-8.4.3-winx64\lib\private\.
+2026-05-22T11:32:37.112852Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+2026-05-22T11:32:37.122435Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+2026-05-22T11:32:37.255490Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060
+2026-05-22T11:32:37.255700Z 0 [System] [MY-010931] [Server] C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysqld: ready for connections. Version: '8.4.3'  socket: ''  port: 3306  MySQL Community Server - GPL.

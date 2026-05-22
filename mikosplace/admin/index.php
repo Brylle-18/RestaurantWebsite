@@ -82,7 +82,7 @@
       </div>
 
       <div class="two-col">
-        <div class="card">
+        <div class="card revenue-card">
           <div class="section-header">
             <h3 style="font-size:18px;">Revenue Overview</h3>
             <span class="badge info">Last 7 Days</span>
@@ -159,39 +159,42 @@
       <div class="section-header">
         <h3>Financials & Rates</h3>
       </div>
-      <div class="two-col">
+      <div class="financials-grid">
         <div class="card full-width">
           <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Net Revenue Snapshot</h4>
           <div id="financial-summary-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px">
             <p style="color:var(--muted)"><span class="spinner"></span> Loading financial summary...</p>
           </div>
         </div>
-        <div class="card">
-          <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Venue Rates</h4>
-          <div id="financial-venues">
-            <!-- Venue rates populated by JS -->
+
+        <div class="financials-stack">
+          <div class="card">
+            <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Venue Rates</h4>
+            <div id="financial-venues">
+              <!-- Venue rates populated by JS -->
+            </div>
+          </div>
+
+          <div class="card">
+            <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Expense Breakdown</h4>
+            <div id="financial-expense-pie"></div>
           </div>
         </div>
-        <div class="card">
-          <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Top Menu Prices</h4>
-          <div id="financial-menu">
-            <!-- Menu prices populated by JS -->
+
+        <div class="financials-stack">
+          <div class="card">
+            <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Top Menu Prices</h4>
+            <div id="financial-menu">
+              <!-- Menu prices populated by JS -->
+            </div>
+          </div>
+
+          <div class="card">
+            <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Staff Cost Estimate</h4>
+            <div id="financial-staff-costs"></div>
           </div>
         </div>
-        <div class="card">
-          <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Expense Breakdown</h4>
-          <div id="financial-expense-pie"></div>
-        </div>
-        <div class="card">
-          <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Staff Cost Estimate</h4>
-          <div id="financial-staff-costs"></div>
-        </div>
-        <div class="card full-width">
-          <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Revenue Insights</h4>
-          <div id="monthly-trend-chart" class="chart-container" style="height:240px">
-            <!-- Monthly trend chart populated by JS -->
-          </div>
-        </div>
+
       </div>
     </section>
 
@@ -379,7 +382,7 @@
                 <option value="completed">🏁 Completed (Done)</option>
                 <option value="cancelled">❌ Cancelled</option>
               </select>
-              <small style="color:var(--muted); font-size:11px; margin-top:4px; display:block;">Change status to track the booking lifecycle.</small>
+              <small id="review-status-help" style="color:var(--muted); font-size:11px; margin-top:4px; display:block;">Change status to track the booking lifecycle.</small>
             </div>
             <div class="field">
               <label>Final Price (₱)</label>
@@ -563,11 +566,17 @@ function renderChart(containerId, data, maxVal) {
   }
   const max = maxVal || Math.max(...data.map(d => parseFloat(d.total))) || 1;
   container.innerHTML = data.map(d => {
-    const height = (parseFloat(d.total) / max) * 100;
-    const label = d.date ? new Date(d.date).toLocaleDateString('en-PH', {weekday:'short'}) : d.month;
+    const total = parseFloat(d.total) || 0;
+    const ratio = total / max;
+    const height = total > 0 ? Math.max(ratio * 100, 2) : 0;
+    const label = d.label || (d.date ? new Date(d.date).toLocaleDateString('en-PH', {weekday:'short'}) : d.month);
     return `
       <div class="chart-bar-wrapper">
-        <div class="chart-bar" style="height:${height}%" data-value="${fmt(d.total)}"></div>
+        <div class="chart-plot">
+          <div class="chart-bar-track">
+            <div class="chart-bar${total <= 0 ? ' is-empty' : ''}" style="height:${height}%" data-value="${fmt(d.total)}"></div>
+          </div>
+        </div>
         <span class="chart-label">${label}</span>
       </div>`;
   }).join('');
@@ -675,17 +684,23 @@ function renderPieChart(containerId, items, centerPrimary, centerSecondary) {
         </div>
       </div>
       <div style="display:grid;gap:10px">
-        ${items.map((item) => `
-          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 12px;background:var(--surface-soft);border:1px solid var(--border);border-radius:12px">
-            <div style="display:flex;align-items:center;gap:10px">
-              <span style="width:12px;height:12px;border-radius:999px;background:${item.color};display:inline-block"></span>
-              <span style="font-weight:600">${esc(item.label)}</span>
+        ${items.map((item) => {
+          const pctVal = (Number(item.value || 0) / total) * 100;
+          return `
+          <div style="display:flex;flex-direction:column;gap:8px;padding:12px;background:var(--surface-soft);border:1px solid var(--border);border-radius:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="width:10px;height:10px;border-radius:999px;background:${item.color};display:inline-block"></span>
+                <span style="font-weight:600;font-size:13px">${esc(item.label)}</span>
+              </div>
+              <strong style="font-size:15px">${fmt(item.value)}</strong>
             </div>
-            <div style="text-align:right">
-              <strong>${fmt(item.value)}</strong>
-              <div style="font-size:11px;color:var(--muted)">${pct((Number(item.value || 0) / total) * 100)}</div>
+            <div style="width:100%;height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+              <div style="width:${pctVal}%;height:100%;background:${item.color};border-radius:3px;transition:width 0.8s ease"></div>
             </div>
-          </div>`).join('')}
+            <div style="font-size:11px;color:var(--muted);text-align:right">${pct(pctVal)} share</div>
+          </div>`;
+        }).join('')}
       </div>
     </div>`;
 }
@@ -698,7 +713,17 @@ async function loadDashboard() {
   g.innerHTML = `
     <div class="stat-card"><div class="stat-icon">📅</div><div><p class="stat-label">Weekly Bookings</p><p class="stat-value">${d.weekly_bookings}</p><p class="stat-sub">Restaurant + Catering</p></div></div>
     <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Pending</p><p class="stat-value">${d.pending}</p><p class="stat-sub">Need confirmation</p></div></div>
-    <div class="stat-card"><div class="stat-icon">💰</div><div><p class="stat-label">Monthly Revenue</p><p class="stat-value">${fmt(d.monthly_revenue)}</p><p class="stat-sub">After approved discounts</p></div></div>
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div style="flex:1">
+        <p class="stat-label">Monthly Revenue</p>
+        <p class="stat-value">${fmt(d.monthly_revenue)}</p>
+        <div style="width:100%; height:6px; background:rgba(0,0,0,0.05); border-radius:3px; margin:8px 0; overflow:hidden">
+          <div style="width:${Math.min((d.monthly_revenue/100000)*100, 100)}%; height:100%; background:var(--green); border-radius:3px; transition:width 1s ease"></div>
+        </div>
+        <p class="stat-sub">Goal: ₱100k (${pct((d.monthly_revenue/100000)*100)})</p>
+      </div>
+    </div>
     <div class="stat-card"><div class="stat-icon">🍽</div><div><p class="stat-label">Active Dishes</p><p class="stat-value">${d.active_dishes}</p><p class="stat-sub">On the menu</p></div></div>`;
 
   const r = await api({action:'reports'});
@@ -835,24 +860,25 @@ async function loadFinancials() {
 
   if (reports) {
     const summary = reports.financial_summary || {};
-    document.getElementById('financial-summary-grid').innerHTML = `
-      <div style="padding:16px;background:var(--surface-soft);border-radius:14px;border-left:4px solid #168a24">
-        <p style="font-size:11px;text-transform:uppercase;color:var(--muted)">Gross Revenue</p>
-        <p style="font-size:24px;font-weight:800">${fmt(summary.gross_revenue || 0)}</p>
-      </div>
-      <div style="padding:16px;background:var(--surface-soft);border-radius:14px;border-left:4px solid #d97706">
-        <p style="font-size:11px;text-transform:uppercase;color:var(--muted)">Recipe / Food Cost</p>
-        <p style="font-size:24px;font-weight:800">${fmt(summary.food_cost || 0)}</p>
-      </div>
-      <div style="padding:16px;background:var(--surface-soft);border-radius:14px;border-left:4px solid #2563eb">
-        <p style="font-size:11px;text-transform:uppercase;color:var(--muted)">Staff Labor</p>
-        <p style="font-size:24px;font-weight:800">${fmt(summary.staff_labor_cost || 0)}</p>
-      </div>
-      <div style="padding:16px;background:linear-gradient(135deg,rgba(22,138,36,0.12),rgba(22,138,36,0.04));border-radius:14px;border-left:4px solid #168a24">
-        <p style="font-size:11px;text-transform:uppercase;color:var(--muted)">Estimated Net Profit</p>
-        <p style="font-size:24px;font-weight:800;color:var(--green)">${fmt(summary.net_profit || 0)}</p>
-        <p style="font-size:11px;color:var(--muted);margin-top:4px">Margin: ${pct(summary.profit_margin_percent || 0)}</p>
+    const gross = parseFloat(summary.gross_revenue) || 1;
+    document.getElementById('financial-summary-grid').innerHTML = [
+      {lbl:'Gross Revenue', val:summary.gross_revenue, color:'#168a24'},
+      {lbl:'Recipe / Food Cost', val:summary.food_cost, color:'#d97706'},
+      {lbl:'Staff Labor', val:summary.staff_labor_cost, color:'#2563eb'},
+      {lbl:'Estimated Net Profit', val:summary.net_profit, color:'#168a24', isProfit:true}
+    ].map(s => {
+      const val = parseFloat(s.val) || 0;
+      const width = Math.min((val / gross) * 100, 100);
+      return `
+      <div style="padding:16px;background:var(--surface-soft);border-radius:14px;border-left:4px solid ${s.color}">
+        <p style="font-size:11px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">${s.lbl}</p>
+        <p style="font-size:24px;font-weight:800;${s.isProfit?'color:var(--green)':''}">${fmt(val)}</p>
+        <div style="width:100%; height:4px; background:rgba(0,0,0,0.05); border-radius:2px; margin-top:10px; overflow:hidden">
+          <div style="width:${width}%; height:100%; background:${s.color}; border-radius:2px"></div>
+        </div>
+        ${s.lbl!=='Gross Revenue' ? `<p style="font-size:10px; color:var(--muted); margin-top:6px">${pct((val/gross)*100)} of revenue</p>` : ''}
       </div>`;
+    }).join('');
 
     renderPieChart(
       'financial-expense-pie',
@@ -878,8 +904,6 @@ async function loadFinancials() {
           <p style="font-size:12px;color:var(--muted)">Daily labor cost: ${fmt(summary.avg_daily_staff_cost || 0)} for 4 workers. This period uses ${summary.working_days || 0} workday(s) based on a 6-day work week.</p>
         </div>`
       : '<p style="color:var(--muted);font-size:13px">No staff records available.</p>';
-
-    renderChart('monthly-trend-chart', reports.monthly_trends);
   }
 }
 
@@ -928,7 +952,14 @@ async function openBookingReview(id) {
     detailSummary = '';
   }
   document.getElementById('review-booking-id').value = booking.id;
-  document.getElementById('review-status').value = booking.status;
+  const reviewStatus = document.getElementById('review-status');
+  const reviewStatusHelp = document.getElementById('review-status-help');
+  reviewStatus.value = booking.status;
+  const isCancelled = booking.status === 'cancelled';
+  reviewStatus.disabled = isCancelled;
+  reviewStatusHelp.textContent = isCancelled
+    ? 'This booking was cancelled by the customer. The status is now locked.'
+    : 'Change status to track the booking lifecycle.';
   const computedAmount = calculateReviewBaseAmount(d.items || [], d.addons || []);
   document.getElementById('review-amount').value = computedAmount > 0
     ? computedAmount.toFixed(2)
@@ -1140,25 +1171,82 @@ async function loadReports() {
   if (!d) return;
   const g = document.getElementById('reports-grid');
   const summary = d.financial_summary || {};
-  const byService = d.by_service.map(r => `
-    <div class="report-stat">
-      <p class="lbl" style="text-transform:capitalize">${esc(r.service_type)}</p>
-      <p class="val">${r.cnt} bookings &nbsp;·&nbsp; ${fmt(r.total)}</p>
-    </div>`).join('');
+  
+  const maxSvc = Math.max(...d.by_service.map(r => parseFloat(r.total))) || 1;
+  const byService = d.by_service.map(r => {
+    const total = parseFloat(r.total) || 0;
+    const width = (total / maxSvc) * 100;
+    return `
+    <div class="report-stat" style="border-bottom:none; margin-bottom:12px">
+      <div style="display:flex; justify-content:space-between; margin-bottom:4px">
+        <p class="lbl" style="text-transform:capitalize">${esc(r.service_type)}</p>
+        <p class="val" style="font-size:14px; color:var(--text)">${fmt(r.total)}</p>
+      </div>
+      <div style="width:100%; height:8px; background:var(--surface-soft); border-radius:4px; border:1px solid var(--border); overflow:hidden">
+        <div style="width:${width}%; height:100%; background:var(--green); border-radius:4px; transition:width 1s ease"></div>
+      </div>
+      <p style="font-size:11px; color:var(--muted); margin-top:4px">${r.cnt} bookings</p>
+    </div>`;
+  }).join('');
+
+  const maxQty = Math.max(...d.top_dishes.map(x => parseInt(x.qty))) || 1;
   const topDishes = d.top_dishes.length
-    ? `<ol style="padding-left:18px;color:var(--text)">${d.top_dishes.map(x=>`<li style="margin-bottom:8px">${esc(x.name)} <span style="color:var(--muted);font-size:12px">(${x.qty} orders)</span></li>`).join('')}</ol>`
+    ? d.top_dishes.map(x => {
+        const width = (parseInt(x.qty) / maxQty) * 100;
+        return `
+        <div style="margin-bottom:14px">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px">
+            <span style="font-size:13px; font-weight:600">${esc(x.name)}</span>
+            <span style="font-size:12px; color:var(--muted)">${x.qty} orders</span>
+          </div>
+          <div style="width:100%; height:6px; background:var(--surface-soft); border-radius:3px; overflow:hidden">
+            <div style="width:${width}%; height:100%; background:var(--red); opacity:0.8; border-radius:3px; transition:width 1s ease"></div>
+          </div>
+        </div>`;
+      }).join('')
     : '<p style="color:var(--muted);font-size:13px">No dish data yet</p>';
-  const statusCounts = d.status_counts.map(s => `
-    <div class="report-stat"><p class="lbl" style="text-transform:capitalize">${esc(s.status.replace('_',' '))}</p><p class="val">${s.cnt}</p></div>`).join('');
+
+  const maxStatus = Math.max(...d.status_counts.map(s => parseInt(s.cnt))) || 1;
+  const statusCounts = d.status_counts.map(s => {
+    const width = (parseInt(s.cnt) / maxStatus) * 100;
+    return `
+    <div class="report-stat" style="border-bottom:none; margin-bottom:12px">
+      <div style="display:flex; justify-content:space-between; margin-bottom:4px">
+        <p class="lbl" style="text-transform:capitalize">${esc(s.status.replace('_',' '))}</p>
+        <p class="val" style="font-size:14px; color:var(--text)">${s.cnt}</p>
+      </div>
+      <div style="width:100%; height:8px; background:var(--surface-soft); border-radius:4px; border:1px solid var(--border); overflow:hidden">
+        <div style="width:${width}%; height:100%; background:var(--muted); opacity:0.6; border-radius:4px; transition:width 1s ease"></div>
+      </div>
+    </div>`;
+  }).join('');
 
   g.innerHTML = `
     <div class="card full-width">
       <h4 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px">Revenue vs Costs</h4>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:18px">
-        <div class="report-stat"><p class="lbl">Gross Revenue</p><p class="val">${fmt(summary.gross_revenue || 0)}</p></div>
-        <div class="report-stat"><p class="lbl">Food Cost</p><p class="val">${fmt(summary.food_cost || 0)}</p></div>
-        <div class="report-stat"><p class="lbl">Staff Labor</p><p class="val">${fmt(summary.staff_labor_cost || 0)}</p></div>
-        <div class="report-stat"><p class="lbl">Net Profit</p><p class="val" style="color:var(--green)">${fmt(summary.net_profit || 0)}</p></div>
+        ${(function(){
+          const gross = parseFloat(summary.gross_revenue) || 1;
+          const stats = [
+            {lbl:'Gross Revenue', val:summary.gross_revenue, color:'var(--green)', showPct:false},
+            {lbl:'Food Cost', val:summary.food_cost, color:'#d97706', showPct:true},
+            {lbl:'Staff Labor', val:summary.staff_labor_cost, color:'#2563eb', showPct:true},
+            {lbl:'Net Profit', val:summary.net_profit, color:'var(--green)', showPct:true}
+          ];
+          return stats.map(s => {
+            const val = parseFloat(s.val) || 0;
+            const width = Math.min((val / gross) * 100, 100);
+            return `
+            <div class="report-stat" style="border-bottom:none">
+              <p class="lbl">${s.lbl}</p>
+              <p class="val" style="${s.lbl==='Net Profit'?'color:var(--green)':''}">${fmt(val)}</p>
+              <div style="width:100%; height:6px; background:var(--surface-soft); border-radius:3px; margin-top:8px; overflow:hidden; border:1px solid var(--border)">
+                <div style="width:${width}%; height:100%; background:${s.color}; border-radius:3px"></div>
+              </div>
+              ${s.showPct ? `<p style="font-size:10px; color:var(--muted); margin-top:4px">${pct((val/gross)*100)} of gross</p>` : ''}
+            </div>`;
+          }).join('');
+        })()}
       </div>
       <div id="reports-expense-pie"></div>
       <p style="font-size:12px;color:var(--muted);margin-top:14px">${esc(summary.cost_model?.labor || '')} ${esc(summary.cost_model?.food || '')}</p>

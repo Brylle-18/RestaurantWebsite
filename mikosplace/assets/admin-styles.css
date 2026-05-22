@@ -295,6 +295,7 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 22px;
 }
@@ -457,8 +458,20 @@ nav {
 .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  align-items: start;
   gap: 18px;
   margin-bottom: 18px;
+}
+.financials-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+.financials-stack {
+  display: grid;
+  gap: 18px;
+  align-content: start;
 }
 .full-width {
   grid-column: 1/-1;
@@ -872,49 +885,114 @@ tbody tr:hover {
 .chart-container {
   margin-top: 20px;
   display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  height: 180px;
-  padding: 10px 0;
+  align-items: stretch;
+  gap: clamp(8px, 1vw, 12px);
+  min-height: 220px;
+  padding: 14px 4px 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
 }
 .chart-bar-wrapper {
-  flex: 1;
+  flex: 0 0 clamp(38px, 4vw, 48px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   height: 100%;
+}
+.chart-plot {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: stretch; /* Stretch children (tracks) to full height */
+  justify-content: center;
+  min-height: 160px;
+  padding-top: 24px;
+  border-bottom: 2px solid var(--border);
+  background: linear-gradient(to top, rgba(22, 138, 36, 0.03) 0%, transparent 100%);
+}
+.chart-bar-track {
+  width: 100%;
+  max-width: 32px;
+  height: 100%;
+  background: rgba(22, 138, 36, 0.05);
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  align-items: flex-end; /* Align bar to bottom */
+  justify-content: center;
+  position: relative;
+  transition: background 0.3s;
+}
+.chart-bar-track:hover {
+  background: rgba(22, 138, 36, 0.08);
 }
 .chart-bar {
   width: 100%;
-  background: linear-gradient(to top, var(--green), #4ade80);
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
   border-radius: 6px 6px 0 0;
   min-height: 2px;
-  transition: height 1s ease-out;
+  transition: height 1s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
+  box-shadow: 0 4px 12px rgba(22, 138, 36, 0.3);
+}
+.chart-bar.is-empty {
+  height: 4px !important;
+  background: var(--border) !important;
+  box-shadow: none;
 }
 .chart-bar:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.05) saturate(1.1);
+  box-shadow: 0 6px 20px rgba(22, 138, 36, 0.25);
+  cursor: pointer;
 }
 .chart-bar::after {
   content: attr(data-value);
   position: absolute;
-  top: -24px;
   left: 50%;
-  transform: translateX(-50%);
-  font-size: 10px;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%) translateY(5px);
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(10, 86, 22, 0.95);
+  color: #fff;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--green-dk);
+  white-space: nowrap;
   opacity: 0;
-  transition: 0.2s;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 10;
 }
 .chart-bar:hover::after {
   opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 .chart-label {
   font-size: 10px;
   color: var(--muted);
   white-space: nowrap;
+  text-align: center;
+}
+.revenue-card {
+  overflow: hidden;
+}
+.revenue-card .chart-container {
+  margin-top: 8px;
+}
+.revenue-card .search-select {
+  width: min(100%, 190px);
+}
+.chart-container::-webkit-scrollbar {
+  height: 8px;
+}
+.chart-container::-webkit-scrollbar-thumb {
+  background: rgba(22, 138, 36, 0.3);
+  border-radius: 999px;
+}
+.chart-container::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* ─── QUICK FILTERS ─────────────────────────────────────── */
@@ -1060,6 +1138,7 @@ tbody tr:hover {
     grid-template-columns: repeat(2, 1fr);
   }
   .two-col,
+  .financials-grid,
   .hero,
   .reports-grid,
   .review-grid,
@@ -1099,5 +1178,22 @@ tbody tr:hover {
   }
   .form-row {
     grid-template-columns: 1fr;
+  }
+  .section-header {
+    align-items: flex-start;
+  }
+  .revenue-card .search-select {
+    width: 100%;
+    max-width: none;
+  }
+  .chart-container {
+    min-height: 190px;
+    padding-bottom: 12px;
+  }
+  .chart-plot {
+    min-height: 132px;
+  }
+  .chart-bar-wrapper {
+    flex-basis: 34px;
   }
 }

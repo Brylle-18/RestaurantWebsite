@@ -32,6 +32,9 @@ function decodeEntityFields(array $row, array $fields): array {
 function bookingStatusNeedsPrice(string $status): bool {
     return in_array($status, ['confirmed', 'in_progress', 'completed'], true);
 }
+function isLockedCancelledStatus(string $status): bool {
+    return $status === 'cancelled';
+}
 function bookingRevenueExpression(): string {
     return 'CASE WHEN b.final_amount > 0 THEN b.final_amount ELSE b.total_amount END';
 }
@@ -284,10 +287,13 @@ switch ($action) {
         $allowed = ['pending','confirmed','in_progress','completed','cancelled'];
         if (!in_array($status, $allowed)) jsonErr('Invalid status');
         
-        $row = $db->prepare('SELECT service_type, venue_id, event_date, event_time, total_amount FROM bookings WHERE id=?');
+        $row = $db->prepare('SELECT status, service_type, venue_id, event_date, event_time, total_amount FROM bookings WHERE id=?');
         $row->execute([$id]);
         $booking = $row->fetch();
         if (!$booking) jsonErr('Booking not found');
+        if (isLockedCancelledStatus((string)$booking['status']) && $status !== 'cancelled') {
+            jsonErr('This booking was already cancelled by the customer and its status can no longer be changed.');
+        }
 
         if (bookingStatusNeedsPrice($status) && (float)$booking['total_amount'] <= 0) {
             jsonErr('Set a booking price before confirming this reservation');
@@ -322,10 +328,13 @@ switch ($action) {
             jsonErr('Discount percentage must be between 0 and 100');
         }
         
-        $row = $db->prepare('SELECT service_type, venue_id, event_date, event_time FROM bookings WHERE id=?');
+        $row = $db->prepare('SELECT status, service_type, venue_id, event_date, event_time FROM bookings WHERE id=?');
         $row->execute([$id]);
         $booking = $row->fetch();
         if (!$booking) jsonErr('Booking not found');
+        if (isLockedCancelledStatus((string)$booking['status']) && $status !== 'cancelled') {
+            jsonErr('This booking was already cancelled by the customer and its status can no longer be changed.');
+        }
 
         if (bookingStatusNeedsPrice($status) && $amount <= 0) {
             jsonErr('Please set the booking price before confirming');
@@ -477,14 +486,38 @@ switch ($action) {
             $db->query("SELECT ticket_no,customer_name,service_type,CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END AS total_amount,status,created_at FROM bookings ORDER BY created_at DESC LIMIT 8")->fetchAll()
         );
         
-        // Revenue Trend (Last 7 days)
-        $daily_revenue = $db->query("
-            SELECT DATE(created_at) as date, COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END), 0) as total 
-            FROM bookings 
-            WHERE status='completed' AND created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        $revenueTrendStart = date('Y-m-d', strtotime('-6 days'));
+        $revenueTrendEnd = date('Y-m-d');
+        $labelFormat = static function (string $date): string {
+            return date('D', strtotime($date));
+        };
+
+        $trendStmt = $db->prepare("
+            SELECT DATE(created_at) as date, COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END), 0) as total
+            FROM bookings
+            WHERE status='completed' AND DATE(created_at) BETWEEN ? AND ?
             GROUP BY DATE(created_at)
             ORDER BY DATE(created_at) ASC
-        ")->fetchAll();
+        ");
+        $trendStmt->execute([$revenueTrendStart, $revenueTrendEnd]);
+        $daily_revenue = $trendStmt->fetchAll();
+        $dailyRevenueMap = [];
+        foreach ($daily_revenue as $point) {
+            $dailyRevenueMap[(string)$point['date']] = (float)$point['total'];
+        }
+
+        $daily_revenue = [];
+        $cursor = strtotime($revenueTrendStart);
+        $trendEndTs = strtotime($revenueTrendEnd);
+        while ($cursor !== false && $cursor <= $trendEndTs) {
+            $dateKey = date('Y-m-d', $cursor);
+            $daily_revenue[] = [
+                'date' => $dateKey,
+                'total' => $dailyRevenueMap[$dateKey] ?? 0,
+                'label' => $labelFormat($dateKey),
+            ];
+            $cursor = strtotime('+1 day', $cursor);
+        }
 
         // Revenue Trend (Last 6 months)
         $monthly_trends = $db->query("
