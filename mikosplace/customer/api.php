@@ -157,7 +157,7 @@ switch ($action) {
     case 'track':
         $ticket = trim($_GET['ticket'] ?? '');
         if (!$ticket) jsonErr('Ticket number required');
-        $stmt = $db->prepare('SELECT ticket_no,customer_name,service_type,event_date,event_time,pax,total_amount,status,notes,pricing_notes,created_at FROM bookings WHERE ticket_no = ? LIMIT 1');
+        $stmt = $db->prepare('SELECT ticket_no,customer_name,service_type,event_date,event_time,pax,total_amount,discount_percent,final_amount,status,notes,pricing_notes,created_at FROM bookings WHERE ticket_no = ? LIMIT 1');
         $stmt->execute([$ticket]);
         $booking = $stmt->fetch();
         if (!$booking) jsonErr('Booking not found', 404);

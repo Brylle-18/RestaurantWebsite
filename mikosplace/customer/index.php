@@ -444,6 +444,22 @@ function formatBookingSchedule(dateValue, timeValue, dateStyle = 'long') {
   return parts.join(' at ');
 }
 
+function renderCustomerAmount(booking) {
+  const totalAmount = Number(booking.total_amount || 0);
+  const discountPercent = Number(booking.discount_percent || 0);
+  const finalAmount = Number(booking.final_amount || 0);
+
+  if (discountPercent > 0 && finalAmount > 0) {
+    return `${formatCurrency(finalAmount)} <small style="color:var(--muted)">(${discountPercent}% discount from ${formatCurrency(totalAmount)})</small>`;
+  }
+
+  if (totalAmount > 0) {
+    return formatCurrency(totalAmount);
+  }
+
+  return 'To be quoted';
+}
+
 function getCurrentServiceConfig() {
   const service = document.getElementById('inq-service').value;
   return SERVICE_CONFIG[service];
@@ -921,7 +937,7 @@ async function trackBooking() {
     <div class="result-row"><span class="lbl">Service</span><span style="text-transform:capitalize">${esc(booking.service_type)}</span></div>
     <div class="result-row"><span class="lbl">Event Schedule</span><span>${formatBookingSchedule(booking.event_date, booking.event_time, 'long')}</span></div>
     <div class="result-row"><span class="lbl">Guests</span><span>${booking.pax} pax</span></div>
-    <div class="result-row"><span class="lbl">Amount</span><span>${Number(booking.total_amount) > 0 ? formatCurrency(booking.total_amount) : 'To be quoted'}</span></div>
+    <div class="result-row"><span class="lbl">Amount</span><span>${renderCustomerAmount(booking)}</span></div>
     <div class="result-row"><span class="lbl">Status</span><span class="badge ${esc(booking.status)}">${esc(booking.status.replace('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase()))}</span></div>
     ${booking.pricing_notes ? `<div class="result-row"><span class="lbl">Pricing Notes</span><span style="font-size:13px;color:var(--muted)">${esc(booking.pricing_notes)}</span></div>` : ''}
     ${items.length ? `<div class="result-block"><span class="lbl">Selected Items</span><div class="result-stack">${items.map((item) => `<div class="result-chip">${esc(item.name)} x${item.quantity}${Number(item.unit_price) > 0 ? ` · ${formatCurrency(item.unit_price)}` : ' · Custom quote'}</div>`).join('')}</div></div>` : ''}
