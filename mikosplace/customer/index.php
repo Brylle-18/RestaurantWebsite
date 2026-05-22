@@ -185,7 +185,6 @@ $venueFoodPackages = [
         <div class="menu-tab-pane <?= $firstCategory ? 'active' : '' ?>" data-category="<?= htmlspecialchars($group['category'], ENT_QUOTES) ?>">
           <div class="menu-category-header">
             <h3><?= htmlspecialchars($group['category'], ENT_QUOTES) ?></h3>
-            <p><strong>Pricing varies by order size and final serving preparation.</strong></p>
           </div>
           
           <div class="menu-items-grid">
@@ -413,6 +412,17 @@ function formatCurrency(amount) {
 function esc(s) {
   if (s === null || s === undefined) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+function sanitizePricingNotes(notes) {
+  if (notes === null || notes === undefined) {
+    return '';
+  }
+
+  return String(notes)
+    .replace(/\s*Pricing varies by order size and final serving preparation\.\s*/gi, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 }
 
 function formatBookingSchedule(dateValue, timeValue, dateStyle = 'long') {
@@ -938,6 +948,7 @@ async function trackBooking() {
   const booking = data.booking;
   const items = data.items || [];
   const addons = data.addons || [];
+  const pricingNotes = sanitizePricingNotes(booking.pricing_notes);
   result.innerHTML = `
     <div class="result-row"><span class="lbl">Ticket</span><strong>${esc(booking.ticket_no)}</strong></div>
     <div class="result-row"><span class="lbl">Name</span><span>${esc(booking.customer_name)}</span></div>
@@ -946,7 +957,7 @@ async function trackBooking() {
     <div class="result-row"><span class="lbl">Guests</span><span>${booking.pax} pax</span></div>
     <div class="result-row"><span class="lbl">Amount</span><span>${renderCustomerAmount(booking)}</span></div>
     <div class="result-row"><span class="lbl">Status</span><span class="badge ${esc(booking.status)}">${esc(booking.status.replace('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase()))}</span></div>
-    ${booking.pricing_notes ? `<div class="result-row"><span class="lbl">Pricing Notes</span><span style="font-size:13px;color:var(--muted)">${esc(booking.pricing_notes)}</span></div>` : ''}
+    ${pricingNotes ? `<div class="result-row"><span class="lbl">Pricing Notes</span><span style="font-size:13px;color:var(--muted)">${esc(pricingNotes)}</span></div>` : ''}
     ${items.length ? `<div class="result-block"><span class="lbl">Selected Items</span><div class="result-stack">${items.map((item) => `<div class="result-chip">${esc(item.name)} x${item.quantity}${Number(item.unit_price) > 0 ? ` · ${formatCurrency(item.unit_price)}` : ' · Custom quote'}</div>`).join('')}</div></div>` : ''}
     ${addons.length ? `<div class="result-block"><span class="lbl">Add-ons</span><div class="result-stack">${addons.map((addon) => `<div class="result-chip">${esc(addon.addon_name)} x${addon.quantity} · ${formatCurrency(addon.unit_price)}</div>`).join('')}</div></div>` : ''}
     ${booking.notes ? `<div class="result-row"><span class="lbl">Notes</span><span style="font-size:13px;color:var(--muted)">${esc(booking.notes)}</span></div>` : ''}`;

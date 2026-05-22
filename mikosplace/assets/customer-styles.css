@@ -670,12 +670,6 @@ nav {
   margin-bottom: 8px;
 }
 
-.menu-category-header p {
-  color: #567060;
-  font-size: 14px;
-  max-width: 560px;
-}
-
 .menu-items-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
