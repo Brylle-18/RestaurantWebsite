@@ -32,6 +32,125 @@ function decodeEntityFields(array $row, array $fields): array {
 function bookingStatusNeedsPrice(string $status): bool {
     return in_array($status, ['confirmed', 'in_progress', 'completed'], true);
 }
+function bookingRevenueExpression(): string {
+    return 'CASE WHEN b.final_amount > 0 THEN b.final_amount ELSE b.total_amount END';
+}
+function toFloat(mixed $value): float {
+    return round((float)$value, 2);
+}
+function estimatedStaffDailyRate(string $role): float {
+    $role = strtolower($role);
+
+    if (str_contains($role, 'head chef') || str_contains($role, 'chef')) return 1800.00;
+    if (str_contains($role, 'coordinator')) return 1450.00;
+    if (str_contains($role, 'supervisor')) return 1350.00;
+    if (str_contains($role, 'pastry')) return 1250.00;
+    if (str_contains($role, 'manager')) return 2000.00;
+    if (str_contains($role, 'server') || str_contains($role, 'staff')) return 900.00;
+
+    return 1000.00;
+}
+function statusLaborMultiplier(string $status): float {
+    return match ($status) {
+        'on_duty' => 1.0,
+        'prepping' => 0.85,
+        default => 0.0,
+    };
+}
+function shiftHours(?string $start, ?string $end): float {
+    if (!$start || !$end) {
+        return 8.0;
+    }
+
+    $startSeconds = strtotime($start);
+    $endSeconds = strtotime($end);
+    if ($startSeconds === false || $endSeconds === false) {
+        return 8.0;
+    }
+
+    if ($endSeconds <= $startSeconds) {
+        $endSeconds += 86400;
+    }
+
+    return max(1.0, ($endSeconds - $startSeconds) / 3600);
+}
+function staffCostBreakdown(PDO $db, int $periodDays): array {
+    $rows = $db->query('SELECT name, role, shift_start, shift_end, status FROM staff')->fetchAll();
+    $staff = [];
+    $dailyTotal = 0.0;
+
+    foreach ($rows as $row) {
+        $baseRate = estimatedStaffDailyRate((string)$row['role']);
+        $hoursFactor = shiftHours($row['shift_start'] ?? null, $row['shift_end'] ?? null) / 8;
+        $statusFactor = statusLaborMultiplier((string)$row['status']);
+        $dailyCost = $baseRate * $hoursFactor * $statusFactor;
+        $periodCost = $dailyCost * max(1, $periodDays);
+
+        $staff[] = [
+            'name' => html_entity_decode((string)$row['name'], ENT_QUOTES, 'UTF-8'),
+            'role' => html_entity_decode((string)$row['role'], ENT_QUOTES, 'UTF-8'),
+            'status' => $row['status'],
+            'daily_rate' => toFloat($baseRate),
+            'estimated_daily_cost' => toFloat($dailyCost),
+            'estimated_period_cost' => toFloat($periodCost),
+        ];
+
+        $dailyTotal += $dailyCost;
+    }
+
+    return [
+        'daily_total' => toFloat($dailyTotal),
+        'period_total' => toFloat($dailyTotal * max(1, $periodDays)),
+        'staff' => $staff,
+    ];
+}
+function serviceFoodCostRatio(string $serviceType): float {
+    return match ($serviceType) {
+        'restaurant' => 0.42,
+        'catering' => 0.50,
+        'cafe' => 0.33,
+        'venue' => 0.18,
+        default => 0.35,
+    };
+}
+function estimateBookingFoodCost(array $booking): float {
+    $revenue = (float)($booking['recognized_revenue'] ?? 0);
+    $menuSubtotal = (float)($booking['menu_subtotal'] ?? 0);
+    $addonSubtotal = (float)($booking['addon_subtotal'] ?? 0);
+    $serviceRatio = serviceFoodCostRatio((string)($booking['service_type'] ?? 'restaurant'));
+
+    if ($menuSubtotal <= 0 && $addonSubtotal <= 0) {
+        return toFloat($revenue * $serviceRatio);
+    }
+
+    $itemCost = ($menuSubtotal * 0.45) + ($addonSubtotal * 0.35);
+    $unpricedRemainder = max(0, $revenue - $menuSubtotal - $addonSubtotal);
+    $supportCost = $unpricedRemainder * ($serviceRatio * 0.65);
+
+    return toFloat($itemCost + $supportCost);
+}
+function buildPieDataset(array $items): array {
+    return array_values(array_filter(array_map(static function (array $item): ?array {
+        $value = (float)($item['value'] ?? 0);
+        if ($value <= 0) {
+            return null;
+        }
+        return [
+            'label' => $item['label'],
+            'value' => toFloat($value),
+            'color' => $item['color'],
+        ];
+    }, $items)));
+}
+function parsePeriodDays(string $startDate, string $endDate): int {
+    try {
+        $start = new DateTime($startDate);
+        $end = new DateTime($endDate);
+        return max(1, (int)$start->diff($end)->days + 1);
+    } catch (Throwable) {
+        return 1;
+    }
+}
 
 // ── router ──────────────────────────────────────────────────
 switch ($action) {
@@ -40,9 +159,32 @@ switch ($action) {
     case 'stats':
         $bookings  = $db->query('SELECT COUNT(*) FROM bookings WHERE WEEK(created_at)=WEEK(NOW())')->fetchColumn();
         $pending   = $db->query("SELECT COUNT(*) FROM bookings WHERE status='pending'")->fetchColumn();
-        $revenue   = $db->query("SELECT COALESCE(SUM(total_amount),0) FROM bookings WHERE status='completed' AND MONTH(created_at)=MONTH(NOW())")->fetchColumn();
+        $revenue   = $db->query("SELECT COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END),0) FROM bookings WHERE status='completed' AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())")->fetchColumn();
         $dishes    = $db->query('SELECT COUNT(*) FROM menu_items WHERE is_available=1')->fetchColumn();
-        jsonOK(['weekly_bookings'=>$bookings,'pending'=>$pending,'monthly_revenue'=>$revenue,'active_dishes'=>$dishes]);
+        $daysInMonth = (int)date('t');
+        $staffCosts = staffCostBreakdown($db, $daysInMonth);
+        $estimatedFoodCost = (float)$db->query("
+            SELECT COALESCE(SUM(
+                (CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END) *
+                CASE service_type
+                    WHEN 'restaurant' THEN 0.42
+                    WHEN 'catering' THEN 0.50
+                    WHEN 'cafe' THEN 0.33
+                    WHEN 'venue' THEN 0.18
+                    ELSE 0.35
+                END
+            ),0)
+            FROM bookings
+            WHERE status='completed' AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())
+        ")->fetchColumn();
+        $netProfit = (float)$revenue - $estimatedFoodCost - $staffCosts['period_total'];
+        jsonOK([
+            'weekly_bookings'=>$bookings,
+            'pending'=>$pending,
+            'monthly_revenue'=>(float)$revenue,
+            'monthly_net_profit'=>toFloat($netProfit),
+            'active_dishes'=>$dishes
+        ]);
 
     // ── BOOKINGS LIST / SEARCH ───────────────────────────────
     case 'bookings':
@@ -301,11 +443,17 @@ switch ($action) {
 
     // ── REPORTS ──────────────────────────────────────────────
     case 'reports':
+        $startDate = date('Y-m-01');
+        $endDate = date('Y-m-d');
+        $periodDays = parsePeriodDays($startDate, $endDate);
+        $revenueExpr = bookingRevenueExpression();
+        $staffCosts = staffCostBreakdown($db, $periodDays);
+        
         // Current month revenue
-        $revenue_month = $db->query("SELECT COALESCE(SUM(total_amount),0) FROM bookings WHERE status='completed' AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())")->fetchColumn();
+        $revenue_month = $db->query("SELECT COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END),0) FROM bookings WHERE status='completed' AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())")->fetchColumn();
         
         // Revenue by service
-        $by_service = $db->query("SELECT service_type, COUNT(*) AS cnt, COALESCE(SUM(total_amount),0) AS total FROM bookings GROUP BY service_type")->fetchAll();
+        $by_service = $db->query("SELECT service_type, COUNT(*) AS cnt, COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END),0) AS total FROM bookings WHERE status='completed' GROUP BY service_type")->fetchAll();
         
         // Top dishes
         $top_dishes = $db->query("SELECT m.name, SUM(bi.quantity) AS qty FROM booking_items bi JOIN menu_items m ON bi.menu_item_id=m.id GROUP BY m.name ORDER BY qty DESC LIMIT 5")->fetchAll();
@@ -316,12 +464,12 @@ switch ($action) {
         // Recent bookings
         $recent = array_map(
             static fn(array $booking): array => decodeEntityFields($booking, ['customer_name']),
-            $db->query("SELECT ticket_no,customer_name,service_type,total_amount,status,created_at FROM bookings ORDER BY created_at DESC LIMIT 8")->fetchAll()
+            $db->query("SELECT ticket_no,customer_name,service_type,CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END AS total_amount,status,created_at FROM bookings ORDER BY created_at DESC LIMIT 8")->fetchAll()
         );
         
         // Revenue Trend (Last 7 days)
         $daily_revenue = $db->query("
-            SELECT DATE(created_at) as date, COALESCE(SUM(total_amount), 0) as total 
+            SELECT DATE(created_at) as date, COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END), 0) as total 
             FROM bookings 
             WHERE status='completed' AND created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
             GROUP BY DATE(created_at)
@@ -330,43 +478,123 @@ switch ($action) {
 
         // Revenue Trend (Last 6 months)
         $monthly_trends = $db->query("
-            SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COALESCE(SUM(total_amount), 0) as total 
+            SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END), 0) as total 
             FROM bookings 
             WHERE status='completed' AND created_at >= DATE_SUB(CURDATE(), INTERVAL 5 MONTH)
             GROUP BY DATE_FORMAT(created_at, '%Y-%m')
             ORDER BY month ASC
         ")->fetchAll();
 
+        $costStmt = $db->prepare("
+            SELECT 
+                b.id,
+                b.service_type,
+                {$revenueExpr} AS recognized_revenue,
+                COALESCE(menu_totals.menu_subtotal, 0) AS menu_subtotal,
+                COALESCE(addon_totals.addon_subtotal, 0) AS addon_subtotal
+            FROM bookings b
+            LEFT JOIN (
+                SELECT booking_id, SUM(quantity * unit_price) AS menu_subtotal
+                FROM booking_items
+                GROUP BY booking_id
+            ) menu_totals ON menu_totals.booking_id = b.id
+            LEFT JOIN (
+                SELECT booking_id, SUM(quantity * unit_price) AS addon_subtotal
+                FROM booking_addons
+                GROUP BY booking_id
+            ) addon_totals ON addon_totals.booking_id = b.id
+            WHERE b.status='completed' AND DATE(b.created_at) BETWEEN ? AND ?
+        ");
+        $costStmt->execute([$startDate, $endDate]);
+        $completedBookings = $costStmt->fetchAll();
+        $estimatedFoodCost = 0.0;
+        foreach ($completedBookings as $booking) {
+            $estimatedFoodCost += estimateBookingFoodCost($booking);
+        }
+        $estimatedFoodCost = toFloat($estimatedFoodCost);
+        $netProfit = toFloat((float)$revenue_month - $estimatedFoodCost - $staffCosts['period_total']);
+        $expensePie = buildPieDataset([
+            ['label' => 'Recipe / Food Cost', 'value' => $estimatedFoodCost, 'color' => '#d97706'],
+            ['label' => 'Staff Labor', 'value' => $staffCosts['period_total'], 'color' => '#2563eb'],
+            ['label' => 'Net Profit', 'value' => max(0, $netProfit), 'color' => '#168a24'],
+        ]);
+        $servicePie = buildPieDataset(array_map(static function (array $service): array {
+            $colors = [
+                'restaurant' => '#168a24',
+                'venue' => '#b45309',
+                'catering' => '#2563eb',
+                'cafe' => '#9333ea',
+            ];
+            return [
+                'label' => ucfirst((string)$service['service_type']),
+                'value' => (float)$service['total'],
+                'color' => $colors[$service['service_type']] ?? '#6b7280',
+            ];
+        }, $by_service));
+
         jsonOK([
             'revenue_month' => (float)$revenue_month,
+            'net_profit_month' => $netProfit,
             'by_service' => $by_service,
             'top_dishes' => $top_dishes,
             'status_counts' => $status_counts,
             'recent' => $recent,
             'daily_revenue' => $daily_revenue,
-            'monthly_trends' => $monthly_trends
+            'monthly_trends' => $monthly_trends,
+            'financial_summary' => [
+                'gross_revenue' => (float)$revenue_month,
+                'staff_labor_cost' => $staffCosts['period_total'],
+                'food_cost' => $estimatedFoodCost,
+                'net_profit' => $netProfit,
+                'profit_margin_percent' => (float)$revenue_month > 0 ? toFloat(($netProfit / (float)$revenue_month) * 100) : 0.0,
+                'avg_daily_staff_cost' => $staffCosts['daily_total'],
+                'period_days' => $periodDays,
+                'cost_model' => [
+                    'labor' => 'Estimated from current staff role-based daily rates, shift hours, and active status.',
+                    'food' => 'Estimated from booked menu/add-on values when available, with service-based fallback recipe cost ratios.',
+                ],
+            ],
+            'charts' => [
+                'expense_breakdown' => $expensePie,
+                'service_revenue' => $servicePie,
+            ],
+            'staff_costs' => $staffCosts['staff'],
         ]);
 
     // ── SALES REPORT (with discounts) ──────────────────────
     case 'sales_report':
         $startDate = $_GET['start_date'] ?? date('Y-m-01');
         $endDate = $_GET['end_date'] ?? date('Y-m-d');
+        $periodDays = parsePeriodDays($startDate, $endDate);
+        $staffCosts = staffCostBreakdown($db, $periodDays);
         
         $sql = "SELECT 
                     b.id, 
                     b.ticket_no, 
                     b.customer_name, 
+                    b.service_type,
                     b.event_date, 
                     b.total_amount,
                     b.discount_percent,
                     b.final_amount,
                     b.status,
                     b.created_at,
-                    COUNT(bi.id) as item_count
+                    COALESCE(menu_totals.menu_subtotal, 0) AS menu_subtotal,
+                    COALESCE(addon_totals.addon_subtotal, 0) AS addon_subtotal,
+                    COALESCE(menu_totals.item_count, 0) as item_count,
+                    CASE WHEN b.final_amount > 0 THEN b.final_amount ELSE b.total_amount END AS recognized_revenue
                 FROM bookings b
-                LEFT JOIN booking_items bi ON b.id = bi.booking_id
+                LEFT JOIN (
+                    SELECT booking_id, SUM(quantity * unit_price) AS menu_subtotal, COUNT(*) AS item_count
+                    FROM booking_items
+                    GROUP BY booking_id
+                ) menu_totals ON menu_totals.booking_id = b.id
+                LEFT JOIN (
+                    SELECT booking_id, SUM(quantity * unit_price) AS addon_subtotal
+                    FROM booking_addons
+                    GROUP BY booking_id
+                ) addon_totals ON addon_totals.booking_id = b.id
                 WHERE b.status = 'completed' AND DATE(b.created_at) BETWEEN ? AND ?
-                GROUP BY b.id
                 ORDER BY b.created_at DESC";
         
         $stmt = $db->prepare($sql);
@@ -380,23 +608,43 @@ switch ($action) {
         $totalRevenue = 0;
         $totalDiscount = 0;
         $finalRevenue = 0;
+        $estimatedFoodCost = 0.0;
         
         foreach ($bookings as $booking) {
             $totalRevenue += (float)$booking['total_amount'];
             $discount = (float)$booking['total_amount'] * ((float)$booking['discount_percent'] / 100);
             $totalDiscount += $discount;
-            $finalRevenue += (float)$booking['final_amount'];
+            $finalRevenue += (float)$booking['recognized_revenue'];
+            $estimatedFoodCost += estimateBookingFoodCost($booking);
         }
+        $estimatedFoodCost = toFloat($estimatedFoodCost);
+        $netProfit = toFloat($finalRevenue - $estimatedFoodCost - $staffCosts['period_total']);
         
         jsonOK([
             'bookings' => $bookings,
             'summary' => [
                 'total_bookings' => count($bookings),
-                'total_revenue' => $totalRevenue,
-                'total_discount' => $totalDiscount,
-                'final_revenue' => $finalRevenue,
+                'total_revenue' => toFloat($totalRevenue),
+                'total_discount' => toFloat($totalDiscount),
+                'final_revenue' => toFloat($finalRevenue),
+                'food_cost' => $estimatedFoodCost,
+                'staff_labor_cost' => $staffCosts['period_total'],
+                'net_profit' => $netProfit,
+                'profit_margin_percent' => $finalRevenue > 0 ? toFloat(($netProfit / $finalRevenue) * 100) : 0.0,
                 'average_discount_percent' => count($bookings) > 0 ? array_sum(array_map(fn($b) => $b['discount_percent'], $bookings)) / count($bookings) : 0
-            ]
+            ],
+            'charts' => [
+                'revenue_breakdown' => buildPieDataset([
+                    ['label' => 'Recipe / Food Cost', 'value' => $estimatedFoodCost, 'color' => '#d97706'],
+                    ['label' => 'Staff Labor', 'value' => $staffCosts['period_total'], 'color' => '#2563eb'],
+                    ['label' => 'Discounts Given', 'value' => $totalDiscount, 'color' => '#dc2626'],
+                    ['label' => 'Net Profit', 'value' => max(0, $netProfit), 'color' => '#168a24'],
+                ]),
+            ],
+            'assumptions' => [
+                'labor' => 'Daily labor cost is estimated from each staff member role, shift length, and current status.',
+                'food' => 'Recipe cost is estimated from menu/add-on totals when priced, otherwise by service-type food cost ratio.',
+            ],
         ]);
 
     default:

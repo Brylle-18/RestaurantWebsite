@@ -159,6 +159,12 @@
         <h3>Financials & Rates</h3>
       </div>
       <div class="two-col">
+        <div class="card full-width">
+          <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Net Revenue Snapshot</h4>
+          <div id="financial-summary-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px">
+            <p style="color:var(--muted)"><span class="spinner"></span> Loading financial summary...</p>
+          </div>
+        </div>
         <div class="card">
           <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Venue Rates</h4>
           <div id="financial-venues">
@@ -170,6 +176,14 @@
           <div id="financial-menu">
             <!-- Menu prices populated by JS -->
           </div>
+        </div>
+        <div class="card">
+          <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Expense Breakdown</h4>
+          <div id="financial-expense-pie"></div>
+        </div>
+        <div class="card">
+          <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Staff Cost Estimate</h4>
+          <div id="financial-staff-costs"></div>
         </div>
         <div class="card full-width">
           <h4 style="margin-bottom:16px;font-family:'Playfair Display',serif">Revenue Insights</h4>
@@ -496,6 +510,7 @@ function badge(status) {
   return `<span class="badge ${map[status]||'grey'}">${label}</span>`;
 }
 function fmt(n) { return '₱' + parseFloat(n||0).toLocaleString('en-PH',{minimumFractionDigits:2}); }
+function pct(n) { return `${parseFloat(n || 0).toFixed(1)}%`; }
 function esc(s) {
   if (s === null || s === undefined) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
@@ -530,6 +545,49 @@ function formatBookingSchedule(dateValue, timeValue, dateStyle = 'medium') {
   return parts.join(' at ');
 }
 
+function renderPieChart(containerId, items, centerPrimary, centerSecondary) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const total = (items || []).reduce((sum, item) => sum + Number(item.value || 0), 0);
+  if (!items || !items.length || total <= 0) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:13px">No chart data available yet.</p>';
+    return;
+  }
+
+  let current = 0;
+  const gradient = items.map((item) => {
+    const value = Number(item.value || 0);
+    const start = (current / total) * 360;
+    current += value;
+    const end = (current / total) * 360;
+    return `${item.color} ${start}deg ${end}deg`;
+  }).join(', ');
+
+  container.innerHTML = `
+    <div style="display:grid;grid-template-columns:minmax(180px,220px) 1fr;gap:18px;align-items:center">
+      <div style="width:210px;height:210px;margin:0 auto;border-radius:50%;background:conic-gradient(${gradient});position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)">
+        <div style="position:absolute;inset:28px;border-radius:50%;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px">
+          <strong style="font-size:24px;line-height:1.1">${esc(centerPrimary)}</strong>
+          <span style="font-size:12px;color:var(--muted);margin-top:6px">${esc(centerSecondary)}</span>
+        </div>
+      </div>
+      <div style="display:grid;gap:10px">
+        ${items.map((item) => `
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 12px;background:var(--surface-soft);border:1px solid var(--border);border-radius:12px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="width:12px;height:12px;border-radius:999px;background:${item.color};display:inline-block"></span>
+              <span style="font-weight:600">${esc(item.label)}</span>
+            </div>
+            <div style="text-align:right">
+              <strong>${fmt(item.value)}</strong>
+              <div style="font-size:11px;color:var(--muted)">${pct((Number(item.value || 0) / total) * 100)}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
 //  DASHBOARD 
 async function loadDashboard() {
   const d = await api({action:'stats'});
@@ -538,7 +596,7 @@ async function loadDashboard() {
   g.innerHTML = `
     <div class="stat-card"><div class="stat-icon">📅</div><div><p class="stat-label">Weekly Bookings</p><p class="stat-value">${d.weekly_bookings}</p><p class="stat-sub">Restaurant + Catering</p></div></div>
     <div class="stat-card"><div class="stat-icon">⏳</div><div><p class="stat-label">Pending</p><p class="stat-value">${d.pending}</p><p class="stat-sub">Need confirmation</p></div></div>
-    <div class="stat-card"><div class="stat-icon">💰</div><div><p class="stat-label">Monthly Revenue</p><p class="stat-value">${fmt(d.monthly_revenue)}</p><p class="stat-sub">Completed orders</p></div></div>
+    <div class="stat-card"><div class="stat-icon">💰</div><div><p class="stat-label">Monthly Revenue</p><p class="stat-value">${fmt(d.monthly_revenue)}</p><p class="stat-sub">After approved discounts</p></div></div>
     <div class="stat-card"><div class="stat-icon">🍽</div><div><p class="stat-label">Active Dishes</p><p class="stat-value">${d.active_dishes}</p><p class="stat-sub">On the menu</p></div></div>`;
 
   const r = await api({action:'reports'});
@@ -674,6 +732,51 @@ async function loadFinancials() {
   }
 
   if (reports) {
+    const summary = reports.financial_summary || {};
+    document.getElementById('financial-summary-grid').innerHTML = `
+      <div style="padding:16px;background:var(--surface-soft);border-radius:14px;border-left:4px solid #168a24">
+        <p style="font-size:11px;text-transform:uppercase;color:var(--muted)">Gross Revenue</p>
+        <p style="font-size:24px;font-weight:800">${fmt(summary.gross_revenue || 0)}</p>
+      </div>
+      <div style="padding:16px;background:var(--surface-soft);border-radius:14px;border-left:4px solid #d97706">
+        <p style="font-size:11px;text-transform:uppercase;color:var(--muted)">Recipe / Food Cost</p>
+        <p style="font-size:24px;font-weight:800">${fmt(summary.food_cost || 0)}</p>
+      </div>
+      <div style="padding:16px;background:var(--surface-soft);border-radius:14px;border-left:4px solid #2563eb">
+        <p style="font-size:11px;text-transform:uppercase;color:var(--muted)">Staff Labor</p>
+        <p style="font-size:24px;font-weight:800">${fmt(summary.staff_labor_cost || 0)}</p>
+      </div>
+      <div style="padding:16px;background:linear-gradient(135deg,rgba(22,138,36,0.12),rgba(22,138,36,0.04));border-radius:14px;border-left:4px solid #168a24">
+        <p style="font-size:11px;text-transform:uppercase;color:var(--muted)">Estimated Net Profit</p>
+        <p style="font-size:24px;font-weight:800;color:var(--green)">${fmt(summary.net_profit || 0)}</p>
+        <p style="font-size:11px;color:var(--muted);margin-top:4px">Margin: ${pct(summary.profit_margin_percent || 0)}</p>
+      </div>`;
+
+    renderPieChart(
+      'financial-expense-pie',
+      reports.charts?.expense_breakdown || [],
+      fmt(summary.gross_revenue || 0),
+      'Gross revenue split'
+    );
+
+    const staffRows = (reports.staff_costs || []).slice(0, 5);
+    document.getElementById('financial-staff-costs').innerHTML = staffRows.length
+      ? `
+        <div style="display:grid;gap:10px">
+          ${staffRows.map((staff) => `
+            <div style="padding:12px;background:var(--surface-soft);border:1px solid var(--border);border-radius:12px">
+              <div style="display:flex;justify-content:space-between;gap:12px">
+                <div>
+                  <strong>${esc(staff.name)}</strong>
+                  <p style="font-size:12px;color:var(--muted)">${esc(staff.role)} · ${esc(staff.status.replace('_', ' '))}</p>
+                </div>
+                <strong>${fmt(staff.estimated_period_cost)}</strong>
+              </div>
+            </div>`).join('')}
+          <p style="font-size:12px;color:var(--muted)">Daily staff-cost estimate: ${fmt(summary.avg_daily_staff_cost || 0)}. Calculated from role-based daily rates, current shift hours, and active staff status.</p>
+        </div>`
+      : '<p style="color:var(--muted);font-size:13px">No staff records available.</p>';
+
     renderChart('monthly-trend-chart', reports.monthly_trends);
   }
 }
@@ -923,6 +1026,7 @@ async function loadReports() {
   const d = await api({action:'reports'});
   if (!d) return;
   const g = document.getElementById('reports-grid');
+  const summary = d.financial_summary || {};
   const byService = d.by_service.map(r => `
     <div class="report-stat">
       <p class="lbl" style="text-transform:capitalize">${esc(r.service_type)}</p>
@@ -935,9 +1039,21 @@ async function loadReports() {
     <div class="report-stat"><p class="lbl" style="text-transform:capitalize">${esc(s.status.replace('_',' '))}</p><p class="val">${s.cnt}</p></div>`).join('');
 
   g.innerHTML = `
+    <div class="card full-width">
+      <h4 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px">Revenue vs Costs</h4>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:18px">
+        <div class="report-stat"><p class="lbl">Gross Revenue</p><p class="val">${fmt(summary.gross_revenue || 0)}</p></div>
+        <div class="report-stat"><p class="lbl">Food Cost</p><p class="val">${fmt(summary.food_cost || 0)}</p></div>
+        <div class="report-stat"><p class="lbl">Staff Labor</p><p class="val">${fmt(summary.staff_labor_cost || 0)}</p></div>
+        <div class="report-stat"><p class="lbl">Net Profit</p><p class="val" style="color:var(--green)">${fmt(summary.net_profit || 0)}</p></div>
+      </div>
+      <div id="reports-expense-pie"></div>
+      <p style="font-size:12px;color:var(--muted);margin-top:14px">${esc(summary.cost_model?.labor || '')} ${esc(summary.cost_model?.food || '')}</p>
+    </div>
     <div class="card">
       <h4 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px">By Service</h4>
       ${byService || '<p style="color:var(--muted);font-size:13px">No data</p>'}
+      <div id="service-revenue-pie" style="margin-top:18px"></div>
     </div>
     <div class="card">
       <h4 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px">Top Dishes</h4>
@@ -951,6 +1067,9 @@ async function loadReports() {
         <p style="font-size:26px;font-weight:800;color:var(--red)">${fmt(d.revenue_month)}</p>
       </div>
     </div>`;
+
+  renderPieChart('reports-expense-pie', d.charts?.expense_breakdown || [], fmt(summary.net_profit || 0), 'Estimated net profit');
+  renderPieChart('service-revenue-pie', d.charts?.service_revenue || [], fmt(d.revenue_month || 0), 'Revenue by service');
 }
 
 async function loadSalesReport() {
@@ -1020,7 +1139,25 @@ async function loadSalesReport() {
           <p style="font-size:12px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Final Revenue (After Discount)</p>
           <p style="font-size:24px;font-weight:800;color:var(--green)">${fmt(summary.final_revenue || 0)}</p>
         </div>
+        <div style="padding:16px;background:var(--surface-soft);border-radius:10px;border-left:4px solid #d97706">
+          <p style="font-size:12px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Estimated Food Cost</p>
+          <p style="font-size:24px;font-weight:800">${fmt(summary.food_cost || 0)}</p>
+        </div>
+        <div style="padding:16px;background:var(--surface-soft);border-radius:10px;border-left:4px solid #2563eb">
+          <p style="font-size:12px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Estimated Staff Labor</p>
+          <p style="font-size:24px;font-weight:800">${fmt(summary.staff_labor_cost || 0)}</p>
+        </div>
+        <div style="padding:16px;background:linear-gradient(135deg,rgba(22,138,36,0.12),rgba(22,138,36,0.04));border-radius:10px;border-left:4px solid #168a24">
+          <p style="font-size:12px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Estimated Net Profit</p>
+          <p style="font-size:24px;font-weight:800;color:var(--green)">${fmt(summary.net_profit || 0)}</p>
+          <p style="font-size:11px;color:var(--muted);margin-top:4px">Margin: ${pct(summary.profit_margin_percent || 0)}</p>
+        </div>
       </div>
+    </div>
+    <div class="card full-width">
+      <h4 style="font-family:'Playfair Display',serif;font-size:16px;margin-bottom:12px">Revenue Breakdown</h4>
+      <div id="sales-report-pie"></div>
+      <p style="font-size:12px;color:var(--muted);margin-top:14px">${esc(d.assumptions?.labor || '')} ${esc(d.assumptions?.food || '')}</p>
     </div>
     <div class="card full-width">
       <h4 style="font-family:'Playfair Display',serif;font-size:16px;margin-bottom:12px">Booking Details</h4>
@@ -1028,6 +1165,8 @@ async function loadSalesReport() {
         ${bookingsTable}
       </div>
     </div>`;
+
+  renderPieChart('sales-report-pie', d.charts?.revenue_breakdown || [], fmt(summary.final_revenue || 0), 'After-discount revenue');
 }
 
 //  INIT  //
