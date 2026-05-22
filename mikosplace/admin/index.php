@@ -84,11 +84,11 @@
       <div class="two-col">
         <div class="card revenue-card">
           <div class="section-header">
-            <h3 style="font-size:18px;">Revenue Overview</h3>
-            <span class="badge info">Last 7 Days</span>
+            <h3 style="font-size:18px;">Revenue Breakdown</h3>
+            <span class="badge info">By Service</span>
           </div>
-          <div id="revenue-chart" class="chart-container">
-            <!-- Chart populated by JS -->
+          <div id="revenue-chart" style="margin-top:20px; min-height:220px">
+            <!-- Pie Chart populated by JS -->
           </div>
         </div>
         <div class="card">
@@ -565,16 +565,26 @@ function renderChart(containerId, data, maxVal) {
     return;
   }
   const max = maxVal || Math.max(...data.map(d => parseFloat(d.total))) || 1;
-  container.innerHTML = data.map(d => {
+  container.innerHTML = data.map((d, i) => {
     const total = parseFloat(d.total) || 0;
     const ratio = total / max;
     const height = total > 0 ? Math.max(ratio * 100, 2) : 0;
-    const label = d.label || (d.date ? new Date(d.date).toLocaleDateString('en-PH', {weekday:'short'}) : d.month);
+    let label = d.label;
+    if (!label) {
+      if (d.date) {
+        label = new Date(d.date).toLocaleDateString('en-PH', {weekday:'short'});
+      } else if (d.month) {
+        const [y, m] = d.month.split('-');
+        label = new Date(y, m-1).toLocaleDateString('en-PH', {month:'short'});
+      }
+    }
     return `
       <div class="chart-bar-wrapper">
         <div class="chart-plot">
           <div class="chart-bar-track">
-            <div class="chart-bar${total <= 0 ? ' is-empty' : ''}" style="height:${height}%" data-value="${fmt(d.total)}"></div>
+            <div class="chart-bar${total <= 0 ? ' is-empty' : ''}" 
+                 style="height:${height}%; transition-delay: ${i * 50}ms" 
+                 data-value="${fmt(d.total)}"></div>
           </div>
         </div>
         <span class="chart-label">${label}</span>
@@ -662,7 +672,7 @@ function renderPieChart(containerId, items, centerPrimary, centerSecondary) {
 
   const total = (items || []).reduce((sum, item) => sum + Number(item.value || 0), 0);
   if (!items || !items.length || total <= 0) {
-    container.innerHTML = '<p style="color:var(--muted);font-size:13px">No chart data available yet.</p>';
+    container.innerHTML = '<p style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No chart data available yet.</p>';
     return;
   }
 
@@ -676,29 +686,31 @@ function renderPieChart(containerId, items, centerPrimary, centerSecondary) {
   }).join(', ');
 
   container.innerHTML = `
-    <div style="display:grid;grid-template-columns:minmax(180px,220px) 1fr;gap:18px;align-items:center">
-      <div style="width:210px;height:210px;margin:0 auto;border-radius:50%;background:conic-gradient(${gradient});position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)">
-        <div style="position:absolute;inset:28px;border-radius:50%;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px">
-          <strong style="font-size:24px;line-height:1.1">${esc(centerPrimary)}</strong>
-          <span style="font-size:12px;color:var(--muted);margin-top:6px">${esc(centerSecondary)}</span>
+    <div class="pie-layout">
+      <div class="pie-circle-container">
+        <div class="pie-circle" style="background:conic-gradient(${gradient})">
+          <div class="pie-center">
+            <strong class="pie-primary">${esc(centerPrimary)}</strong>
+            <span class="pie-secondary">${esc(centerSecondary)}</span>
+          </div>
         </div>
       </div>
-      <div style="display:grid;gap:10px">
+      <div class="pie-legend">
         ${items.map((item) => {
           const pctVal = (Number(item.value || 0) / total) * 100;
           return `
-          <div style="display:flex;flex-direction:column;gap:8px;padding:12px;background:var(--surface-soft);border:1px solid var(--border);border-radius:14px">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="display:flex;align-items:center;gap:10px">
-                <span style="width:10px;height:10px;border-radius:999px;background:${item.color};display:inline-block"></span>
-                <span style="font-weight:600;font-size:13px">${esc(item.label)}</span>
+          <div class="legend-item">
+            <div class="legend-header">
+              <div class="legend-label-group">
+                <span class="legend-dot" style="background:${item.color}"></span>
+                <span class="legend-label">${esc(item.label)}</span>
               </div>
-              <strong style="font-size:15px">${fmt(item.value)}</strong>
+              <strong class="legend-value">${fmt(item.value)}</strong>
             </div>
-            <div style="width:100%;height:6px;background:var(--border);border-radius:3px;overflow:hidden">
-              <div style="width:${pctVal}%;height:100%;background:${item.color};border-radius:3px;transition:width 0.8s ease"></div>
+            <div class="legend-progress-bg">
+              <div class="legend-progress-bar" style="width:${pctVal}%;background:${item.color}"></div>
             </div>
-            <div style="font-size:11px;color:var(--muted);text-align:right">${pct(pctVal)} share</div>
+            <div class="legend-footer">${pct(pctVal)} share</div>
           </div>`;
         }).join('')}
       </div>
@@ -741,8 +753,8 @@ async function loadDashboard() {
       <td>${new Date(b.created_at).toLocaleDateString('en-PH')}</td>
     </tr>`).join('') : `<tr class="loading-row"><td colspan="6" style="color:var(--muted)">No bookings yet</td></tr>`;
 
-  // Revenue Chart
-  renderChart('revenue-chart', r.daily_revenue);
+  // Revenue Chart - Changed to Pie Graph
+  renderPieChart('revenue-chart', r.charts?.service_revenue || [], fmt(d.monthly_revenue), 'Monthly Revenue');
 
   // Recent Activity Feed (Simulated based on recent bookings and staff)
   const activity = document.getElementById('recent-activity');
@@ -1172,105 +1184,101 @@ async function loadReports() {
   const g = document.getElementById('reports-grid');
   const summary = d.financial_summary || {};
   
-  const maxSvc = Math.max(...d.by_service.map(r => parseFloat(r.total))) || 1;
-  const byService = d.by_service.map(r => {
-    const total = parseFloat(r.total) || 0;
-    const width = (total / maxSvc) * 100;
-    return `
-    <div class="report-stat" style="border-bottom:none; margin-bottom:12px">
-      <div style="display:flex; justify-content:space-between; margin-bottom:4px">
-        <p class="lbl" style="text-transform:capitalize">${esc(r.service_type)}</p>
-        <p class="val" style="font-size:14px; color:var(--text)">${fmt(r.total)}</p>
-      </div>
-      <div style="width:100%; height:8px; background:var(--surface-soft); border-radius:4px; border:1px solid var(--border); overflow:hidden">
-        <div style="width:${width}%; height:100%; background:var(--green); border-radius:4px; transition:width 1s ease"></div>
-      </div>
-      <p style="font-size:11px; color:var(--muted); margin-top:4px">${r.cnt} bookings</p>
-    </div>`;
-  }).join('');
+  // Format Top Dishes for Pie Chart
+  const dishColors = ['#168a24', '#2563eb', '#d97706', '#9333ea', '#db2777'];
+  const topDishesData = d.top_dishes.map((x, i) => ({
+    label: x.name,
+    value: x.qty,
+    color: dishColors[i % dishColors.length]
+  }));
 
-  const maxQty = Math.max(...d.top_dishes.map(x => parseInt(x.qty))) || 1;
-  const topDishes = d.top_dishes.length
-    ? d.top_dishes.map(x => {
-        const width = (parseInt(x.qty) / maxQty) * 100;
-        return `
-        <div style="margin-bottom:14px">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px">
-            <span style="font-size:13px; font-weight:600">${esc(x.name)}</span>
-            <span style="font-size:12px; color:var(--muted)">${x.qty} orders</span>
-          </div>
-          <div style="width:100%; height:6px; background:var(--surface-soft); border-radius:3px; overflow:hidden">
-            <div style="width:${width}%; height:100%; background:var(--red); opacity:0.8; border-radius:3px; transition:width 1s ease"></div>
-          </div>
-        </div>`;
-      }).join('')
-    : '<p style="color:var(--muted);font-size:13px">No dish data yet</p>';
-
-  const maxStatus = Math.max(...d.status_counts.map(s => parseInt(s.cnt))) || 1;
-  const statusCounts = d.status_counts.map(s => {
-    const width = (parseInt(s.cnt) / maxStatus) * 100;
-    return `
-    <div class="report-stat" style="border-bottom:none; margin-bottom:12px">
-      <div style="display:flex; justify-content:space-between; margin-bottom:4px">
-        <p class="lbl" style="text-transform:capitalize">${esc(s.status.replace('_',' '))}</p>
-        <p class="val" style="font-size:14px; color:var(--text)">${s.cnt}</p>
-      </div>
-      <div style="width:100%; height:8px; background:var(--surface-soft); border-radius:4px; border:1px solid var(--border); overflow:hidden">
-        <div style="width:${width}%; height:100%; background:var(--muted); opacity:0.6; border-radius:4px; transition:width 1s ease"></div>
-      </div>
-    </div>`;
-  }).join('');
+  // Format Status for Pie Chart
+  const statusColorMap = {
+    pending: '#2563eb',
+    confirmed: '#168a24',
+    in_progress: '#0ea5e9',
+    completed: '#059669',
+    cancelled: '#dc2626'
+  };
+  const statusData = d.status_counts.map(s => ({
+    label: s.status.replace('_',' ').replace(/\b\w/g, c=>c.toUpperCase()),
+    value: s.cnt,
+    color: statusColorMap[s.status] || '#6b7280'
+  }));
 
   g.innerHTML = `
     <div class="card full-width">
-      <h4 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px">Revenue vs Costs</h4>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:18px">
+      <div class="section-header">
+        <h4 style="font-family:'Playfair Display',serif;font-size:20px;">Revenue Breakdown (Last 7 Days)</h4>
+        <span class="badge info">Daily Distribution</span>
+      </div>
+      <div id="reports-revenue-pie" style="min-height:240px; margin-top:20px"></div>
+    </div>
+    
+    <div class="card full-width">
+      <h4 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px">Financial Composition</h4>
+      <div id="reports-expense-pie" style="min-height:240px"></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:24px;border-top:1px solid var(--border);padding-top:20px">
         ${(function(){
-          const gross = parseFloat(summary.gross_revenue) || 1;
           const stats = [
-            {lbl:'Gross Revenue', val:summary.gross_revenue, color:'var(--green)', showPct:false},
-            {lbl:'Food Cost', val:summary.food_cost, color:'#d97706', showPct:true},
-            {lbl:'Staff Labor', val:summary.staff_labor_cost, color:'#2563eb', showPct:true},
-            {lbl:'Net Profit', val:summary.net_profit, color:'var(--green)', showPct:true}
+            {lbl:'Gross Revenue', val:summary.gross_revenue, color:'var(--green)'},
+            {lbl:'Net Profit', val:summary.net_profit, color:'var(--green)'}
           ];
-          return stats.map(s => {
-            const val = parseFloat(s.val) || 0;
-            const width = Math.min((val / gross) * 100, 100);
-            return `
+          return stats.map(s => `
             <div class="report-stat" style="border-bottom:none">
               <p class="lbl">${s.lbl}</p>
-              <p class="val" style="${s.lbl==='Net Profit'?'color:var(--green)':''}">${fmt(val)}</p>
-              <div style="width:100%; height:6px; background:var(--surface-soft); border-radius:3px; margin-top:8px; overflow:hidden; border:1px solid var(--border)">
-                <div style="width:${width}%; height:100%; background:${s.color}; border-radius:3px"></div>
-              </div>
-              ${s.showPct ? `<p style="font-size:10px; color:var(--muted); margin-top:4px">${pct((val/gross)*100)} of gross</p>` : ''}
-            </div>`;
-          }).join('');
+              <p class="val" style="font-size:24px; font-weight:800; color:${s.color}">${fmt(s.val)}</p>
+            </div>`).join('');
         })()}
       </div>
-      <div id="reports-expense-pie"></div>
       <p style="font-size:12px;color:var(--muted);margin-top:14px">${esc(summary.cost_model?.labor || '')} ${esc(summary.cost_model?.food || '')}</p>
     </div>
+
     <div class="card">
-      <h4 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px">By Service</h4>
-      ${byService || '<p style="color:var(--muted);font-size:13px">No data</p>'}
-      <div id="service-revenue-pie" style="margin-top:18px"></div>
+      <h4 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px">Revenue by Service</h4>
+      <div id="service-revenue-pie" style="min-height:240px"></div>
     </div>
+
     <div class="card">
-      <h4 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px">Top Dishes</h4>
-      ${topDishes}
+      <h4 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px">Top Dishes Distribution</h4>
+      <div id="top-dishes-pie" style="min-height:240px"></div>
     </div>
+
     <div class="card">
-      <h4 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px">By Status</h4>
-      ${statusCounts || '<p style="color:var(--muted);font-size:13px">No data</p>'}
+      <h4 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px">Bookings by Status</h4>
+      <div id="status-counts-pie" style="min-height:240px"></div>
       <div style="margin-top:16px;padding:14px;background:var(--surface-soft);border-radius:14px;border:1px solid var(--border)">
-        <p style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">This Month Revenue</p>
-        <p style="font-size:26px;font-weight:800;color:var(--red)">${fmt(d.revenue_month)}</p>
+        <p style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Total Bookings</p>
+        <p style="font-size:26px;font-weight:800;color:var(--text)">${d.status_counts.reduce((sum, s) => sum + parseInt(s.cnt), 0)}</p>
       </div>
+    </div>
+
+    <div class="card">
+      <h4 style="font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px">Monthly Revenue Share</h4>
+      <div id="reports-monthly-pie" style="min-height:240px"></div>
     </div>`;
 
-  renderPieChart('reports-expense-pie', d.charts?.expense_breakdown || [], fmt(summary.net_profit || 0), 'Estimated net profit');
-  renderPieChart('service-revenue-pie', d.charts?.service_revenue || [], fmt(d.revenue_month || 0), 'Revenue by service');
+  // Render All as Pie Charts
+  renderPieChart('reports-revenue-pie', d.daily_revenue.map(dr => ({
+    label: dr.label,
+    value: dr.total,
+    color: `rgba(22, 138, 36, ${Math.max(0.2, dr.total / Math.max(...d.daily_revenue.map(x=>x.total)) || 1)})`
+  })), fmt(d.daily_revenue.reduce((s,x)=>s+parseFloat(x.total),0)), '7-Day Total');
+
+  renderPieChart('reports-expense-pie', d.charts?.expense_breakdown || [], fmt(summary.net_profit || 0), 'Net Profit');
+  renderPieChart('service-revenue-pie', d.charts?.service_revenue || [], fmt(d.revenue_month || 0), 'Total Revenue');
+  renderPieChart('top-dishes-pie', topDishesData, d.top_dishes.reduce((s,x)=>s+parseInt(x.qty),0), 'Total Orders');
+  renderPieChart('status-counts-pie', statusData, d.status_counts.reduce((s,x)=>s+parseInt(x.cnt),0), 'Total Bookings');
+  
+  renderPieChart('reports-monthly-pie', d.monthly_trends.map((mt, i) => {
+    const [y, m] = mt.month.split('-');
+    const label = new Date(y, m-1).toLocaleDateString('en-PH', {month:'short'});
+    return {
+      label: label,
+      value: mt.total,
+      color: dishColors[i % dishColors.length]
+    };
+  }), fmt(d.monthly_trends.reduce((s,x)=>s+parseFloat(x.total),0)), '6-Month Total');
 }
 
 async function loadSalesReport() {

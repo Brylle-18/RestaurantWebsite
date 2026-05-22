@@ -163,7 +163,7 @@ switch ($action) {
     case 'stats':
         $bookings  = $db->query('SELECT COUNT(*) FROM bookings WHERE WEEK(created_at)=WEEK(NOW())')->fetchColumn();
         $pending   = $db->query("SELECT COUNT(*) FROM bookings WHERE status='pending'")->fetchColumn();
-        $revenue   = $db->query("SELECT COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END),0) FROM bookings WHERE status='completed' AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())")->fetchColumn();
+        $revenue   = $db->query("SELECT COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END),0) FROM bookings WHERE status IN ('completed','confirmed','in_progress') AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())")->fetchColumn();
         $dishes    = $db->query('SELECT COUNT(*) FROM menu_items WHERE is_available=1')->fetchColumn();
         $daysInMonth = (int)date('t');
         $staffCosts = staffCostBreakdown($db, $daysInMonth);
@@ -179,7 +179,7 @@ switch ($action) {
                 END
             ),0)
             FROM bookings
-            WHERE status='completed' AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())
+            WHERE status IN ('completed','confirmed','in_progress') AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())
         ")->fetchColumn();
         $netProfit = (float)$revenue - $estimatedFoodCost - $staffCosts['period_total'];
         jsonOK([
@@ -468,14 +468,14 @@ switch ($action) {
         $revenueExpr = bookingRevenueExpression();
         $staffCosts = staffCostBreakdown($db, $periodDays);
         
-        // Current month revenue
-        $revenue_month = $db->query("SELECT COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END),0) FROM bookings WHERE status='completed' AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())")->fetchColumn();
+        // Current month revenue (Recognized + Expected)
+        $revenue_month = $db->query("SELECT COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END),0) FROM bookings WHERE status IN ('completed','confirmed','in_progress') AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())")->fetchColumn();
         
         // Revenue by service
-        $by_service = $db->query("SELECT service_type, COUNT(*) AS cnt, COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END),0) AS total FROM bookings WHERE status='completed' GROUP BY service_type")->fetchAll();
+        $by_service = $db->query("SELECT service_type, COUNT(*) AS cnt, COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END),0) AS total FROM bookings WHERE status IN ('completed','confirmed','in_progress') GROUP BY service_type")->fetchAll();
         
         // Top dishes
-        $top_dishes = $db->query("SELECT m.name, SUM(bi.quantity) AS qty FROM booking_items bi JOIN menu_items m ON bi.menu_item_id=m.id GROUP BY m.name ORDER BY qty DESC LIMIT 5")->fetchAll();
+        $top_dishes = $db->query("SELECT m.name, SUM(bi.quantity) AS qty FROM booking_items bi JOIN menu_items m ON bi.menu_item_id=m.id JOIN bookings b ON bi.booking_id=b.id WHERE b.status IN ('completed','confirmed','in_progress') GROUP BY m.name ORDER BY qty DESC LIMIT 5")->fetchAll();
         
         // Status counts
         $status_counts = $db->query("SELECT status, COUNT(*) AS cnt FROM bookings GROUP BY status")->fetchAll();
@@ -495,7 +495,7 @@ switch ($action) {
         $trendStmt = $db->prepare("
             SELECT DATE(created_at) as date, COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END), 0) as total
             FROM bookings
-            WHERE status='completed' AND DATE(created_at) BETWEEN ? AND ?
+            WHERE status IN ('completed','confirmed','in_progress') AND DATE(created_at) BETWEEN ? AND ?
             GROUP BY DATE(created_at)
             ORDER BY DATE(created_at) ASC
         ");
@@ -523,7 +523,7 @@ switch ($action) {
         $monthly_trends = $db->query("
             SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COALESCE(SUM(CASE WHEN final_amount > 0 THEN final_amount ELSE total_amount END), 0) as total 
             FROM bookings 
-            WHERE status='completed' AND created_at >= DATE_SUB(CURDATE(), INTERVAL 5 MONTH)
+            WHERE status IN ('completed','confirmed','in_progress') AND created_at >= DATE_SUB(CURDATE(), INTERVAL 5 MONTH)
             GROUP BY DATE_FORMAT(created_at, '%Y-%m')
             ORDER BY month ASC
         ")->fetchAll();
@@ -546,7 +546,7 @@ switch ($action) {
                 FROM booking_addons
                 GROUP BY booking_id
             ) addon_totals ON addon_totals.booking_id = b.id
-            WHERE b.status='completed' AND DATE(b.created_at) BETWEEN ? AND ?
+            WHERE b.status IN ('completed','confirmed','in_progress') AND DATE(b.created_at) BETWEEN ? AND ?
         ");
         $costStmt->execute([$startDate, $endDate]);
         $completedBookings = $costStmt->fetchAll();

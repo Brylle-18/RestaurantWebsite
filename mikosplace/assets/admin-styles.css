@@ -929,21 +929,22 @@ tbody tr:hover {
 }
 .chart-bar {
   width: 100%;
-  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  background: linear-gradient(180deg, #168a24 0%, #0a5616 100%);
   border-radius: 6px 6px 0 0;
   min-height: 2px;
   transition: height 1s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
-  box-shadow: 0 4px 12px rgba(22, 138, 36, 0.3);
+  box-shadow: 0 4px 12px rgba(22, 138, 36, 0.2);
 }
 .chart-bar.is-empty {
-  height: 4px !important;
-  background: var(--border) !important;
+  height: 6px !important;
+  background: rgba(18, 98, 33, 0.08) !important;
+  border: 1px dashed rgba(18, 98, 33, 0.2);
   box-shadow: none;
 }
 .chart-bar:hover {
-  filter: brightness(1.05) saturate(1.1);
-  box-shadow: 0 6px 20px rgba(22, 138, 36, 0.25);
+  filter: brightness(1.1) saturate(1.2);
+  box-shadow: 0 6px 20px rgba(22, 138, 36, 0.3);
   cursor: pointer;
 }
 .chart-bar::after {
@@ -995,7 +996,114 @@ tbody tr:hover {
   background: transparent;
 }
 
-/* ─── QUICK FILTERS ─────────────────────────────────────── */
+/* ─── PIE CHART STYLES ──────────────────────────────────── */
+.pie-layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 220px) 1fr;
+  gap: 24px;
+  align-items: center;
+}
+@media (max-width: 1100px) {
+  .pie-layout {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+}
+.pie-circle-container {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}
+.pie-circle {
+  width: clamp(180px, 15vw, 210px);
+  height: clamp(180px, 15vw, 210px);
+  border-radius: 50%;
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), var(--shadow);
+}
+.pie-center {
+  position: absolute;
+  inset: 28px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.pie-primary {
+  font-size: clamp(18px, 1.5vw, 24px);
+  line-height: 1.1;
+  color: var(--text);
+}
+.pie-secondary {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-weight: 500;
+}
+.pie-legend {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+.legend-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: transform 0.2s;
+}
+.legend-item:hover {
+  transform: translateX(4px);
+}
+.legend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.legend-label-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.legend-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+}
+.legend-value {
+  font-size: 14px;
+}
+.legend-progress-bg {
+  width: 100%;
+  height: 5px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.legend-progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.legend-footer {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: right;
+  font-weight: 500;
+}
 .filter-chips {
   display: flex;
   gap: 8px;
