@@ -797,6 +797,12 @@ function renderReviewList(targetId, items, type) {
     </div>`).join('');
 }
 
+function calculateReviewBaseAmount(items, addons) {
+  const itemTotal = (items || []).reduce((sum, item) => sum + ((Number(item.unit_price) || 0) * (Number(item.quantity) || 0)), 0);
+  const addonTotal = (addons || []).reduce((sum, addon) => sum + ((Number(addon.unit_price) || 0) * (Number(addon.quantity) || 0)), 0);
+  return itemTotal + addonTotal;
+}
+
 async function openBookingReview(id) {
   const d = await api({action:'booking_get', id});
   if (!d?.ok) {
@@ -821,7 +827,10 @@ async function openBookingReview(id) {
   }
   document.getElementById('review-booking-id').value = booking.id;
   document.getElementById('review-status').value = booking.status;
-  document.getElementById('review-amount').value = Number(booking.total_amount || 0) > 0 ? booking.total_amount : '';
+  const computedAmount = calculateReviewBaseAmount(d.items || [], d.addons || []);
+  document.getElementById('review-amount').value = computedAmount > 0
+    ? computedAmount.toFixed(2)
+    : (Number(booking.total_amount || 0) > 0 ? booking.total_amount : '');
   document.getElementById('review-discount').value = Number(booking.discount_percent || 0);
   document.getElementById('review-pricing-notes').value = booking.pricing_notes || '';
   document.getElementById('review-notes').value = booking.notes || '';

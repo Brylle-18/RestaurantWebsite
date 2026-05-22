@@ -3,74 +3,74 @@ $restaurantMenuCatalog = [
     [
         'category' => 'Noodles / Pancit',
         'items' => [
-            ['name' => 'Pancit Guisado', 'description' => 'Stir-fried mixed noodles cooked with shredded vegetables, sliced pork, and shrimp.', 'price' => '₱160 - ₱240', 'image_path' => 'pancit-guisado.jpg'],
-            ['name' => 'Pancit Bihon', 'description' => 'Stir-fried thin rice noodles seasoned with soy sauce, garlic, vegetables, and chicken pieces.', 'price' => '₱150 - ₱220', 'image_path' => 'pancit-bihon.jpg'],
+            ['name' => 'Pancit Guisado', 'description' => 'Stir-fried mixed noodles cooked with shredded vegetables, sliced pork, and shrimp.', 'price' => '₱200', 'image_path' => 'pancit-guisado.jpg'],
+            ['name' => 'Pancit Bihon', 'description' => 'Stir-fried thin rice noodles seasoned with soy sauce, garlic, vegetables, and chicken pieces.', 'price' => '₱185', 'image_path' => 'pancit-bihon.jpg'],
         ],
     ],
     [
         'category' => 'Appetizers / Pampagana',
         'items' => [
-            ['name' => 'Lumpiang Shanghai', 'description' => 'Crispy, deep-fried minced pork spring rolls served with a sweet and sour dipping sauce.', 'price' => '₱90 - ₱150', 'image_path' => 'lumpiang-shanghai.jpg'],
-            ['name' => 'Lumpiang Sariwa', 'description' => 'Fresh spring rolls packed with heart of palm (ubod) and vegetables, wrapped in a soft crepe wrapper and topped with a sweet peanut sauce.', 'price' => '₱70 - ₱120', 'image_path' => 'lumpiang-sariwa.jpg'],
+            ['name' => 'Lumpiang Shanghai', 'description' => 'Crispy, deep-fried minced pork spring rolls served with a sweet and sour dipping sauce.', 'price' => '₱120', 'image_path' => 'lumpiang-shanghai.jpg'],
+            ['name' => 'Lumpiang Sariwa', 'description' => 'Fresh spring rolls packed with heart of palm (ubod) and vegetables, wrapped in a soft crepe wrapper and topped with a sweet peanut sauce.', 'price' => '₱95', 'image_path' => 'lumpiang-sariwa.jpg'],
         ],
     ],
     [
         'category' => 'Pork / Baboy',
         'items' => [
-            ['name' => 'Pork Adobo', 'description' => 'Pork belly braised in soy sauce, vinegar, garlic, and peppercorns.', 'price' => '₱210 - ₱290', 'image_path' => 'pork-adobo.jpg'],
-            ['name' => 'Crispy Pata', 'description' => 'Whole deep-fried pork knuckle with crunchy skin and tender meat.', 'price' => '₱450 - ₱680', 'image_path' => 'crispy-pata.jpg'],
-            ['name' => 'Lechon Kawali', 'description' => 'Pan-roasted, crispy deep-fried pork belly chunks served with liver sauce.', 'price' => '₱230 - ₱320', 'image_path' => 'lechon-kawali.webp'],
-            ['name' => 'Pork Menudo', 'description' => 'Pork stew cooked with tomato sauce, liver, potatoes, raisins, and carrots.', 'price' => '₱180 - ₱250', 'image_path' => 'pork-menudo.jpg'],
+            ['name' => 'Pork Adobo', 'description' => 'Pork belly braised in soy sauce, vinegar, garlic, and peppercorns.', 'price' => '₱250', 'image_path' => 'pork-adobo.jpg'],
+            ['name' => 'Crispy Pata', 'description' => 'Whole deep-fried pork knuckle with crunchy skin and tender meat.', 'price' => '₱565', 'image_path' => 'crispy-pata.jpg'],
+            ['name' => 'Lechon Kawali', 'description' => 'Pan-roasted, crispy deep-fried pork belly chunks served with liver sauce.', 'price' => '₱275', 'image_path' => 'lechon-kawali.webp'],
+            ['name' => 'Pork Menudo', 'description' => 'Pork stew cooked with tomato sauce, liver, potatoes, raisins, and carrots.', 'price' => '₱215', 'image_path' => 'pork-menudo.jpg'],
         ],
     ],
     [
         'category' => 'Beef / Baka',
         'items' => [
-            ['name' => 'Kare-Kare', 'description' => 'Oxtail and tripe stewed in a rich peanut sauce, served with shrimp paste.', 'price' => '₱350 - ₱480', 'image_path' => 'beef-kare.webp'],
-            ['name' => 'Beef Caldereta', 'description' => 'Hearty beef stew in tomato sauce, liver spread, cheese, and bell peppers.', 'price' => '₱280 - ₱380', 'image_path' => 'beef-caldereta.jpg'],
-            ['name' => 'Bistek Tagalog', 'description' => 'Thinly sliced beef marinated in soy sauce and calamansi, topped with onion rings.', 'price' => '₱250 - ₱340', 'image_path' => 'bistek-tagalog.jpg'],
+            ['name' => 'Kare-Kare', 'description' => 'Oxtail and tripe stewed in a rich peanut sauce, served with shrimp paste.', 'price' => '₱415', 'image_path' => 'beef-kare.webp'],
+            ['name' => 'Beef Caldereta', 'description' => 'Hearty beef stew in tomato sauce, liver spread, cheese, and bell peppers.', 'price' => '₱330', 'image_path' => 'beef-caldereta.jpg'],
+            ['name' => 'Bistek Tagalog', 'description' => 'Thinly sliced beef marinated in soy sauce and calamansi, topped with onion rings.', 'price' => '₱295', 'image_path' => 'bistek-tagalog.jpg'],
         ],
     ],
     [
         'category' => 'Chicken / Manok',
         'items' => [
-            ['name' => 'Chicken Adobo', 'description' => 'Chicken pieces simmered in garlic, soy sauce, vinegar, and bay leaves.', 'price' => '₱190 - ₱260', 'image_path' => 'chicken-adobo.jpg'],
-            ['name' => 'Chicken Inasal', 'description' => 'Visayan-style grilled chicken marinated in lemongrass, calamansi, and achuete oil.', 'price' => '₱150 - ₱210', 'image_path' => 'chicken-inasal.jpg'],
-            ['name' => 'Chicken Afritada', 'description' => 'Chicken pieces stewed in tomato sauce with potatoes, carrots, and bell peppers.', 'price' => '₱180 - ₱240', 'image_path' => 'chicken-afritada.jpg'],
+            ['name' => 'Chicken Adobo', 'description' => 'Chicken pieces simmered in garlic, soy sauce, vinegar, and bay leaves.', 'price' => '₱225', 'image_path' => 'chicken-adobo.jpg'],
+            ['name' => 'Chicken Inasal', 'description' => 'Visayan-style grilled chicken marinated in lemongrass, calamansi, and achuete oil.', 'price' => '₱180', 'image_path' => 'chicken-inasal.jpg'],
+            ['name' => 'Chicken Afritada', 'description' => 'Chicken pieces stewed in tomato sauce with potatoes, carrots, and bell peppers.', 'price' => '₱210', 'image_path' => 'chicken-afritada.jpg'],
         ],
     ],
     [
         'category' => 'Seafood / Isda at Dagat',
         'items' => [
-            ['name' => 'Inihaw na Pusit', 'description' => 'Charcoal-grilled whole squid stuffed with chopped onions and tomatoes.', 'price' => '₱250 - ₱350', 'image_path' => 'inihaw-pusit.jpg'],
-            ['name' => 'Daing na Bangus', 'description' => 'Deep-fried milkfish marinated in vinegar, garlic, and peppercorns.', 'price' => '₱180 - ₱260', 'image_path' => 'daing-bangus.webp'],
-            ['name' => 'Sinigang na Hipon', 'description' => 'Plump shrimp in a sour, tangy tamarind broth with local vegetables.', 'price' => '₱260 - ₱350', 'image_path' => 'sinigang-hipon.webp'],
+            ['name' => 'Inihaw na Pusit', 'description' => 'Charcoal-grilled whole squid stuffed with chopped onions and tomatoes.', 'price' => '₱300', 'image_path' => 'inihaw-pusit.jpg'],
+            ['name' => 'Daing na Bangus', 'description' => 'Deep-fried milkfish marinated in vinegar, garlic, and peppercorns.', 'price' => '₱220', 'image_path' => 'daing-bangus.webp'],
+            ['name' => 'Sinigang na Hipon', 'description' => 'Plump shrimp in a sour, tangy tamarind broth with local vegetables.', 'price' => '₱305', 'image_path' => 'sinigang-hipon.webp'],
         ],
     ],
     [
         'category' => 'Vegetables / Gulay',
         'items' => [
-            ['name' => 'Pinakbet', 'description' => 'Mixed vegetables sautéed in shrimp paste and topped with crispy pork bits.', 'price' => '₱140 - ₱210', 'image_path' => 'pinakbet.jpg'],
-            ['name' => 'Ginataang Sitaw at Kalabasa', 'description' => 'String beans and squash cooked in rich, savory coconut milk.', 'price' => '₱130 - ₱190', 'image_path' => 'ginataang-sitaw-kalabasa.jpg'],
+            ['name' => 'Pinakbet', 'description' => 'Mixed vegetables sautéed in shrimp paste and topped with crispy pork bits.', 'price' => '₱175', 'image_path' => 'pinakbet.jpg'],
+            ['name' => 'Ginataang Sitaw at Kalabasa', 'description' => 'String beans and squash cooked in rich, savory coconut milk.', 'price' => '₱160', 'image_path' => 'ginataang-sitaw-kalabasa.jpg'],
         ],
     ],
     [
         'category' => 'Desserts / Panghimagas',
         'items' => [
-            ['name' => 'Halo-Halo', 'description' => 'Shaved ice layered with sweet beans, fruits, and leche flan, topped with ube ice cream.', 'price' => '₱90 - ₱160', 'image_path' => 'halo-halo.jpg'],
-            ['name' => 'Leche Flan', 'description' => 'A rich, velvety caramel custard made from egg yolks and condensed milk.', 'price' => '₱70 - ₱120', 'image_path' => 'leche-flan.jpg'],
-            ['name' => 'Buko Pandan', 'description' => 'Cubed pandan-flavored jelly and young coconut strips tossed in sweetened cream.', 'price' => '₱80 - ₱130', 'image_path' => 'buko-pandan.webp'],
-            ['name' => 'Turon', 'description' => 'Deep-fried banana and jackfruit wrapped in a spring roll wrapper, coated in caramelized brown sugar.', 'price' => '₱50 - ₱90', 'image_path' => 'turon.jpg'],
-            ['name' => 'Cassava Cake', 'description' => 'A moist, baked traditional cake made from grated cassava and topped with a creamy custard layer.', 'price' => '₱60 - ₱110', 'image_path' => 'casava-cake.jpg'],
+            ['name' => 'Halo-Halo', 'description' => 'Shaved ice layered with sweet beans, fruits, and leche flan, topped with ube ice cream.', 'price' => '₱125', 'image_path' => 'halo-halo.jpg'],
+            ['name' => 'Leche Flan', 'description' => 'A rich, velvety caramel custard made from egg yolks and condensed milk.', 'price' => '₱95', 'image_path' => 'leche-flan.jpg'],
+            ['name' => 'Buko Pandan', 'description' => 'Cubed pandan-flavored jelly and young coconut strips tossed in sweetened cream.', 'price' => '₱105', 'image_path' => 'buko-pandan.webp'],
+            ['name' => 'Turon', 'description' => 'Deep-fried banana and jackfruit wrapped in a spring roll wrapper, coated in caramelized brown sugar.', 'price' => '₱70', 'image_path' => 'turon.jpg'],
+            ['name' => 'Cassava Cake', 'description' => 'A moist, baked traditional cake made from grated cassava and topped with a creamy custard layer.', 'price' => '₱85', 'image_path' => 'casava-cake.jpg'],
         ],
     ],
     [
         'category' => 'Beverages / Inumin',
         'items' => [
-            ['name' => "Sago't Gulaman", 'description' => 'A classic iced drink sweetened with brown sugar syrup, filled with tapioca pearls and gelatin.', 'price' => '₱50 - ₱85', 'image_path' => 'sagot-gulaman.webp'],
-            ['name' => 'Fresh Buko Juice', 'description' => 'Refreshing, naturally sweet coconut water served straight from the shell or in a glass with meat.', 'price' => '₱70 - ₱110', 'image_path' => 'fresh-buko.jpg'],
-            ['name' => 'Calamansi Juice', 'description' => 'Sweetened citrus drink made from freshly squeezed native Philippine limes, served iced or hot.', 'price' => '₱60 - ₱95', 'image_path' => 'calamansi-juice.jpg'],
-            ['name' => 'Mango Shake', 'description' => 'A thick, blended smoothie made from ripe sweet yellow mangoes, milk, and ice.', 'price' => '₱90 - ₱140', 'image_path' => 'mango-shake.jpg'],
+            ['name' => "Sago't Gulaman", 'description' => 'A classic iced drink sweetened with brown sugar syrup, filled with tapioca pearls and gelatin.', 'price' => '₱70', 'image_path' => 'sagot-gulaman.webp'],
+            ['name' => 'Fresh Buko Juice', 'description' => 'Refreshing, naturally sweet coconut water served straight from the shell or in a glass with meat.', 'price' => '₱90', 'image_path' => 'fresh-buko.jpg'],
+            ['name' => 'Calamansi Juice', 'description' => 'Sweetened citrus drink made from freshly squeezed native Philippine limes, served iced or hot.', 'price' => '₱80', 'image_path' => 'calamansi-juice.jpg'],
+            ['name' => 'Mango Shake', 'description' => 'A thick, blended smoothie made from ripe sweet yellow mangoes, milk, and ice.', 'price' => '₱115', 'image_path' => 'mango-shake.jpg'],
         ],
     ],
 ];
