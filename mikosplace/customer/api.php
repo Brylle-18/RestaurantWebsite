@@ -29,10 +29,11 @@ function parseJsonArray(string $raw): array {
     return is_array($decoded) ? $decoded : [];
 }
 function bookingConfig(): array {
+    $restaurantCategories = restaurantMenuCategories();
     return [
-        'restaurant' => ['restaurant'],
-        'catering' => ['catering'],
-        'cafe' => ['cafe', 'pastry'],
+        'restaurant' => $restaurantCategories,
+        'catering' => $restaurantCategories,
+        'cafe' => $restaurantCategories,
         'venue' => [],
     ];
 }
@@ -313,6 +314,30 @@ switch ($action) {
             'estimated_amount' => $amount,
             'custom_quote_required' => $totals['has_custom_quote'],
         ]);
+
+    // ── CANCEL BOOKING ──────────────────────────────────────
+    case 'cancel':
+        $ticket = trim($_POST['ticket'] ?? '');
+        if (!$ticket) jsonErr('Ticket number required');
+
+        $stmt = $db->prepare('SELECT id, status FROM bookings WHERE ticket_no = ? LIMIT 1');
+        $stmt->execute([$ticket]);
+        $booking = $stmt->fetch();
+
+        if (!$booking) jsonErr('Booking not found', 404);
+
+        $allowedToCancel = ['pending', 'confirmed'];
+        if (!in_array($booking['status'], $allowedToCancel)) {
+            jsonErr('Booking cannot be cancelled at this stage (' . $booking['status'] . ')');
+        }
+
+        $update = $db->prepare("UPDATE bookings SET status = 'cancelled' WHERE id = ?");
+        if ($update->execute([$booking['id']])) {
+            jsonOK(['message' => 'Booking successfully cancelled']);
+        } else {
+            jsonErr('Failed to cancel booking');
+        }
+        break;
 
     default:
         jsonErr('Unknown action', 404);

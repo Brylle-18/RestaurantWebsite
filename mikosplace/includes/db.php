@@ -22,6 +22,20 @@ define('DB_USER', $_ENV['DB_USER'] ?? 'root');
 define('DB_PASS', $_ENV['DB_PASS'] ?? '');
 define('DB_CHARSET', $_ENV['DB_CHARSET'] ?? 'utf8mb4');
 
+function restaurantMenuCategories(): array {
+    return [
+        'Noodles / Pancit',
+        'Appetizers / Pampagana',
+        'Pork / Baboy',
+        'Beef / Baka',
+        'Chicken / Manok',
+        'Seafood / Isda at Dagat',
+        'Vegetables / Gulay',
+        'Desserts / Panghimagas',
+        'Beverages / Inumin',
+    ];
+}
+
 function ensureBookingSchema(PDO $pdo): void {
     static $ensured = false;
     if ($ensured) {
@@ -55,6 +69,46 @@ function ensureBookingSchema(PDO $pdo): void {
     if (!$columnExists('menu_items', 'image_path')) {
         $pdo->exec('ALTER TABLE menu_items ADD COLUMN image_path VARCHAR(255) DEFAULT "default-dish.jpg" AFTER description');
     }
+
+    $validCategories = restaurantMenuCategories();
+    $categoryPlaceholders = implode(',', array_fill(0, count($validCategories), '?'));
+    $pdo->exec('ALTER TABLE menu_items MODIFY COLUMN category VARCHAR(80) NOT NULL');
+    $categoryCaseSql = "
+        CASE name
+            WHEN 'Pancit Guisado' THEN 'Noodles / Pancit'
+            WHEN 'Pancit Bihon' THEN 'Noodles / Pancit'
+            WHEN 'Lumpiang Shanghai' THEN 'Appetizers / Pampagana'
+            WHEN 'Lumpiang Sariwa' THEN 'Appetizers / Pampagana'
+            WHEN 'Pork Adobo' THEN 'Pork / Baboy'
+            WHEN 'Crispy Pata' THEN 'Pork / Baboy'
+            WHEN 'Lechon Kawali' THEN 'Pork / Baboy'
+            WHEN 'Pork Menudo' THEN 'Pork / Baboy'
+            WHEN 'Kare-Kare' THEN 'Beef / Baka'
+            WHEN 'Beef Caldereta' THEN 'Beef / Baka'
+            WHEN 'Bistek Tagalog' THEN 'Beef / Baka'
+            WHEN 'Chicken Adobo' THEN 'Chicken / Manok'
+            WHEN 'Chicken Inasal' THEN 'Chicken / Manok'
+            WHEN 'Chicken Afritada' THEN 'Chicken / Manok'
+            WHEN 'Inihaw na Pusit' THEN 'Seafood / Isda at Dagat'
+            WHEN 'Daing na Bangus' THEN 'Seafood / Isda at Dagat'
+            WHEN 'Sinigang na Hipon' THEN 'Seafood / Isda at Dagat'
+            WHEN 'Pinakbet' THEN 'Vegetables / Gulay'
+            WHEN 'Ginataang Sitaw at Kalabasa' THEN 'Vegetables / Gulay'
+            WHEN 'Halo-Halo' THEN 'Desserts / Panghimagas'
+            WHEN 'Leche Flan' THEN 'Desserts / Panghimagas'
+            WHEN 'Buko Pandan' THEN 'Desserts / Panghimagas'
+            WHEN 'Turon' THEN 'Desserts / Panghimagas'
+            WHEN 'Cassava Cake' THEN 'Desserts / Panghimagas'
+            WHEN 'Sago''t Gulaman' THEN 'Beverages / Inumin'
+            WHEN 'Fresh Buko Juice' THEN 'Beverages / Inumin'
+            WHEN 'Calamansi Juice' THEN 'Beverages / Inumin'
+            WHEN 'Mango Shake' THEN 'Beverages / Inumin'
+            ELSE category
+        END
+    ";
+    $pdo->exec("UPDATE menu_items SET category = $categoryCaseSql");
+    $sanitizeCategories = $pdo->prepare("UPDATE menu_items SET category = 'Noodles / Pancit' WHERE category NOT IN ($categoryPlaceholders)");
+    $sanitizeCategories->execute($validCategories);
 
     // Run migration for existing items if they still have the default image
     $checkMig = $pdo->query("SELECT COUNT(*) FROM menu_items WHERE image_path = 'default-dish.jpg'")->fetchColumn();
@@ -93,8 +147,12 @@ function ensureBookingSchema(PDO $pdo): void {
         foreach ($mapping as $name => $path) {
             $migStmt->execute([$path, $name]);
         }
-
     }
+
+    // CLEANUP: Remove legacy rows that still use old generic categories
+    $oldCategories = ['restaurant', 'catering', 'cafe', 'pastry'];
+    $placeholders = implode(',', array_fill(0, count($oldCategories), '?'));
+    $pdo->prepare("DELETE FROM menu_items WHERE category IN ($placeholders)")->execute($oldCategories);
 
     $fixStmt = $pdo->prepare("UPDATE menu_items SET image_path = ? WHERE name = ?");
     $fixStmt->execute(['lumpiang-shanghai.jpg', 'Lumpiang Shanghai']);
@@ -115,34 +173,34 @@ function ensureBookingSchema(PDO $pdo): void {
     );
 
     $restaurantMenuSeed = [
-        ['Pancit Guisado', 'restaurant', 200.00, 'Stir-fried mixed noodles with vegetables, pork, and shrimp.', 'pancit-guisado.jpg'],
-        ['Pancit Bihon', 'restaurant', 185.00, 'Thin rice noodles with soy sauce, garlic, vegetables, and chicken.', 'pancit-bihon.jpg'],
-        ['Lumpiang Shanghai', 'restaurant', 120.00, 'Crispy pork spring rolls with sweet and sour dipping sauce.', 'lumpiang-shanghai.jpg'],
-        ['Lumpiang Sariwa', 'restaurant', 95.00, 'Fresh spring rolls with ubod and vegetables topped with peanut sauce.', 'lumpiang-sariwa.jpg'],
-        ['Pork Adobo', 'restaurant', 250.00, 'Pork belly braised in soy sauce, vinegar, garlic, and peppercorns.', 'pork-adobo.jpg'],
-        ['Crispy Pata', 'restaurant', 565.00, 'Deep-fried pork knuckle with crunchy skin and tender meat.', 'crispy-pata.jpg'],
-        ['Lechon Kawali', 'restaurant', 275.00, 'Crispy deep-fried pork belly chunks served with liver sauce.', 'lechon-kawali.webp'],
-        ['Pork Menudo', 'restaurant', 215.00, 'Pork stew with tomato sauce, liver, potatoes, raisins, and carrots.', 'pork-menudo.jpg'],
-        ['Kare-Kare', 'restaurant', 415.00, 'Oxtail and tripe in rich peanut sauce served with shrimp paste.', 'beef-kare.webp'],
-        ['Beef Caldereta', 'restaurant', 330.00, 'Beef stew with tomato sauce, liver spread, cheese, and peppers.', 'beef-caldereta.jpg'],
-        ['Bistek Tagalog', 'restaurant', 295.00, 'Soy and calamansi beef topped with onion rings.', 'bistek-tagalog.jpg'],
-        ['Chicken Adobo', 'restaurant', 225.00, 'Chicken simmered in garlic, soy sauce, vinegar, and bay leaves.', 'chicken-adobo.jpg'],
-        ['Chicken Inasal', 'restaurant', 180.00, 'Visayan-style grilled chicken with lemongrass, calamansi, and achuete oil.', 'chicken-inasal.jpg'],
-        ['Chicken Afritada', 'restaurant', 210.00, 'Chicken stew in tomato sauce with potatoes, carrots, and bell peppers.', 'chicken-afritada.jpg'],
-        ['Inihaw na Pusit', 'restaurant', 300.00, 'Charcoal-grilled squid stuffed with onions and tomatoes.', 'inihaw-pusit.jpg'],
-        ['Daing na Bangus', 'restaurant', 220.00, 'Deep-fried milkfish marinated in vinegar, garlic, and peppercorns.', 'daing-bangus.webp'],
-        ['Sinigang na Hipon', 'restaurant', 305.00, 'Shrimp in a sour tamarind broth with local vegetables.', 'sinigang-hipon.webp'],
-        ['Pinakbet', 'restaurant', 175.00, 'Mixed vegetables sauteed in shrimp paste and topped with crispy pork bits.', 'pinakbet.jpg'],
-        ['Ginataang Sitaw at Kalabasa', 'restaurant', 160.00, 'String beans and squash cooked in savory coconut milk.', 'ginataang-sitaw-kalabasa.jpg'],
-        ['Halo-Halo', 'restaurant', 125.00, 'Shaved ice dessert with sweet beans, fruits, leche flan, and ube ice cream.', 'halo-halo.jpg'],
-        ['Leche Flan', 'restaurant', 95.00, 'Velvety caramel custard dessert.', 'leche-flan.jpg'],
-        ['Buko Pandan', 'restaurant', 105.00, 'Pandan jelly and young coconut in sweetened cream.', 'buko-pandan.webp'],
-        ['Turon', 'restaurant', 70.00, 'Caramelized banana and jackfruit spring roll dessert.', 'turon.jpg'],
-        ['Cassava Cake', 'restaurant', 85.00, 'Moist cassava cake topped with creamy custard.', 'casava-cake.jpg'],
-        ["Sago't Gulaman", 'restaurant', 70.00, 'Classic iced Filipino drink with syrup, tapioca pearls, and gelatin.', 'sagot-gulaman.webp'],
-        ['Fresh Buko Juice', 'restaurant', 90.00, 'Naturally sweet coconut water served chilled.', 'fresh-buko.jpg'],
-        ['Calamansi Juice', 'restaurant', 80.00, 'Freshly squeezed native lime drink served iced or hot.', 'calamansi-juice.jpg'],
-        ['Mango Shake', 'restaurant', 115.00, 'Creamy ripe mango shake blended with milk and ice.', 'mango-shake.jpg'],
+        ['Pancit Guisado',            'Noodles / Pancit', 200.00, 'Stir-fried mixed noodles with vegetables, pork, and shrimp.', 'pancit-guisado.jpg'],
+        ['Pancit Bihon',              'Noodles / Pancit', 185.00, 'Thin rice noodles with soy sauce, garlic, vegetables, and chicken.', 'pancit-bihon.jpg'],
+        ['Lumpiang Shanghai',         'Appetizers / Pampagana', 120.00, 'Crispy pork spring rolls with sweet and sour dipping sauce.', 'lumpiang-shanghai.jpg'],
+        ['Lumpiang Sariwa',           'Appetizers / Pampagana', 95.00, 'Fresh spring rolls with ubod and vegetables topped with peanut sauce.', 'lumpiang-sariwa.jpg'],
+        ['Pork Adobo',                'Pork / Baboy', 250.00, 'Pork belly braised in soy sauce, vinegar, garlic, and peppercorns.', 'pork-adobo.jpg'],
+        ['Crispy Pata',               'Pork / Baboy', 565.00, 'Deep-fried pork knuckle with crunchy skin and tender meat.', 'crispy-pata.jpg'],
+        ['Lechon Kawali',             'Pork / Baboy', 275.00, 'Crispy deep-fried pork belly chunks served with liver sauce.', 'lechon-kawali.webp'],
+        ['Pork Menudo',               'Pork / Baboy', 215.00, 'Pork stew with tomato sauce, liver, potatoes, raisins, and carrots.', 'pork-menudo.jpg'],
+        ['Kare-Kare',                 'Beef / Baka', 415.00, 'Oxtail and tripe in peanut sauce served with shrimp paste.', 'beef-kare.webp'],
+        ['Beef Caldereta',            'Beef / Baka', 330.00, 'Beef stew with tomato sauce, liver spread, cheese, and peppers.', 'beef-caldereta.jpg'],
+        ['Bistek Tagalog',            'Beef / Baka', 295.00, 'Soy and calamansi beef topped with onion rings.', 'bistek-tagalog.jpg'],
+        ['Chicken Adobo',             'Chicken / Manok', 225.00, 'Chicken simmered in garlic, soy sauce, vinegar, and bay leaves.', 'chicken-adobo.jpg'],
+        ['Chicken Inasal',            'Chicken / Manok', 180.00, 'Visayan-style grilled chicken with lemongrass, calamansi, and achuete oil.', 'chicken-inasal.jpg'],
+        ['Chicken Afritada',          'Chicken / Manok', 210.00, 'Chicken stew in tomato sauce with potatoes, carrots, and bell peppers.', 'chicken-afritada.jpg'],
+        ['Inihaw na Pusit',           'Seafood / Isda at Dagat', 300.00, 'Charcoal-grilled squid stuffed with onions and tomatoes.', 'inihaw-pusit.jpg'],
+        ['Daing na Bangus',           'Seafood / Isda at Dagat', 220.00, 'Deep-fried milkfish marinated in vinegar, garlic, and peppercorns.', 'daing-bangus.webp'],
+        ['Sinigang na Hipon',         'Seafood / Isda at Dagat', 305.00, 'Shrimp in a sour tamarind broth with local vegetables.', 'sinigang-hipon.webp'],
+        ['Pinakbet',                  'Vegetables / Gulay', 175.00, 'Mixed vegetables sauteed in shrimp paste and topped with crispy pork bits.', 'pinakbet.jpg'],
+        ['Ginataang Sitaw at Kalabasa','Vegetables / Gulay', 160.00, 'String beans and squash cooked in savory coconut milk.', 'ginataang-sitaw-kalabasa.jpg'],
+        ['Halo-Halo',                 'Desserts / Panghimagas', 125.00, 'Shaved ice dessert with sweet beans, fruits, leche flan, and ube ice cream.', 'halo-halo.jpg'],
+        ['Leche Flan',                'Desserts / Panghimagas', 95.00, 'Velvety caramel custard dessert.', 'leche-flan.jpg'],
+        ['Buko Pandan',               'Desserts / Panghimagas', 105.00, 'Pandan jelly and young coconut in sweetened cream.', 'buko-pandan.webp'],
+        ['Turon',                     'Desserts / Panghimagas', 70.00, 'Caramelized banana and jackfruit spring roll dessert.', 'turon.jpg'],
+        ['Cassava Cake',              'Desserts / Panghimagas', 85.00, 'Moist cassava cake topped with creamy custard.', 'casava-cake.jpg'],
+        ["Sago't Gulaman",           'Beverages / Inumin', 70.00, 'Classic iced Filipino drink with syrup, tapioca pearls, and gelatin.', 'sagot-gulaman.webp'],
+        ['Fresh Buko Juice',          'Beverages / Inumin', 90.00, 'Naturally sweet coconut water served chilled.', 'fresh-buko.jpg'],
+        ['Calamansi Juice',           'Beverages / Inumin', 80.00, 'Freshly squeezed native lime drink served iced or hot.', 'calamansi-juice.jpg'],
+        ['Mango Shake',               'Beverages / Inumin', 115.00, 'Creamy ripe mango shake blended with milk and ice.', 'mango-shake.jpg'],
     ];
 
     $seedStmt = $pdo->prepare('SELECT id FROM menu_items WHERE name = ? LIMIT 1');
@@ -154,9 +212,9 @@ function ensureBookingSchema(PDO $pdo): void {
         }
     }
 
-    $priceUpdateStmt = $pdo->prepare('UPDATE menu_items SET price = ?, description = ? WHERE name = ? AND category = ?');
+    $priceUpdateStmt = $pdo->prepare('UPDATE menu_items SET price = ?, description = ?, category = ? WHERE name = ?');
     foreach ($restaurantMenuSeed as [$name, $category, $price, $description, $img]) {
-        $priceUpdateStmt->execute([$price, $description, $name, $category]);
+        $priceUpdateStmt->execute([$price, $description, $category, $name]);
     }
 
     $ensured = true;

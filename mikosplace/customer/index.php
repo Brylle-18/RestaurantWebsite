@@ -1,4 +1,15 @@
 <?php
+require_once __DIR__ . '/../includes/db.php';
+
+function formatMenuPriceDisplay(mixed $price): string {
+    $amount = (float)$price;
+    if ($amount <= 0) {
+        return 'Quoted later';
+    }
+
+    return '₱' . number_format($amount, 0);
+}
+
 $restaurantMenuCatalog = [
     [
         'category' => 'Noodles / Pancit',
@@ -74,6 +85,73 @@ $restaurantMenuCatalog = [
         ],
     ],
 ];
+
+try {
+    $menuRows = getDB()
+        ->query('SELECT name, category, price, description, image_path FROM menu_items WHERE is_available = 1 ORDER BY category, name')
+        ->fetchAll();
+
+    $catalogByCategory = [];
+    foreach (restaurantMenuCategories() as $category) {
+        $catalogByCategory[$category] = [
+            'category' => $category,
+            'items' => [],
+        ];
+    }
+
+    foreach ($menuRows as $row) {
+        $category = (string)($row['category'] ?? '');
+        $name = trim((string)($row['name'] ?? ''));
+        if ($category === '' || $name === '') {
+            continue;
+        }
+
+        if (!isset($catalogByCategory[$category])) {
+            $catalogByCategory[$category] = [
+                'category' => $category,
+                'items' => [],
+            ];
+        }
+
+        $catalogByCategory[$category]['items'][$name] = [
+            'name' => $name,
+            'description' => (string)($row['description'] ?? ''),
+            'price' => formatMenuPriceDisplay($row['price'] ?? 0),
+            'image_path' => (string)($row['image_path'] ?? 'default-dish.jpg'),
+        ];
+    }
+
+    $mergedCatalog = [];
+    foreach (restaurantMenuCategories() as $category) {
+        if (!isset($catalogByCategory[$category])) {
+            continue;
+        }
+
+        if (!$catalogByCategory[$category]['items']) {
+            unset($catalogByCategory[$category]);
+            continue;
+        }
+
+        $mergedCatalog[] = [
+            'category' => $category,
+            'items' => array_values($catalogByCategory[$category]['items']),
+        ];
+        unset($catalogByCategory[$category]);
+    }
+
+    foreach ($catalogByCategory as $group) {
+        $mergedCatalog[] = [
+            'category' => $group['category'],
+            'items' => array_values($group['items']),
+        ];
+    }
+
+    if ($mergedCatalog) {
+        $restaurantMenuCatalog = $mergedCatalog;
+    }
+} catch (Throwable $e) {
+    // Fallback to the built-in catalog if the database is temporarily unavailable.
+}
 
 $venueFoodPackages = [
     [
@@ -493,7 +571,7 @@ function getRestaurantBookingGroups() {
     ...group,
     items: group.items
       .map((item) => {
-        const dbItem = allMenuItems.find((entry) => entry.category === 'restaurant' && entry.name === item.name);
+        const dbItem = allMenuItems.find((entry) => entry.category === group.category && entry.name === item.name);
         return dbItem ? { ...item, id: Number(dbItem.id), image_path: dbItem.image_path } : null;
       })
       .filter(Boolean),
@@ -949,6 +1027,9 @@ async function trackBooking() {
   const items = data.items || [];
   const addons = data.addons || [];
   const pricingNotes = sanitizePricingNotes(booking.pricing_notes);
+  const canCancel = ['pending', 'confirmed'].includes(booking.status);
+  const cancelBtn = canCancel ? `<button class="btn-cancel-booking" onclick="cancelBooking('${esc(booking.ticket_no)}')">Cancel Booking</button>` : '';
+
   result.innerHTML = `
     <div class="result-row"><span class="lbl">Ticket</span><strong>${esc(booking.ticket_no)}</strong></div>
     <div class="result-row"><span class="lbl">Name</span><span>${esc(booking.customer_name)}</span></div>
@@ -960,8 +1041,33 @@ async function trackBooking() {
     ${pricingNotes ? `<div class="result-row"><span class="lbl">Pricing Notes</span><span style="font-size:13px;color:var(--muted)">${esc(pricingNotes)}</span></div>` : ''}
     ${items.length ? `<div class="result-block"><span class="lbl">Selected Items</span><div class="result-stack">${items.map((item) => `<div class="result-chip">${esc(item.name)} x${item.quantity}${Number(item.unit_price) > 0 ? ` · ${formatCurrency(item.unit_price)}` : ' · Custom quote'}</div>`).join('')}</div></div>` : ''}
     ${addons.length ? `<div class="result-block"><span class="lbl">Add-ons</span><div class="result-stack">${addons.map((addon) => `<div class="result-chip">${esc(addon.addon_name)} x${addon.quantity} · ${formatCurrency(addon.unit_price)}</div>`).join('')}</div></div>` : ''}
-    ${booking.notes ? `<div class="result-row"><span class="lbl">Notes</span><span style="font-size:13px;color:var(--muted)">${esc(booking.notes)}</span></div>` : ''}`;
+    ${booking.notes ? `<div class="result-row"><span class="lbl">Notes</span><span style="font-size:13px;color:var(--muted)">${esc(booking.notes)}</span></div>` : ''}
+    ${cancelBtn}`;
   result.style.display = 'block';
+}
+
+async function cancelBooking(ticket) {
+  if (!confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
+    return;
+  }
+
+  const btn = document.querySelector('.btn-cancel-booking');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Cancelling...';
+  }
+
+  const data = await api({ action: 'cancel', ticket }, 'POST');
+  if (data?.ok) {
+    alert(data.message || 'Booking cancelled successfully.');
+    trackBooking(); // Refresh
+  } else {
+    alert(data?.error || 'Failed to cancel booking.');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = 'Cancel Booking';
+    }
+  }
 }
 
 loadMenu();

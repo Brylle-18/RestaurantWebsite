@@ -1641,6 +1641,30 @@ nav {
   transform: translateY(-2px);
 }
 
+.btn-cancel-booking {
+  margin-top: 20px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: var(--red-lt);
+  color: var(--red-dk);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: 0.2s;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-cancel-booking:hover {
+  background: var(--red-dk);
+  color: #fff;
+}
+
 .booking-result {
   background: var(--surface);
   border-radius: 22px;

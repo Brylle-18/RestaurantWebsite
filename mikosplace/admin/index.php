@@ -5,6 +5,7 @@
     requireAdmin();
     $adminName = htmlspecialchars($_SESSION['admin_name'] ?? 'Admin');
     $csrfToken = getCsrfToken();
+    $menuCategories = restaurantMenuCategories();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -117,7 +118,7 @@
     <section class="section" id="sec-bookings">
       <div class="section-header">
         <h3>Bookings Management</h3>
-        <button class="btn btn-primary btn-sm" onclick="openModal('modal-booking-add')">+ New Booking</button>
+        <button class="btn btn-primary btn-sm" onclick="initNewBooking()">+ New Booking</button>
       </div>
       
       <div class="filter-chips">
@@ -204,10 +205,9 @@
         <input class="search-input" id="menu-q" placeholder="Search dishes..." oninput="loadMenu()">
         <select class="search-select" id="menu-cat" onchange="loadMenu()">
           <option value="">All Categories</option>
-          <option value="restaurant">Restaurant</option>
-          <option value="catering">Catering</option>
-          <option value="cafe">Cafe</option>
-          <option value="pastry">Pastry</option>
+          <?php foreach ($menuCategories as $category): ?>
+            <option value="<?= htmlspecialchars($category, ENT_QUOTES) ?>"><?= htmlspecialchars($category, ENT_QUOTES) ?></option>
+          <?php endforeach; ?>
         </select>
       </div>
       <div class="card">
@@ -266,33 +266,54 @@
 <!--  MODALS  -->
 <!-- Add Booking Modal -->
 <div class="modal-backdrop" id="modal-booking-add">
-  <div class="modal">
+  <div class="modal modal-wide">
     <h3>New Booking</h3><p class="sub">Create a customer reservation or order</p>
-    <div class="form-grid">
-      <div class="form-row">
-        <div class="field"><label>Customer Name</label><input id="b-name" placeholder="Full name"></div>
-        <div class="field"><label>Phone</label><input id="b-phone" placeholder="09XXXXXXXXX"></div>
+    <div class="booking-add-shell" style="display:flex; gap:24px; align-items:start; flex-wrap:wrap;">
+      <div class="form-grid" style="flex:1; min-width:300px;">
+        <div class="form-row">
+          <div class="field"><label>Customer Name</label><input id="b-name" placeholder="Full name"></div>
+          <div class="field"><label>Phone</label><input id="b-phone" placeholder="09XXXXXXXXX"></div>
+        </div>
+        <div class="field"><label>Email</label><input id="b-email" type="email" placeholder="email@example.com"></div>
+        <div class="form-row">
+          <div class="field"><label>Service Type</label>
+            <select id="b-service">
+              <option value="restaurant">Restaurant</option>
+              <option value="catering">Catering</option>
+              <option value="venue">Venue</option>
+            </select>
+          </div>
+          <div class="field"><label>Pax</label><input id="b-pax" type="number" min="1" value="2"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Event Date</label><input id="b-date" type="date"></div>
+          <div class="field"><label>Event Time</label><input id="b-time" type="time" min="06:00" max="21:00" step="1800"></div>
+          <div class="field"><label>Total Amount (₱)</label><input id="b-amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
+        </div>
+        <div class="field"><label>Notes / Details</label><textarea id="b-notes" placeholder="Special requests, menu preferences..."></textarea></div>
       </div>
-      <div class="field"><label>Email</label><input id="b-email" type="email" placeholder="email@example.com"></div>
-      <div class="form-row">
-        <div class="field"><label>Service Type</label>
-          <select id="b-service">
-            <option value="restaurant">Restaurant</option>
-            <option value="catering">Catering</option>
-            <option value="cafe">Cafe</option>
-            <option value="venue">Venue</option>
+
+      <div class="booking-menu-selection" style="width:360px; background:var(--surface-soft); padding:20px; border-radius:16px; border:1px solid var(--border); box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);">
+        <h4 style="font-size:15px; margin-bottom:14px; font-family:'Playfair Display',serif;">Order Review</h4>
+        <div id="b-menu-items-list" style="max-height:280px; overflow-y:auto; margin-bottom:16px; display:grid; gap:8px;">
+           <p style="color:var(--muted); font-size:12px; text-align:center; padding:20px; border:1px dashed var(--border); border-radius:10px;">No items selected yet. Use the dropdown below to add dishes.</p>
+        </div>
+        <div class="field">
+          <label style="font-size:10px; color:var(--muted)">Select Dish to Add</label>
+          <select id="b-menu-select" style="width:100%; padding:10px; border-radius:10px;" onchange="addMenuItemToBooking()">
+            <option value="">-- Loading Menu --</option>
           </select>
         </div>
-        <div class="field"><label>Pax</label><input id="b-pax" type="number" min="1" value="2"></div>
+        <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:13px; color:var(--muted); font-weight:600;">Subtotal</span>
+            <strong id="b-total-display" style="font-size:18px; color:var(--green-dk);">₱0.00</strong>
+          </div>
+          <p style="font-size:11px; color:var(--muted); margin-top:4px;">Amount automatically syncs to the total bill.</p>
+        </div>
       </div>
-      <div class="form-row">
-        <div class="field"><label>Event Date</label><input id="b-date" type="date"></div>
-        <div class="field"><label>Event Time</label><input id="b-time" type="time" min="06:00" max="21:00" step="1800"></div>
-        <div class="field"><label>Amount (₱)</label><input id="b-amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
-      </div>
-      <div class="field"><label>Notes / Details</label><textarea id="b-notes" placeholder="Special requests, menu preferences..."></textarea></div>
     </div>
-    <div class="modal-actions">
+    <div class="modal-actions" style="margin-top:24px;">
       <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-booking-add')">Cancel</button>
       <button class="btn btn-green btn-sm" onclick="addBooking()">Save Booking</button>
     </div>
@@ -308,10 +329,9 @@
       <div class="form-row">
         <div class="field"><label>Category</label>
           <select id="m-cat">
-            <option value="restaurant">Restaurant</option>
-            <option value="catering">Catering</option>
-            <option value="cafe">Cafe</option>
-            <option value="pastry">Pastry</option>
+            <?php foreach ($menuCategories as $category): ?>
+              <option value="<?= htmlspecialchars($category, ENT_QUOTES) ?>"><?= htmlspecialchars($category, ENT_QUOTES) ?></option>
+            <?php endforeach; ?>
           </select>
         </div>
         <div class="field"><label>Price (₱)</label><input id="m-price" type="number" min="0" step="0.01" placeholder="0.00"></div>
@@ -434,6 +454,88 @@
 const API = 'api.php';
 const CSRF_TOKEN = <?php echo json_encode($csrfToken, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 let currentBookingReview = null;
+let selectedBookingItems = [];
+let menuCatalog = [];
+
+async function populateMenuSelect() {
+  const d = await api({action:'menu', q:''});
+  if (d?.items) {
+    menuCatalog = d.items;
+    const select = document.getElementById('b-menu-select');
+    if (select) {
+      select.innerHTML = '<option value="">-- Choose Item --</option>' + 
+        d.items.map(m => `<option value="${m.id}">${esc(m.name)} - ₱${m.price}</option>`).join('');
+    }
+  }
+}
+
+function initNewBooking() {
+  selectedBookingItems = [];
+  renderSelectedBookingItems();
+  populateMenuSelect();
+  openModal('modal-booking-add');
+}
+
+function addMenuItemToBooking() {
+  const select = document.getElementById('b-menu-select');
+  const id = parseInt(select.value);
+  if (!id) return;
+  
+  const item = menuCatalog.find(m => m.id === id);
+  if (!item) return;
+
+  const existing = selectedBookingItems.find(i => i.id === id);
+  if (existing) {
+    existing.quantity++;
+  } else {
+    selectedBookingItems.push({...item, quantity: 1});
+  }
+  
+  select.value = '';
+  renderSelectedBookingItems();
+}
+
+function removeMenuItemFromBooking(id) {
+  selectedBookingItems = selectedBookingItems.filter(i => i.id !== id);
+  renderSelectedBookingItems();
+}
+
+function renderSelectedBookingItems() {
+  const list = document.getElementById('b-menu-items-list');
+  if (!list) return;
+  if (selectedBookingItems.length === 0) {
+    list.innerHTML = '<p style="color:var(--muted); font-size:12px; text-align:center; padding:20px; border:1px dashed var(--border); border-radius:10px;">No items selected yet. Use the dropdown below to add dishes.</p>';
+    updateBookingTotal(0);
+    return;
+  }
+  
+  let total = 0;
+  list.innerHTML = selectedBookingItems.map(item => {
+    const itemTotal = item.price * item.quantity;
+    total += itemTotal;
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface); padding:10px; border-radius:10px; border:1px solid var(--border);">
+        <div style="flex:1;">
+          <strong style="font-size:13px; display:block;">${esc(item.name)}</strong>
+          <small style="color:var(--muted);">${item.quantity} x ${fmt(item.price)}</small>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <strong style="font-size:13px;">${fmt(itemTotal)}</strong>
+          <button onclick="removeMenuItemFromBooking(${item.id})" style="background:none; border:none; color:var(--red); cursor:pointer; font-size:16px; padding:0 4px;">&times;</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  updateBookingTotal(total);
+}
+
+function updateBookingTotal(total) {
+  const totalDisplay = document.getElementById('b-total-display');
+  const amountInput = document.getElementById('b-amount');
+  if (totalDisplay) totalDisplay.innerText = fmt(total);
+  if (amountInput) amountInput.value = total.toFixed(2);
+}
 
 //  Section navigation 
 function show(id, btn) {
@@ -893,6 +995,7 @@ async function addBooking() {
     event_time: document.getElementById('b-time').value,
     total_amount: document.getElementById('b-amount').value,
     notes: document.getElementById('b-notes').value,
+    selected_items: JSON.stringify(selectedBookingItems.map(i => ({menu_item_id: i.id, quantity: i.quantity})))
   };
   const d = await api(payload, 'POST');
   if (d?.ok) {
@@ -906,6 +1009,7 @@ async function addBooking() {
     document.getElementById('b-time').value = '';
     document.getElementById('b-amount').value = '';
     document.getElementById('b-notes').value = '';
+    selectedBookingItems = [];
     closeModal('modal-booking-add');
     loadBookings();
   }
@@ -927,7 +1031,7 @@ async function loadMenu() {
              onerror="this.src='../assets/mikosplace.jpg'">
       </td>
       <td><strong>${esc(m.name)}</strong></td>
-      <td style="text-transform:capitalize"><span class="badge ${m.category==='restaurant'?'success':m.category==='cafe'?'info':'grey'}">${esc(m.category)}</span></td>
+      <td style="text-transform:capitalize"><span class="badge grey">${esc(m.category)}</span></td>
       <td>${m.price > 0 ? fmt(m.price) : '<em style="color:var(--muted)">Custom</em>'}</td>
       <td style="color:var(--muted);font-size:13px">${esc(m.description||'-')}</td>
       <td>${m.is_available ? '<span class="badge success">Yes</span>' : '<span class="badge warning">No</span>'}</td>

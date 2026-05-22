@@ -38,6 +38,38 @@ function bookingRevenueExpression(): string {
 function toFloat(mixed $value): float {
     return round((float)$value, 2);
 }
+function parseJsonArray(string $raw): array {
+    if ($raw === '') return [];
+    $decoded = json_decode($raw, true);
+    return is_array($decoded) ? $decoded : [];
+}
+function validMenuCategories(): array {
+    return restaurantMenuCategories();
+}
+function normalizeMenuSelections(array $items): array {
+    $normalized = [];
+    foreach ($items as $item) {
+        $id = (int)($item['menu_item_id'] ?? 0);
+        $qty = (int)($item['quantity'] ?? 0);
+        if ($id > 0 && $qty > 0) $normalized[] = ['menu_item_id' => $id, 'quantity' => $qty];
+    }
+    return $normalized;
+}
+function persistBookingSelections(PDO $db, int $bookingId, array $menuSelections): void {
+    if (!$menuSelections) return;
+    $ids = array_column($menuSelections, 'menu_item_id');
+    if (!$ids) return;
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    $stmt = $db->prepare("SELECT id, price FROM menu_items WHERE id IN ($placeholders)");
+    $stmt->execute($ids);
+    $catalog = [];
+    foreach ($stmt->fetchAll() as $row) { $catalog[(int)$row['id']] = (float)$row['price']; }
+    $insert = $db->prepare('INSERT INTO booking_items (booking_id, menu_item_id, quantity, unit_price) VALUES (?,?,?,?)');
+    foreach ($menuSelections as $selection) {
+        $price = $catalog[$selection['menu_item_id']] ?? 0.0;
+        $insert->execute([$bookingId, $selection['menu_item_id'], $selection['quantity'], $price]);
+    }
+}
 function laborerCount(): int { return 4; }
 function laborerDailyWage(): float { return 500.00; }
 function laborWorkDaysPerWeek(): int { return 6; }
@@ -220,6 +252,8 @@ switch ($action) {
         $time    = normalizeBookingTime($_POST['event_time'] ?? null);
         $amount  = (float)($_POST['total_amount'] ?? 0);
         $notes   = plainText($_POST['notes'] ?? '');
+        $menuSelections = normalizeMenuSelections(parseJsonArray($_POST['selected_items'] ?? ''));
+
         if (!$name) jsonErr('Customer name required');
         if ($date && $time === null) jsonErr('Please select a valid booking time');
         if ($date && !isWithinOperatingHours($time)) jsonErr('Bookings are only available between 6:00 AM and 9:00 PM.');
@@ -231,11 +265,16 @@ switch ($action) {
             $id = $db->lastInsertId();
             $ticket = '#MP-' . str_pad($id + 299, 3, '0', STR_PAD_LEFT);
             $db->prepare('UPDATE bookings SET ticket_no=? WHERE id=?')->execute([$ticket, $id]);
+            
+            if ($menuSelections) {
+                persistBookingSelections($db, (int)$id, $menuSelections);
+            }
+
             $db->commit();
             jsonOK(['id' => $id, 'ticket_no' => $ticket]);
         } catch (Throwable $e) {
             if ($db->inTransaction()) $db->rollBack();
-            jsonErr('Failed to add booking');
+            jsonErr('Failed to add booking: ' . $e->getMessage());
         }
 
     // ── UPDATE BOOKING STATUS ────────────────────────────────
@@ -333,6 +372,7 @@ switch ($action) {
         $desc  = sanitize($_POST['description'] ?? '');
         $img   = sanitize($_POST['image_path'] ?? 'default-dish.jpg');
         if (!$name || !$cat) jsonErr('Name and category required');
+        if (!in_array($cat, validMenuCategories(), true)) jsonErr('Invalid category');
         $db->prepare('INSERT INTO menu_items (name,category,price,description,image_path) VALUES (?,?,?,?,?)')->execute([$name,$cat,$price,$desc,$img]);
         jsonOK(['id' => $db->lastInsertId(), 'message' => 'Item added']);
 
